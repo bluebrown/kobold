@@ -1,0 +1,11 @@
+POST /generic HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+Authorization: Kobold {{$dotenv %ACR_TOKEN}}
+
+{
+	"registry": "test.azurecr.io",
+	"repository": "nginx",
+	"tag": "v1.1",
+	"digest": "sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3"
+}

@@ -1,0 +1,257 @@
+{
+  "$id": "kobold.sh/server/config/v1",
+  "description": "Set up the wiring to the webhook server",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "description": "the version of the config file",
+      "type": "string",
+      "const": "v1"
+    },
+    "endpoints": {
+      "description": "List of endpoints to accept requests on. The request body will be parsed according to the type",
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "description": "A unique name for this endpoint",
+              "type": "string"
+            },
+            "path": {
+              "description": "The url path segment to receive events on",
+              "type": "string"
+            },
+            "type": {
+              "description": "The type of the endpoint determines how events are parsed",
+              "type": "string",
+              "enum": [
+                "generic",
+                "dockerhub",
+                "acr"
+              ]
+            },
+            "requiredHeaders": {
+              "description": "Optional list of required header key-value pairs. Request without the header to this endpoint are denied",
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "key": {
+                      "type": "string"
+                    },
+                    "value": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "key",
+                    "value"
+                  ]
+                }
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "path",
+            "type"
+          ]
+        }
+      ]
+    },
+    "repositories": {
+      "description": "List of repositories to be used by subscriptions",
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "description": "A unique name for this endpoint",
+              "type": "string"
+            },
+            "url": {
+              "description": "The git repository url",
+              "type": "string"
+            },
+            "provider": {
+              "description": "The git provider. If not set, it is inferred",
+              "type": "string",
+              "enum": [
+                "github",
+                "azure"
+              ]
+            },
+            "username": {
+              "description": "The basic auth username used to authenticate against the upstream git server",
+              "type": "string"
+            },
+            "password": {
+              "description": "The basic auth password used to authenticate against the upstream git server",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "password",
+            "url",
+            "username"
+          ]
+        }
+      ]
+    },
+    "subscriptions": {
+      "description": "Subscribe with repositories to events received via the configured endpoints",
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "description": "A unique name for this subscription",
+              "type": "string"
+            },
+            "branch": {
+              "description": "The branch of the referenced repository to operate on",
+              "type": "string"
+            },
+            "strategy": {
+              "description": "The strategy determines if a pull request will be opened or a direct commit against the configured branch is peformed",
+              "type": "string",
+              "enum": [
+                "commit",
+                "pull-request"
+              ]
+            },
+            "repositoryRef": {
+              "description": "A reference to a repository. The name must be one of the configured repository names in this config",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name"
+              ]
+            },
+            "endpointRefs": {
+              "description": "A list of reference to a endpoint. The name must be one of the configured endpoint names in this config",
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              ]
+            },
+            "scopes": {
+              "description": "An optional list of paths to to operate on. If no path is provided, kobold will operate on the entire branch filetree",
+              "type": "array",
+              "items": [
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "fileAssociations": {
+              "description": "optional mappings to associate file types with resolvers",
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "pattern": {
+                      "description": "glob pattern to match file name",
+                      "type": "string"
+                    },
+                    "kind": {
+                      "description": "resolver to use when the pattern is matched",
+                      "type": "string",
+                      "enum": [
+                        "kubernetes",
+                        "docker-compose",
+                        "ko-build"
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "branch",
+            "strategy",
+            "repositoryRef",
+            "endpointRefs"
+          ]
+        }
+      ]
+    },
+    "registryAuth": {
+      "description": "can be used to access image pull secrets when using the k8schain flag",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "namespace": {
+          "description": "the service account and image pull secrets are looked up in this namespace",
+          "type": "string"
+        },
+        "serviceAccount": {
+          "description": "Image pull secrets attached to this service account are used for the key chain",
+          "type": "string"
+        },
+        "imagePullSecrets": {
+          "description": "Image pull secrets attached to this service account are used for the key chain",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "description": "the name of the image pull secret",
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "commitMessage": {
+      "description": "the git commit message to use",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "description": "a short or summary title for this commit message. Can be a go template",
+          "type": "string"
+        },
+        "description": {
+          "description": "a longer multiline body for this message it is automatically seperated from the title by an empty line. Can be a go template",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "version"
+  ]
+}

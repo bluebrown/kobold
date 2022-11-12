@@ -1,0 +1,49 @@
+version: v1
+
+registryAuth:
+  namespace: ${NAMESPACE}
+  serviceAccount: kobold
+
+commitMessage:
+  title: test
+  description: test
+
+endpoints:
+  - name: my-acr
+    type: acr
+    path: /acr
+    requiredHeaders:
+      - key: Authorization
+        value: "Kobold ${ACR_TOKEN}"
+
+repositories:
+  - name: test
+    url: https://github.com/bluebrown/kobold-test
+    provider: github
+    username: "${GIT_USR}"
+    password: "${GIT_PAT}"
+
+subscriptions:
+  - name: nonprod
+    endpointRefs: [{ name: my-acr }]
+    repositoryRef: { name: test }
+    branch: main
+    strategy: commit
+    scopes:
+      - /env/dev/
+      - /env/stage/
+
+  - name: prod
+    endpointRefs: [{ name: my-acr }]
+    repositoryRef: { name: test }
+    branch: main
+    strategy: pull-request
+    scopes:
+      - /env/prod/
+    fileAssociations:
+      - kind: ko-build
+        pattern: ".ko.yaml"
+      - kind: docker-compose
+        pattern: "compose.yaml"
+      - kind: kubernetes
+        pattern: "*"

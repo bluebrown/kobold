@@ -1,0 +1,7 @@
+{
+  "yaml.schemas": {
+    "hack/schema.json": [
+      "config.yaml"
+    ]
+  }
+}

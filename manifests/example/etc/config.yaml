@@ -1,0 +1,23 @@
+version: v1
+
+endpoints:
+  - name: dockerhub
+    type: dockerhub
+    path: /dockerhub
+
+repositories:
+  - name: github-kobold
+    url: https://github.com/bluebrown/kobold
+    username: "${MY_GIT_EMAIL}"
+    password: "${MY_GIT_PAT}"
+    provider: github
+
+subscriptions:
+  - name: kobold
+    endpointRefs:
+      - name: dockerhub
+    repositoryRef:
+      name: github-kobold
+    branch: main
+    strategy: commit
+    scopes: []

@@ -1,0 +1,5 @@
+services:
+  foo:
+    image: test.azurecr.io/nginx # kobold: tag: latest; type: exact
+  bar:
+    image: index.docker.io/bluebrown/busybox # kobold: tag: latest; type: exact

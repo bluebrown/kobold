@@ -1,0 +1,8 @@
+apiVersion: my.cr/v1alpha1
+kind: CRTest
+metadata:
+  name: test
+  annotations:
+    config.kubernetes.io/function: "exec:\n  path: test"
+spec:
+  template: "confuse the reader"

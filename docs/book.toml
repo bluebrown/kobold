@@ -1,0 +1,17 @@
+[book]
+authors = ["Nico Braun"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Kobold"
+
+[output.html]
+site-url = "/kobold/"
+preferred-dark-theme = "ayu"
+git-repository-url = "https://github.com/bluebrown/kobold"
+git-repository-icon = "fa-github"
+edit-url-template = "https://github.com/bluebrown/kobold/edit/main/docs/{path}"
+
+[output.html.print]
+enable = true
+page-break = true

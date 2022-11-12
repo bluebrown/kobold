@@ -1,0 +1,6 @@
+apiVersion: my.crd/v1
+kind: Test
+metadata:
+  name: test
+spec:
+  foo: bar

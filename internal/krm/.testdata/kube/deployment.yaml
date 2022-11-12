@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: use-latest
+spec:
+  selector:
+    matchLabels:
+      app: use-latest
+  template:
+    metadata:
+      labels:
+        app: use-latest
+    spec:
+      containers:
+        - name: nginx
+          image: test.azurecr.io/nginx # kobold: tag: latest; type: exact
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: use-v1
+spec:
+  selector:
+    matchLabels:
+      app: use-v1
+  template:
+    metadata:
+      labels:
+        app: use-v1
+    spec:
+      containers:
+        - name: nginx
+          image: test.azurecr.io/nginx:v1 # kobold: tag: v1; type: exact
+          resources:
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

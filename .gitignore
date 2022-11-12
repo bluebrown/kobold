@@ -1,0 +1,11 @@
+/.dump/
+/.out/
+/.dist/
+/bin/
+.env
+.envrc
+!manifests/base/etc/.env
+!manifests/example/etc/.env
+dockerconfig.json
+/manifests/dev/etc/config.yaml
+/hack/img.tar

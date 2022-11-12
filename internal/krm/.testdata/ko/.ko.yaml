@@ -1,0 +1,4 @@
+defaultBaseImage: test.azurecr.io/nginx # kobold: tag: latest; type: exact
+baseImageOverrides:
+  github.com/my-user/my-repo/cmd/app: test.azurecr.io/stuff # kobold: tag: ^1; type: semver
+  github.com/my-user/my-repo/cmd/foo: test.azurecr.io/ubuntu # kobold: tag: latest; type: exact
