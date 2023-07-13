@@ -86,13 +86,6 @@ type FileTypeSpec struct {
 	Pattern string
 }
 
-// TODO: move to renderer?!
-var DefaultAssociations = []FileTypeSpec{
-	{Kind: "ko", Pattern: ".ko.yaml"},
-	{Kind: "compose", Pattern: "*compose*.y?ml"},
-	{Kind: "kubernetes", Pattern: "*"},
-}
-
 type EndpointRef struct {
 	Name string `json:"name,omitempty"`
 }

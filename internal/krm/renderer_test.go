@@ -11,7 +11,12 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, error) {
+type testPipeOptions struct {
+	associations []kobold.FileTypeSpec
+	resolvers    []kobold.ResolverSpec
+}
+
+func testPipe(caseDir string, opts testPipeOptions, events ...events.PushData) (filesys.FileSystem, error) {
 	outFs := filesys.MakeFsInMemory()
 	w := kio.LocalPackageWriter{
 		PackagePath: "/",
@@ -22,20 +27,10 @@ func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, er
 
 	rend := NewRenderer(
 		WithWriter(w),
-		WithSelector(NewSelector(
-			[]kobold.ResolverSpec{
-				{Name: "my-helm", Paths: []string{"path.to.image", "another.path.somewhere"}},
-			},
-			[]kobold.FileTypeSpec{
-				{Kind: "my-helm", Pattern: "values.yaml"},
-				{Kind: "ko", Pattern: ".ko.yaml"},
-				{Kind: "compose", Pattern: "*compose*.y?ml"},
-				{Kind: "kubernetes", Pattern: "*"},
-			},
-		)),
+		WithSelector(NewSelector(opts.resolvers, opts.associations)),
 	)
 
-	if _, err := rend.Render(context.Background(), "testdata/"+caseDir, events); err != nil {
+	if _, err := rend.Render(context.Background(), ".testdata/"+caseDir, events); err != nil {
 		return nil, err
 	}
 

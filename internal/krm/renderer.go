@@ -330,8 +330,13 @@ func NewSelector(resolvers []kobold.ResolverSpec, associations []kobold.FileType
 		resolverMap[res.Name] = NewCustomResolver(res.Name, res.Paths)
 	}
 
+	// TODO: merge defaults with user associations ?!
 	if len(associations) == 0 {
-		associations = kobold.DefaultAssociations
+		associations = []kobold.FileTypeSpec{
+			{Kind: "ko", Pattern: ".ko.yaml"},
+			{Kind: "compose", Pattern: "*compose*.y?ml"},
+			{Kind: "kubernetes", Pattern: "*"},
+		}
 	}
 
 	return &ResolverSelector{
