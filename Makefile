@@ -32,6 +32,11 @@ help: ## Display this help text
 		/^##@/                  { printf "\n\033[1m%s:\033[0m\n", substr($$0, 5) } \
 		' $(MAKEFILE_LIST)
 
+.PHONY: validate
+validate:
+	go vet ./...
+	go test ./...
+
 .PHONY: deploy
 deploy: bin/kustomize bin/kubectl ## Deploy kobold into kubernetes using the TARGET kustomization
 	@touch "manifests/$(TARGET)/etc/.env" "manifests/$(TARGET)/etc/config.yaml"
