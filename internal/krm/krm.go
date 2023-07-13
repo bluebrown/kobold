@@ -88,7 +88,7 @@ func MatchTag(tag string, opts Options) (bool, error) {
 			return false, nil
 		}
 	case TypeRegex:
-		ok, err := regexp.Match(opts.Tag, []byte(fmt.Sprintf("^%s$", tag)))
+		ok, err := regexp.Match(fmt.Sprintf("^%s$", opts.Tag), []byte(tag))
 		if err != nil {
 			return false, fmt.Errorf("invalid regex in opt: %w", err)
 		}

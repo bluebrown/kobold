@@ -89,6 +89,48 @@ func TestImageNodeHandler(t *testing.T) {
 			wantHasChange: false,
 			wantChange:    Change{},
 		},
+		{
+			name:         "regex semver",
+			giveImageRef: "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			giveOpts:     "tag: v[0-9]+.[0-9]+.[0-9]+; type: regex",
+			givePushData: events.PushData{
+				Image:  "test.azurecr.io/nginx",
+				Tag:    "v2.1.0",
+				Digest: "sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+			},
+			wantHasChange: true,
+			wantChange: Change{
+				OldImageRef: "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+				NewImageRef: "test.azurecr.io/nginx:v2.1.0@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+			},
+		},
+		{
+			name:         "regex semver not beta",
+			giveImageRef: "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			giveOpts:     "tag: v[0-9]+.[0-9]+.[0-9]+; type: regex",
+			givePushData: events.PushData{
+				Image:  "test.azurecr.io/nginx",
+				Tag:    "v2.1.0-beta.1",
+				Digest: "sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+			},
+			wantHasChange: false,
+			wantChange:    Change{},
+		},
+		{
+			name:         "regex semver only beta",
+			giveImageRef: "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			giveOpts:     `tag: v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+; type: regex`,
+			givePushData: events.PushData{
+				Image:  "test.azurecr.io/nginx",
+				Tag:    "v2.1.0-beta.1",
+				Digest: "sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+			},
+			wantHasChange: true,
+			wantChange: Change{
+				OldImageRef: "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+				NewImageRef: "test.azurecr.io/nginx:v2.1.0-beta.1@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
@@ -101,7 +143,7 @@ func TestImageNodeHandler(t *testing.T) {
 				t.Fatal(err)
 			}
 			if hasChange != tt.wantHasChange {
-				t.Errorf("wrong has change value: got %v but got %v", hasChange, tt.wantHasChange)
+				t.Errorf("wrong has change value: got %v but want %v", hasChange, tt.wantHasChange)
 			}
 			if change.OldImageRef != tt.wantChange.OldImageRef {
 				t.Errorf("wrong OldImageRef: got %q but want %q", change.OldImageRef, tt.wantChange.OldImageRef)
