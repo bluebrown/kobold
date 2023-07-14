@@ -50,8 +50,8 @@ type Options struct {
 	Tag  string
 }
 
-func ParseOpts(s string) (Options, error) {
-	kvs := strings.Split(strings.TrimSuffix(s, ";"), ";")
+func ParseOpts(expr string) (Options, error) {
+	kvs := strings.Split(strings.TrimSuffix(expr, ";"), ";")
 	opts := Options{}
 	for _, kv := range kvs {
 		k, v, ok := strings.Cut(kv, ":")
@@ -99,6 +99,23 @@ func MatchTag(tag string, opts Options) (bool, error) {
 		return false, fmt.Errorf("type %q is not supported", opts.Type)
 	}
 	return true, nil
+}
+
+// returns a function that can be used as skipFn for a kio.Reader
+func ignore(scopes []string) func(relPath string) bool {
+	if len(scopes) < 1 {
+		return nil
+	}
+	patterns := make([]gitignore.Pattern, len(scopes))
+	for i, path := range scopes {
+		patterns[i] = gitignore.ParsePattern(path, nil)
+	}
+	matcher := gitignore.NewMatcher(patterns)
+	sep := string(os.PathSeparator)
+	return func(relPath string) bool {
+		// TODO: why is isDir always false here?
+		return !matcher.Match(strings.Split(relPath, sep), false)
+	}
 }
 
 // The ImageNodeHandler is used to encapsulate the logic
@@ -202,21 +219,4 @@ func (h *ImageNodeHandler) HandleImageNode(imgNode *yaml.MapNode, events []event
 	// if the change struct is not empty, we report
 	// that we changed something
 	return change.NewImageRef != "", change, nil
-}
-
-// returns a function that can be used as skipFn for a kio.Reader
-func ignore(scopes []string) func(relPath string) bool {
-	if len(scopes) < 1 {
-		return nil
-	}
-	patterns := make([]gitignore.Pattern, len(scopes))
-	for i, path := range scopes {
-		patterns[i] = gitignore.ParsePattern(path, nil)
-	}
-	matcher := gitignore.NewMatcher(patterns)
-	sep := string(os.PathSeparator)
-	return func(relPath string) bool {
-		// TODO: why is isDir always false here?
-		return !matcher.Match(strings.Split(relPath, sep), false)
-	}
 }

@@ -26,7 +26,7 @@ func (NopRenderer) Render(ctx context.Context, dir string, events []events.PushD
 // be the resolver. It may mutate the image ref or do nothing
 type ImageNodeHandlerFunc func(source, parent string, imgNode *yaml.MapNode) error
 
-// the resolver is resonsible for finding one or more image node in a given yaml document
+// the resolver is responsible for finding one or more image node in a given yaml document
 type Resolver func(node *yaml.RNode, source string, handleImage ImageNodeHandlerFunc) error
 
 // the resolver selector should return the correct resolver based on the file

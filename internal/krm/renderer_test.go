@@ -10,7 +10,25 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-func TestRenderer(t *testing.T) {
+func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, error) {
+	outFs := filesys.MakeFsInMemory()
+	w := kio.LocalPackageWriter{
+		PackagePath: "/",
+		FileSystem: filesys.FileSystemOrOnDisk{
+			FileSystem: outFs,
+		},
+	}
+
+	rend := NewRenderer(WithWriter(w))
+
+	if _, err := rend.Render(context.Background(), "testdata/"+caseDir, events); err != nil {
+		return nil, err
+	}
+
+	return outFs, nil
+}
+
+func Test_renderer_Render(t *testing.T) {
 	type wantFieldValue struct {
 		rnodeIndex int
 		field      string
@@ -244,22 +262,4 @@ func TestRenderer(t *testing.T) {
 			}
 		})
 	}
-}
-
-func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, error) {
-	outFs := filesys.MakeFsInMemory()
-	w := kio.LocalPackageWriter{
-		PackagePath: "/",
-		FileSystem: filesys.FileSystemOrOnDisk{
-			FileSystem: outFs,
-		},
-	}
-
-	rend := NewRenderer(WithWriter(w))
-
-	if _, err := rend.Render(context.Background(), ".testdata/"+caseDir, events); err != nil {
-		return nil, err
-	}
-
-	return outFs, nil
 }
