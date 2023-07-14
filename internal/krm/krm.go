@@ -51,20 +51,20 @@ type Options struct {
 }
 
 func ParseOpts(s string) (Options, error) {
-	kvs := strings.Split(s, ";")
+	kvs := strings.Split(strings.TrimSuffix(s, ";"), ";")
 	opts := Options{}
 	for _, kv := range kvs {
-		parts := strings.SplitN(kv, ":", 2)
-		if len(parts) != 2 {
-			return Options{}, fmt.Errorf("invalid key value pair: %s", kv)
+		k, v, ok := strings.Cut(kv, ":")
+		if !ok {
+			return opts, fmt.Errorf("invalid key value pair: %s", kv)
 		}
-		switch strings.TrimSpace(parts[0]) {
+		switch strings.TrimSpace(k) {
 		case KeyType:
-			opts.Type = strings.TrimSpace(parts[1])
+			opts.Type = strings.TrimSpace(v)
 		case KeyTag:
-			opts.Tag = strings.TrimSpace(parts[1])
+			opts.Tag = strings.TrimSpace(v)
 		default:
-			return Options{}, fmt.Errorf("invalid key: %s", parts[0])
+			return opts, fmt.Errorf("unknown key: %s", v)
 		}
 	}
 	return opts, nil
@@ -88,18 +88,20 @@ func MatchTag(tag string, opts Options) (bool, error) {
 			return false, nil
 		}
 	case TypeRegex:
-		ok, err := regexp.Match(fmt.Sprintf("^%s$", opts.Tag), []byte(tag))
+		ok, err := regexp.MatchString(fmt.Sprintf("^%s$", opts.Tag), tag)
 		if err != nil {
 			return false, fmt.Errorf("invalid regex in opt: %w", err)
 		}
 		if !ok {
 			return false, nil
 		}
+	default:
+		return false, fmt.Errorf("type %q is not supported", opts.Type)
 	}
 	return true, nil
 }
 
-// The ImageNodeHandler is used to encasulate the logic
+// The ImageNodeHandler is used to encapsulate the logic
 // of handling update nodes. It holds a template to avoid
 // creating it on each run new
 type ImageNodeHandler struct {
@@ -125,7 +127,7 @@ func (h *ImageNodeHandler) AddNameOptions(opts ...name.Option) {
 // The check is based on an inline comment in
 // the form of:
 //
-// kobold: tag: [tag|semver-constraint|regex-pattern]; type: [exact|semver|regex]
+//	kobold: tag: [tag|semver-constraint|regex-pattern]; type: [exact|semver|regex]
 //
 // If the image has been updated, change data is returned.
 func (h *ImageNodeHandler) HandleImageNode(imgNode *yaml.MapNode, events []events.PushData) (bool, Change, error) {
@@ -181,9 +183,9 @@ func (h *ImageNodeHandler) HandleImageNode(imgNode *yaml.MapNode, events []event
 		// this happens if the tag has matched the
 		// event but the ref was already correct
 		// NOTE, the not normalized forms are used
-		// for this comparison as to not triger
+		// for this comparison as to not trigger
 		// false positives. For example parse ref
-		// will remove reduntant tags
+		// will remove redundant tags
 		if oldRef.String() == newRef.String() {
 			continue
 		}
