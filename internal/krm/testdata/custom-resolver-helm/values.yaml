@@ -3,5 +3,4 @@ path:
     image: docker.io/bluebrown/echoserver:latest # kobold: tag: latest; type: exact
 
 another:
-  path:
-    somewhere: test.azurecr.io/nginx # kobold: tag: latest; type: exact
+  path: test.azurecr.io/nginx # kobold: tag: latest; type: exact
