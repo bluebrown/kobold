@@ -1,0 +1,29 @@
+version: v1
+
+# FIXME: this should not be required
+# as it should default to the attached service account
+# and current namespace
+registryAuth:
+  serviceAccount: kobold
+  namespace: kobold
+
+endpoints:
+  - name: test-endpoint
+    type: generic
+    path: /generic
+
+repositories:
+  - name: test-gitea
+    url: http://gitea.local:3000/kobold/kobold-test.git
+    username: ${GITEA_USER}
+    password: ${GITEA_PASS}
+
+subscriptions:
+  - name: test-sub
+    endpointRefs:
+      - name: test-endpoint
+    repositoryRef:
+      name: test-gitea
+    branch: main
+    strategy: commit
+    scopes: []

@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: kind-cluster-components
+
+resources:
+  - https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.4.0/deploy/static/provider/baremetal/deploy.yaml
+
+patches:
+  - target:
+      kind: Service
+      name: ingress-nginx-controller
+    patch: |
+      - op: replace
+        path: /spec/ports/0/nodePort
+        value: 30080
+      - op: replace
+        path: /spec/ports/1/nodePort
+        value: 30443
+
+configMapGenerator:
+  - name: ingress-nginx-controller
+    namespace: ingress-nginx
+    behavior: merge
+    options:
+      disableNameSuffixHash: true
+    literals:
+      - hsts=false

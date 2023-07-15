@@ -1,0 +1,52 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: kobold
+
+resources:
+  - ./namespace.yaml
+  - ../../manifests/base/
+  - ./ingress.yaml
+
+images:
+  - name: index.docker.io/bluebrown/kobold
+    newTag: dev
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+configMapGenerator:
+  - name: kobold-config
+    behavior: replace
+    files:
+      - ./etc/config.yaml
+
+secretGenerator:
+  - name: kobold-env
+    behavior: replace
+    envs:
+      - ./etc/.env
+#   - name: dockerhub
+#     type: kubernetes.io/dockerconfigjson
+#     files:
+#       - .dockerconfigjson=etc/dockerconfig.json
+
+patches:
+  - target:
+      kind: Deployment
+      name: kobold
+    patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/imagePullPolicy
+        value: Always
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: -v=7
+  # - target:
+  #     kind: ServiceAccount
+  #     name: kobold
+  #   patch: |
+  #     - op: add
+  #       path: /imagePullSecrets/-
+  #       value:
+  #         name: dockerhub

@@ -1,5 +1,5 @@
 POST /dockerhub HTTP/1.1
-Host: localhost:8080
+Host: localhost:80
 Content-Type: application/json
 
 {
