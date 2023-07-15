@@ -1,0 +1,6 @@
+*
+!/cmd/
+!/internal/
+!/kobold/
+!/go.mod
+!/go.sum
