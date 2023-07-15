@@ -1,6 +1,6 @@
 {
   "yaml.schemas": {
-    "hack/schema.json": [
+    "assets/schema.json": [
       "config.yaml"
     ]
   }
