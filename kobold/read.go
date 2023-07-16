@@ -22,7 +22,9 @@ func ReadPath(path string) (*NormalizedConfig, error) {
 	}
 
 	m := map[string]any{}
-	yaml.Unmarshal(b, &m)
+	if err := yaml.Unmarshal(b, &m); err != nil {
+		return nil, fmt.Errorf("unmarshal config: %w", err)
+	}
 
 	var norm normalizer
 	switch v := m["version"]; {
