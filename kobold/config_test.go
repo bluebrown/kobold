@@ -13,7 +13,7 @@ func TestConfig(t *testing.T) {
 	os.Setenv("GIT_PAT", "test-pwd")
 	os.Setenv("NAMESPACE", "kobold")
 
-	conf, err := ReadPath(".testdata/config.yaml")
+	conf, err := ReadPath("testdata/config.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,7 +23,7 @@ func TestConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	b2, err := os.ReadFile(".testdata/expected.yaml")
+	b2, err := os.ReadFile("testdata/expected.yaml")
 	if err != nil {
 		t.Fatal(err)
 	}
