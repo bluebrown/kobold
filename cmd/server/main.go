@@ -24,6 +24,7 @@ var (
 	useK8sChain      = false
 	defaultRegistry  = name.DefaultRegistry
 	imageRefTemplate = "{{ .Image }}:{{ .Tag }}@{{ .Digest }}"
+	watch            = false
 )
 
 func main() {
@@ -39,6 +40,7 @@ func main() {
 	flag.BoolVar(&useK8sChain, "k8schain", useK8sChain, "use k8schain for registry authentication")
 	flag.StringVar(&defaultRegistry, "default-registry", defaultRegistry, "the default registry to use, for unprefixed images")
 	flag.StringVar(&imageRefTemplate, "imageref-template", imageRefTemplate, "the format of the image ref when updating an image node")
+	flag.BoolVar(&watch, "watch", watch, "Reload the server on config file change")
 	logging.InitFlags(nil)
 	flag.Parse()
 
@@ -67,7 +69,7 @@ func run() error {
 		server.WithDefaultRegistry(defaultRegistry),
 		server.WithDataPath(dataPath),
 		server.WithConfigPath(configPath),
-		server.WithWatch,
+		server.WithWatch(watch),
 	}
 
 	if useK8sChain {

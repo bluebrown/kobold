@@ -162,7 +162,7 @@ func WatchConfigOrDie(path string, onChange func(c *kobold.NormalizedConfig)) {
 				return
 			}
 
-			log.Trace().Str("op", event.Op.String()).Msg("inotify event recieved")
+			log.Trace().Str("op", event.Op.String()).Msg("inotify event received")
 
 			// if its not an event that modifies the file, ignore it
 			if !(event.Op.Has(fsnotify.Write) || event.Op.Has(fsnotify.Create) || event.Op.Has(fsnotify.Remove)) {
@@ -174,7 +174,7 @@ func WatchConfigOrDie(path string, onChange func(c *kobold.NormalizedConfig)) {
 			// to get atomic writes. I.e. in kubernetes this is the case
 			if event.Op.Has(fsnotify.Remove) {
 				if err := watcher.Add(event.Name); err != nil {
-					log.Error().Err(err).Msg("failed to rewatch config")
+					log.Error().Err(err).Msg("failed to re-watch config")
 					continue
 				}
 			}

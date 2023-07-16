@@ -23,7 +23,8 @@ spec:
           image: index.docker.io/bluebrown/kobold
           args:
             - --config=/etc/kobold/config.yaml
-            - --k8schain=true
+            - --watch
+            - --k8schain
           ports:
             - name: http
               containerPort: 8080

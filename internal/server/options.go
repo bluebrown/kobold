@@ -8,8 +8,10 @@ func WithConfigPath(path string) Option {
 	}
 }
 
-func WithWatch(o *Options) {
-	o.Watch = true
+func WithWatch(enabled bool) Option {
+	return func(o *Options) {
+		o.Watch = enabled
+	}
 }
 
 func WithConfig(c *kobold.NormalizedConfig) Option {
