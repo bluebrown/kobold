@@ -27,7 +27,7 @@ setup.
 Typically you would deploy kobold to kubernetes providing your own config file
 and environment variables for secrets.
 
-### Kubernetes
+You can create a kustomization using the dist overlay as base.
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
@@ -47,7 +47,8 @@ secretGenerator:
       - ./etc/.env
 ```
 
-### Config
+The above config requires to add create some additional resources. Below is the
+config file for kobold. Adjust this to your needs.
 
 ```yaml
 endpoints:
@@ -74,7 +75,8 @@ subscriptions:
     branch: main
 ```
 
-### Env
+In addition to the above config file, an env file is used for secrets. Kobold
+will resolve env var references in the config file.
 
 ```console
 MY_GIT_EMAIL=foo@bar.baz
@@ -82,7 +84,8 @@ MY_GIT_PAT=supersecret
 SECRET_TOKEN=topsecret
 ```
 
-### Ingress
+Finally, you need an ingress if you intend to have an external registry dispatch
+events to kobold. The below example matches the endpoint from the kobold config.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -101,3 +104,8 @@ spec:
                 port:
                   name: http
 ```
+
+## Development
+
+Use the [Taskfile.yaml](./Taskfile.yaml) via `bin/task` to run various commands
+useful for the development.

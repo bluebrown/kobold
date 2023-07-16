@@ -39,7 +39,7 @@ tasks:
   build:
     internal: true
     cmds:
-      - go build -o bin/{{.OUTPUT}} -tags {{.BUILD_TAG}} -ldflags '-w -s -X main.version={{.VERSION}}' ./cmd/server/
+      - go build -o bin/{{.OUTPUT}} -v -tags {{.BUILD_TAG}} -ldflags '-w -s -X main.version={{.VERSION}}' ./cmd/server/
     requires:
       vars:
         - BUILD_TAG
@@ -64,12 +64,15 @@ tasks:
   image:build:
     desc: Build the images adn load the into the local daemon
     cmds:
-      - docker buildx bake -f build/docker-bake.hcl --set=*.output=type=docker
+      - docker buildx bake -f build/docker-bake.hcl --load {{.CLI_ARGS}}
 
   image:publish:
     desc: Build and publish the images
     cmds:
-      - docker buildx bake -f build/docker-bake.hcl --set=*.output=type=registry
+      - >
+        docker buildx bake -f build/docker-bake.hcl
+        --set *.attest=type=provenance,mode=min,type=sbom --push
+        {{.CLI_ARGS}}
 
   e2e:up:
     desc: Local end to end setup using gitea and kind
@@ -106,15 +109,20 @@ tasks:
     deps:
       - build:*
     cmds:
-      - tar -czf .dist/kobold-{{OS}}-{{ARCH}}.tgz bin/kobold
-      - tar -czf .dist/kobold-gitexec-{{OS}}-{{ARCH}}.tgz bin/kobold-gitexec
+      - tar -czf .dist/kobold.{{OS}}-{{ARCH}}.tgz bin/kobold
+      - tar -czf .dist/kobold-gitexec.{{OS}}-{{ARCH}}.tgz bin/kobold-gitexec
 
   dist:image:
     desc: Build the container image
     deps:
       - dist:dir
     cmds:
-      - docker buildx bake -f build/docker-bake.hcl
+      - >
+        docker buildx bake -f build/docker-bake.hcl
+        --set *.attest=type=provenance,mode=min,type=sbom
+        --set gitgo.output=type=tar,dest=.dist/kobold.oci.tar
+        --set gitexec.output=type=tar,dest=.dist/kobold-gitexec.oci.tar
+        {{.CLI_ARGS}}
 
   dist:manifests:
     desc: Build the kubernetes manifests
@@ -122,14 +130,14 @@ tasks:
       - dist:dir
       - bin:kustomize
     cmds:
-      - bin/kustomize build manifests/dist/ -o .dist/kobold.yaml
+      - bin/kustomize build manifests/dist/ -o .dist/kobold.manifests.yaml
 
   dist:schema:
     desc: Copy the config json schema to the dist dir
     deps:
       - dist:dir
     cmds:
-      - cp assets/schema.json .dist/
+      - cp assets/schema.json .dist/kobold.schema.json
 
   docs:publish:
     desc: Build and publish the docs to github pages

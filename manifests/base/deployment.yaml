@@ -16,8 +16,8 @@ spec:
       securityContext:
         runAsNonRoot: true
         fsGroup: 2000
-        runAsUser: 65534
-        runAsGroup: 65534
+        runAsUser: 65532
+        runAsGroup: 65532
       containers:
         - name: kobold
           image: index.docker.io/bluebrown/kobold
@@ -41,6 +41,7 @@ spec:
               memory: "128Mi"
               cpu: "500m"
           securityContext:
+            privileged: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:

@@ -4,3 +4,4 @@
 !/kobold/
 !/go.mod
 !/go.sum
+!/build/config.yaml
