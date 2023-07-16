@@ -22,4 +22,6 @@ Usage of kobold:
         verbosity level. 0 is fatal - 7 is trace (default 5)
   -version
         show version info
+  -watch
+        Reload the server on config file change
 ```
