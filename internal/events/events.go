@@ -7,6 +7,6 @@ type PushData struct {
 }
 
 type PayloadHandler interface {
-	Validate([]byte) error
-	Decode([]byte) (PushData, error)
+	Validate([]byte, string) error
+	Decode([]byte, string) (PushData, error)
 }

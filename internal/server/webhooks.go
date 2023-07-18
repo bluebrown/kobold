@@ -4,15 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
-	"net/http"
-	"time"
-
-	"github.com/rs/zerolog/log"
-
 	"github.com/bluebrown/kobold/internal/events"
 	"github.com/bluebrown/kobold/internal/krm"
 	"github.com/bluebrown/kobold/kobold"
+	"github.com/rs/zerolog/log"
+	"io"
+	"net/http"
+	"time"
 )
 
 func RequireHeaders(headers []kobold.Header, handler http.Handler) http.Handler {
@@ -31,9 +29,11 @@ func RequireHeaders(headers []kobold.Header, handler http.Handler) http.Handler 
 func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHandler) http.Handler {
 	logger := log.With().Str("endpoint", id).Logger()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logger.Info().Str("endpoint", id).Msg("push event received")
+		var ct string = r.Header.Get("Content-Type")
+		logger.Info().Str("endpoint", id).Msg(fmt.Sprintf("push event received with Content-Type: %s", ct))
 
 		var b bytes.Buffer
+
 		if _, err := io.Copy(&b, r.Body); err != nil {
 			logger.Debug().Err(err).Msg("could not copy body")
 			w.WriteHeader(http.StatusBadRequest)
@@ -42,7 +42,7 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 
 		bodyBytes := b.Bytes()
 
-		if err := ph.Validate(bodyBytes); err != nil {
+		if err := ph.Validate(bodyBytes, ct); err != nil {
 			logger.Debug().Err(err).Msg("error while validation")
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -51,7 +51,7 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 		// since decoding may to external io and take some time,
 		// do the work concurrently, since we know the payload is valid
 		go func() {
-			event, err := ph.Decode(bodyBytes)
+			event, err := ph.Decode(bodyBytes, ct)
 			if err != nil {
 				logger.Error().Err(err).Msg("failed to decode payload")
 				return

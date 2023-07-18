@@ -38,7 +38,7 @@ func NewPayloadHandler(df digestFetcher) events.PayloadHandler {
 	return payloadHandler{schema: schema, digestFetcher: df}
 }
 
-func (ph payloadHandler) Validate(b []byte) error {
+func (ph payloadHandler) Validate(b []byte, ct string) error {
 	verr, err := ph.schema.ValidateBytes(context.TODO(), b)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (ph payloadHandler) Validate(b []byte) error {
 	return nil
 }
 
-func (ph payloadHandler) Decode(b []byte) (events.PushData, error) {
+func (ph payloadHandler) Decode(b []byte, ct string) (events.PushData, error) {
 	pl := PushPayload{}
 	if err := json.Unmarshal(b, &pl); err != nil {
 		return events.PushData{}, err

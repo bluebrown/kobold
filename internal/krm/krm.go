@@ -171,7 +171,9 @@ func (h *ImageNodeHandler) HandleImageNode(imgNode *yaml.MapNode, events []event
 	// match the same image, hence only a single change is emitted
 	// for a given image node
 	for _, event := range events {
-		if oldRef.Context().String() != event.Image {
+		//split up for easier debugging
+		var oldString = oldRef.Context().String()
+		if oldString != event.Image {
 			continue
 		}
 
