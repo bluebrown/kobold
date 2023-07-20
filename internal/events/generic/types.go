@@ -62,8 +62,10 @@ func (ph payloadHandler) Decode(b []byte, ct string) (events.PushData, error) {
 			Digest: pl.ImageDigest,
 		}, nil
 	case "text/plain":
-		leftString, digest, _ := strings.Cut(string(b[:]), "@")
-
+		leftString, digest, found := strings.Cut(string(b[:]), "@")
+		if !found {
+			return events.PushData{}, fmt.Errorf("missing digest")
+		}
 		newRef2, err := docker.Parse(leftString)
 
 		if err != nil {
