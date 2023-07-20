@@ -29,8 +29,9 @@ func RequireHeaders(headers []kobold.Header, handler http.Handler) http.Handler 
 func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHandler) http.Handler {
 	logger := log.With().Str("endpoint", id).Logger()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ct string = r.Header.Get("Content-Type")
-		logger.Info().Str("endpoint", id).Msg(fmt.Sprintf("push event received with Content-Type: %s", ct))
+		var ct = r.Header.Get("Content-Type")
+
+		logger.Info().Str("contentType", ct).Msg("push event received")
 
 		var b bytes.Buffer
 
@@ -57,7 +58,6 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 				return
 			}
 			logger.Info().
-				Str("endpoint", id).
 				Str("image", event.Image).
 				Str("tag", event.Tag).
 				Msg("dispatching event")
