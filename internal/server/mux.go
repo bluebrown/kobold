@@ -95,19 +95,14 @@ func (g generator) Generate(conf *kobold.NormalizedConfig) (http.Handler, error)
 
 		bot := gitbot.NewGitbot(sub.Name, repo, sub.Branch, prClient)
 
-		ro := []krm.RendererOption{
+		renderer := krm.NewRenderer(
 			krm.WithScopes(sub.Scopes),
+			krm.WithSelector(krm.NewSelector(conf.Resolvers, sub.FileAssociations)),
 			// these 2 could be part of the subscription config
 			// for now, they will be global for all configs
 			krm.WithDefaultRegistry(g.defaultRegistry),
 			krm.WithImagerefTemplate(g.imagerefTemplate),
-		}
-
-		if len(sub.FileAssociations) > 0 {
-			ro = append(ro, krm.WithSelector(krm.NewSelector(sub.FileAssociations)))
-		}
-
-		renderer := krm.NewRenderer(ro...)
+		)
 
 		// TODO: check if sub with given name already exists and warn user
 		subChan := NewSubscriber(

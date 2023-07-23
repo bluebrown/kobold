@@ -5,12 +5,18 @@ import (
 	"testing"
 
 	"github.com/bluebrown/kobold/internal/events"
+	"github.com/bluebrown/kobold/kobold"
 	"github.com/google/go-containerregistry/pkg/name"
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, error) {
+type testPipeOptions struct {
+	associations []kobold.FileTypeSpec
+	resolvers    []kobold.ResolverSpec
+}
+
+func testPipe(caseDir string, opts testPipeOptions, events ...events.PushData) (filesys.FileSystem, error) {
 	outFs := filesys.MakeFsInMemory()
 	w := kio.LocalPackageWriter{
 		PackagePath: "/",
@@ -19,7 +25,10 @@ func testPipe(caseDir string, events ...events.PushData) (filesys.FileSystem, er
 		},
 	}
 
-	rend := NewRenderer(WithWriter(w))
+	rend := NewRenderer(
+		WithWriter(w),
+		WithSelector(NewSelector(opts.resolvers, opts.associations)),
+	)
 
 	if _, err := rend.Render(context.Background(), "testdata/"+caseDir, events); err != nil {
 		return nil, err
@@ -37,6 +46,7 @@ func Test_renderer_Render(t *testing.T) {
 	tests := []struct {
 		name                 string
 		giveDir              string
+		giveOpts             testPipeOptions
 		giveEvents           []events.PushData
 		wantSourceFieldValue map[string][]wantFieldValue
 	}{
@@ -121,7 +131,7 @@ func Test_renderer_Render(t *testing.T) {
 		// needs to use .krm ignore to ignore invalid yaml portions
 		// {
 		// 	name:    "helm skip errors",
-		// 	giveDir: "helm",
+		// 	giveDir: "helm-skip-errors",
 		// 	giveEvents: []events.PushData{
 		// 		{Image: "index.docker.io/bluebrown/busybox", Tag: "latest", Digest: "sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869"},
 		// 	},
@@ -208,13 +218,41 @@ func Test_renderer_Render(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:    "custom-resolver-helm",
+			giveDir: "custom-resolver-helm",
+			giveOpts: testPipeOptions{
+				resolvers: []kobold.ResolverSpec{
+					{Name: "my-helm", Paths: []string{"path.to.image", "another.path"}},
+				},
+				associations: []kobold.FileTypeSpec{{Kind: "my-helm", Pattern: "values.yaml"}},
+			},
+			giveEvents: []events.PushData{
+				{Image: "index.docker.io/bluebrown/echoserver", Tag: "latest", Digest: "sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869"},
+				{Image: "test.azurecr.io/nginx", Tag: "latest", Digest: "sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248"},
+			},
+			wantSourceFieldValue: map[string][]wantFieldValue{
+				"values.yaml": {
+					{
+						rnodeIndex: 0,
+						field:      "path.to.image",
+						value:      "index.docker.io/bluebrown/echoserver:latest@sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869",
+					},
+					{
+						rnodeIndex: 0,
+						field:      "another.path",
+						value:      "test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			fs, err := testPipe(tt.giveDir, tt.giveEvents...)
+			fs, err := testPipe(tt.giveDir, tt.giveOpts, tt.giveEvents...)
 			if err != nil {
 				t.Fatal(err)
 			}

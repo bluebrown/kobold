@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 	"sigs.k8s.io/kustomize/kyaml/kio/kioutil"
+	"sigs.k8s.io/kustomize/kyaml/utils"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 
 	"github.com/bluebrown/kobold/internal/events"
@@ -29,16 +30,12 @@ type ImageNodeHandlerFunc func(source, parent string, imgNode *yaml.MapNode) err
 // the resolver is responsible for finding one or more image node in a given yaml document
 type Resolver func(node *yaml.RNode, source string, handleImage ImageNodeHandlerFunc) error
 
-// the resolver selector should return the correct resolver based on the file
-// for example for a docker-compose.yaml, the compose resolver should be returned
-type ResolverSelector func(ctx context.Context, source string) Resolver
-
 // the renderer is the high level struct used with the krm framework.
 // its render function runs a kio pipeline using a custom filter based
 // on the renderer options
 type renderer struct {
 	skipfn           kio.LocalPackageSkipFileFunc
-	selector         ResolverSelector
+	selector         *ResolverSelector
 	defaultRegistry  string
 	imageNodeHandler *ImageNodeHandler
 	writer           kio.Writer
@@ -56,7 +53,7 @@ func WithScopes(scopes []string) RendererOption {
 }
 
 // the selector determines which resolver to use for a given file name
-func WithSelector(selector ResolverSelector) RendererOption {
+func WithSelector(selector *ResolverSelector) RendererOption {
 	return func(r *renderer) {
 		r.selector = selector
 	}
@@ -93,7 +90,7 @@ func NewRenderer(opts ...RendererOption) renderer {
 	}
 
 	if r.selector == nil {
-		r.selector = NewSelector(kobold.DefaultAssociations)
+		r.selector = NewSelector(nil, nil)
 	}
 
 	if r.defaultRegistry == "" {
@@ -156,7 +153,7 @@ type filter struct {
 	context  context.Context
 	Events   []events.PushData
 	Changes  []Change
-	selector ResolverSelector
+	selector *ResolverSelector
 	handler  *ImageNodeHandler
 }
 
@@ -174,7 +171,7 @@ func (fn *filter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error) {
 
 		// select the resolver based on the source and resolve the image nodes with it
 		// once an image node is found, the imageNodeHandler is invoked
-		resolver := fn.selector(fn.context, source)
+		resolver := fn.selector.Select(fn.context, source)
 		if resolver == nil {
 			log.Warn().Str("source", source).Msg("no matching selector")
 			continue
@@ -274,33 +271,96 @@ func resolveKo(node *yaml.RNode, source string, handleImage ImageNodeHandlerFunc
 	})
 }
 
-func NewSelector(fa []kobold.FileTypeSpec) ResolverSelector {
-	return func(ctx context.Context, source string) Resolver {
-		base := filepath.Base(source)
-		var res Resolver
-		for _, a := range fa {
-			ok, err := filepath.Match(a.Pattern, base)
+func NewCustomResolver(name string, paths []string) Resolver {
+	matchers := make([]yaml.Filter, len(paths))
+
+	imageFields := make([]string, len(paths))
+
+	for i, path := range paths {
+		// separate the last part of the path selector to use it to lookup
+		// the image map node once the path
+		smartPath := utils.SmarterPathSplitter(path, ".")
+		imageFields[i] = smartPath[len(smartPath)-1]
+
+		matchers[i] = &yaml.PathMatcher{
+			Path: smartPath[:len(smartPath)-1],
+		}
+	}
+
+	// try each path in the list, but dont stop on first match (for now)
+	return func(node *yaml.RNode, source string, handleImage ImageNodeHandlerFunc) error {
+		for i, matcher := range matchers {
+			matches, err := node.Pipe(matcher)
 			if err != nil {
-				log.Ctx(ctx).Warn().Err(err).Msg("failed to match filetype")
+				return err
+			}
+			if matches == nil {
 				continue
 			}
-			if ok {
-				res = lookupResolver(a.Kind)
-				break
+			err = matches.VisitElements(func(node *yaml.RNode) error {
+				imgNode := node.Field(imageFields[i])
+				if imgNode == nil {
+					return nil
+				}
+				return handleImage(source, "", imgNode)
+			})
+			if err != nil {
+				return err
 			}
 		}
-		return res
+		return nil
 	}
 }
 
-func lookupResolver(kind kobold.FileTypeKind) Resolver {
-	switch kind {
-	case kobold.FileTypeKubernetes:
-		return resolveKube
-	case kobold.FileTypeCompose:
-		return resolveCompose
-	case kobold.FileTypeKo:
-		return resolveKo
+// the resolver selector should return the correct resolver based on the file
+// for example for a docker-compose.yaml, the compose resolver should be returned
+type ResolverSelector struct {
+	resolvers    map[string]Resolver
+	associations []kobold.FileTypeSpec
+}
+
+func NewSelector(resolvers []kobold.ResolverSpec, associations []kobold.FileTypeSpec) *ResolverSelector {
+	resolverMap := map[string]Resolver{
+		"ko":         resolveKo,
+		"compose":    resolveCompose,
+		"kubernetes": resolveKube,
 	}
-	return nil
+
+	for _, res := range resolvers {
+		resolverMap[res.Name] = NewCustomResolver(res.Name, res.Paths)
+	}
+
+	// TODO: merge defaults with user associations ?!
+	if len(associations) == 0 {
+		associations = []kobold.FileTypeSpec{
+			{Kind: "ko", Pattern: ".ko.yaml"},
+			{Kind: "compose", Pattern: "*compose*.y?ml"},
+			{Kind: "kubernetes", Pattern: "*"},
+		}
+	}
+
+	return &ResolverSelector{
+		resolvers:    resolverMap,
+		associations: associations,
+	}
+}
+
+func (s ResolverSelector) Select(ctx context.Context, source string) Resolver {
+	base := filepath.Base(source)
+	var res Resolver
+	for _, a := range s.associations {
+		ok, err := filepath.Match(a.Pattern, base)
+		if err != nil {
+			log.Ctx(ctx).Warn().Err(err).Msg("failed to match filetype")
+			continue
+		}
+		if ok {
+			res, ok = s.resolvers[a.Kind]
+			if !ok {
+				log.Ctx(ctx).Warn().Str("resolver", a.Kind).Msg("resolver does not exist")
+			}
+			break
+		}
+	}
+	return res
 }

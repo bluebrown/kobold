@@ -19,6 +19,9 @@ type NormalizedConfig struct {
 	// both title and description are parsed as template string and executed
 	// with an array of changes as context
 	CommitMessage CommitMessageSpec `json:"commitMessage,omitempty"`
+	// list of custom path resolvers to find image refs
+	// this allows the user to lookup images in arbitrary paths
+	Resolvers []ResolverSpec `json:"resolvers,omitempty"`
 }
 
 type CommitMessageSpec struct {
@@ -78,23 +81,9 @@ const (
 	StrategyPullRequest Strategy = "pull-request"
 )
 
-type FileTypeKind string
-
-const (
-	FileTypeKubernetes FileTypeKind = "kubernetes"
-	FileTypeCompose    FileTypeKind = "docker-compose"
-	FileTypeKo         FileTypeKind = "ko-build"
-)
-
 type FileTypeSpec struct {
-	Kind    FileTypeKind
+	Kind    string
 	Pattern string
-}
-
-var DefaultAssociations = []FileTypeSpec{
-	{Kind: FileTypeKo, Pattern: ".ko.yaml"},
-	{Kind: FileTypeCompose, Pattern: "*compose*.y?ml"},
-	{Kind: FileTypeKubernetes, Pattern: "*"},
 }
 
 type EndpointRef struct {
@@ -113,4 +102,9 @@ type SubscriptionSpec struct {
 	Strategy         Strategy       `json:"strategy,omitempty"`
 	Scopes           []string       `json:"scopes,omitempty"`
 	FileAssociations []FileTypeSpec `json:"fileAssociations,omitempty"`
+}
+
+type ResolverSpec struct {
+	Name  string   `json:"name,omitempty"`
+	Paths []string `json:"paths,omitempty"`
 }
