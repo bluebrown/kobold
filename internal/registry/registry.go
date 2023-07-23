@@ -11,10 +11,10 @@ import (
 	"github.com/google/go-containerregistry/pkg/v1/remote"
 	"github.com/rs/zerolog/log"
 
-	"github.com/bluebrown/kobold/kobold"
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
-func NewKeys(k8s bool, auth kobold.RegistryAuthSpec) (keys authn.Keychain, err error) {
+func NewKeys(k8s bool, auth config.RegistryAuthSpec) (keys authn.Keychain, err error) {
 	if k8s {
 		log.Debug().Msg("using k8s key chain")
 		ss := make([]string, len(auth.ImagePullSecrets))

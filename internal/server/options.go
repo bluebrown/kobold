@@ -1,6 +1,6 @@
 package server
 
-import "github.com/bluebrown/kobold/kobold"
+import "github.com/bluebrown/kobold/kobold/config"
 
 func WithConfigPath(path string) Option {
 	return func(o *Options) {
@@ -14,7 +14,7 @@ func WithWatch(enabled bool) Option {
 	}
 }
 
-func WithConfig(c *kobold.NormalizedConfig) Option {
+func WithConfig(c *config.NormalizedConfig) Option {
 	return func(o *Options) {
 		o.Config = c
 	}

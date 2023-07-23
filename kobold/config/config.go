@@ -1,4 +1,4 @@
-package kobold
+package config
 
 // in memory representation of the config used to setup kobold
 // this is used so that the user facing config can have different

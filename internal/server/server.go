@@ -9,7 +9,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/rs/zerolog/log"
 
-	"github.com/bluebrown/kobold/kobold"
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
 const (
@@ -25,7 +25,7 @@ const (
 )
 
 type muxGenerator interface {
-	Generate(conf *kobold.NormalizedConfig) (http.Handler, error)
+	Generate(conf *config.NormalizedConfig) (http.Handler, error)
 }
 
 type Server struct {
@@ -36,7 +36,7 @@ type Server struct {
 type Options struct {
 	Watch            bool
 	ConfigPath       string
-	Config           *kobold.NormalizedConfig
+	Config           *config.NormalizedConfig
 	Datapath         string
 	UseK8sChain      bool
 	muxGenerator     muxGenerator
@@ -59,14 +59,14 @@ func NewOrDie(options ...Option) *Server {
 
 	if opts.ConfigPath != "" {
 		var err error
-		opts.Config, err = kobold.ReadPath(opts.ConfigPath)
+		opts.Config, err = config.ReadPath(opts.ConfigPath)
 		if err != nil {
 			panic(err)
 		}
 	}
 
 	if opts.Config == nil {
-		opts.Config = &kobold.NormalizedConfig{}
+		opts.Config = &config.NormalizedConfig{}
 	}
 
 	if opts.Datapath == "" {
@@ -122,7 +122,7 @@ func NewOrDie(options ...Option) *Server {
 	s.atomicHandler.Store(mux)
 
 	if opts.Watch && opts.ConfigPath != "" {
-		go WatchConfigOrDie(opts.ConfigPath, func(c *kobold.NormalizedConfig) {
+		go WatchConfigOrDie(opts.ConfigPath, func(c *config.NormalizedConfig) {
 			log.Info().Msg("reloading config")
 			m, err := s.generator.Generate(c)
 			if err != nil {
@@ -144,7 +144,7 @@ func (s *Server) Reload(handler http.Handler) {
 	s.atomicHandler.Store(handler)
 }
 
-func WatchConfigOrDie(path string, onChange func(c *kobold.NormalizedConfig)) {
+func WatchConfigOrDie(path string, onChange func(c *config.NormalizedConfig)) {
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		panic(err)
@@ -181,7 +181,7 @@ func WatchConfigOrDie(path string, onChange func(c *kobold.NormalizedConfig)) {
 
 			// finally load the new config
 
-			conf, err := kobold.ReadPath(path)
+			conf, err := config.ReadPath(path)
 			if err != nil {
 				log.Error().Err(err).Msg("failed to config")
 				continue

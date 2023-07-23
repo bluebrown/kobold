@@ -1,4 +1,4 @@
-package kobold
+package config
 
 import "strings"
 

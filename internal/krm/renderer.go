@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 
 	"github.com/bluebrown/kobold/internal/events"
-	"github.com/bluebrown/kobold/kobold"
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
 type NopRenderer struct{}
@@ -316,10 +316,10 @@ func NewCustomResolver(name string, paths []string) Resolver {
 // for example for a docker-compose.yaml, the compose resolver should be returned
 type ResolverSelector struct {
 	resolvers    map[string]Resolver
-	associations []kobold.FileTypeSpec
+	associations []config.FileTypeSpec
 }
 
-func NewSelector(resolvers []kobold.ResolverSpec, associations []kobold.FileTypeSpec) *ResolverSelector {
+func NewSelector(resolvers []config.ResolverSpec, associations []config.FileTypeSpec) *ResolverSelector {
 	resolverMap := map[string]Resolver{
 		"ko":         resolveKo,
 		"compose":    resolveCompose,
@@ -332,7 +332,7 @@ func NewSelector(resolvers []kobold.ResolverSpec, associations []kobold.FileType
 
 	// TODO: merge defaults with user associations ?!
 	if len(associations) == 0 {
-		associations = []kobold.FileTypeSpec{
+		associations = []config.FileTypeSpec{
 			{Kind: "ko", Pattern: ".ko.yaml"},
 			{Kind: "compose", Pattern: "*compose*.y?ml"},
 			{Kind: "kubernetes", Pattern: "*"},

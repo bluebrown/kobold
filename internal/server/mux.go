@@ -19,7 +19,7 @@ import (
 	"github.com/bluebrown/kobold/internal/gitbot/transport"
 	"github.com/bluebrown/kobold/internal/krm"
 	"github.com/bluebrown/kobold/internal/registry"
-	"github.com/bluebrown/kobold/kobold"
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
 type generator struct {
@@ -29,7 +29,7 @@ type generator struct {
 	imagerefTemplate string
 }
 
-func (g generator) Generate(conf *kobold.NormalizedConfig) (http.Handler, error) {
+func (g generator) Generate(conf *config.NormalizedConfig) (http.Handler, error) {
 	// initialize all repositories
 	repos := make(gitbot.Repos, 0)
 	for _, r := range conf.Repositories {
@@ -72,16 +72,16 @@ func (g generator) Generate(conf *kobold.NormalizedConfig) (http.Handler, error)
 		standardClient := retryClient.StandardClient()
 
 		switch sub.Strategy {
-		case kobold.StrategyCommit:
+		case config.StrategyCommit:
 			prClient = nil
-		case kobold.StrategyPullRequest:
+		case config.StrategyPullRequest:
 			log.Debug().Str("sub", sub.Name).Str("provider", string(repo.Provider())).Msg("setup pull requests")
 			switch repo.Provider() {
 			case "":
 				return nil, fmt.Errorf("using pull-requests requires a known provider")
-			case kobold.ProviderGithub:
+			case config.ProviderGithub:
 				prClient, err = github.NewPrClient(repo.URL(), repo.Auth(), standardClient)
-			case kobold.ProviderAzure:
+			case config.ProviderAzure:
 				prClient, err = azure.NewPrClient(repo.URL(), repo.Auth(), standardClient)
 			default:
 				return nil, fmt.Errorf("provider %s not supported for pull-requests", repo.Provider())
@@ -134,11 +134,11 @@ func (g generator) Generate(conf *kobold.NormalizedConfig) (http.Handler, error)
 		log.Info().Str("endpoint", endpoint.Name).Str("path", endpoint.Path).Msg("setup endpoint")
 		var ph events.PayloadHandler
 		switch endpoint.Type {
-		case kobold.EndpointTypeGeneric:
+		case config.EndpointTypeGeneric:
 			ph = generic.NewPayloadHandler()
-		case kobold.EndpointTypeACR:
+		case config.EndpointTypeACR:
 			ph = acr.NewPayloadHandler()
-		case kobold.EndpointTypeDockerhub:
+		case config.EndpointTypeDockerhub:
 			ph = dockerhub.NewPayloadHandler(registry.NewDigestFetcher(g.defaultRegistry, keys))
 		default:
 			return nil, fmt.Errorf("unsupported endpoint type: %s", endpoint.Type)

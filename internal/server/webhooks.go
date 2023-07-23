@@ -12,10 +12,10 @@ import (
 
 	"github.com/bluebrown/kobold/internal/events"
 	"github.com/bluebrown/kobold/internal/krm"
-	"github.com/bluebrown/kobold/kobold"
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
-func RequireHeaders(headers []kobold.Header, handler http.Handler) http.Handler {
+func RequireHeaders(headers []config.Header, handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		for _, h := range headers {
 			if val := r.Header.Get(h.Key); val == "" || val != h.Value {

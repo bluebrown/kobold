@@ -4,16 +4,17 @@ import (
 	"context"
 	"testing"
 
-	"github.com/bluebrown/kobold/internal/events"
-	"github.com/bluebrown/kobold/kobold"
-	"github.com/google/go-containerregistry/pkg/name"
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 	"sigs.k8s.io/kustomize/kyaml/kio"
+
+	"github.com/bluebrown/kobold/internal/events"
+	"github.com/bluebrown/kobold/kobold/config"
+	"github.com/google/go-containerregistry/pkg/name"
 )
 
 type testPipeOptions struct {
-	associations []kobold.FileTypeSpec
-	resolvers    []kobold.ResolverSpec
+	associations []config.FileTypeSpec
+	resolvers    []config.ResolverSpec
 }
 
 func testPipe(caseDir string, opts testPipeOptions, events ...events.PushData) (filesys.FileSystem, error) {
@@ -222,10 +223,10 @@ func Test_renderer_Render(t *testing.T) {
 			name:    "custom-resolver-helm",
 			giveDir: "custom-resolver-helm",
 			giveOpts: testPipeOptions{
-				resolvers: []kobold.ResolverSpec{
+				resolvers: []config.ResolverSpec{
 					{Name: "my-helm", Paths: []string{"path.to.image", "another.path"}},
 				},
-				associations: []kobold.FileTypeSpec{{Kind: "my-helm", Pattern: "values.yaml"}},
+				associations: []config.FileTypeSpec{{Kind: "my-helm", Pattern: "values.yaml"}},
 			},
 			giveEvents: []events.PushData{
 				{Image: "index.docker.io/bluebrown/echoserver", Tag: "latest", Digest: "sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869"},

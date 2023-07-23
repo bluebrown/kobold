@@ -7,9 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bluebrown/kobold/kobold"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+
+	"github.com/bluebrown/kobold/kobold/config"
 )
 
 type PullRequester interface {
@@ -25,9 +26,9 @@ type GitTransporter interface {
 	AddCommitPush(ctx context.Context, branch, title, description string) (bool, error)
 }
 
-func NewRepo(tranport GitTransporter, provider kobold.GitProvider) *repo {
+func NewRepo(tranport GitTransporter, provider config.GitProvider) *repo {
 	if provider == "" {
-		provider = kobold.InferGitProvider(tranport.URL())
+		provider = config.InferGitProvider(tranport.URL())
 	}
 	return &repo{
 		lock:      sync.Mutex{},
@@ -38,7 +39,7 @@ func NewRepo(tranport GitTransporter, provider kobold.GitProvider) *repo {
 
 type repo struct {
 	transport GitTransporter
-	provider  kobold.GitProvider
+	provider  config.GitProvider
 	lock      sync.Mutex
 }
 
@@ -51,7 +52,7 @@ func (r *repo) Transactions(fn func(path string, transport GitTransporter) error
 	return err
 }
 
-func (r *repo) Provider() kobold.GitProvider {
+func (r *repo) Provider() config.GitProvider {
 	return r.provider
 }
 
