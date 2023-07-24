@@ -104,7 +104,7 @@ version-next: # internal command to set VERSION to the next semver
 
 .PHONY: image-publish
 image-publish: ## Build and push the images to CONTAINER_REGISTRY
-	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom --push'
+	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom --set=*.output=type=registry'
 
 .PHONY: github-pages
 github-pages: bin/mdbook ## Build and publish the docs to github pages
