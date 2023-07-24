@@ -1,0 +1,30 @@
+on:
+  workflow_dispatch:
+    inputs:
+      preRelease:
+        description: Create a pre release, if set
+        type: boolean
+        default: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set git config
+        run: |
+          git config --global user.email "noreply@bluebrown.github.io"
+          git config --global user.name "GitHub Actions"
+
+      - name: Login to the container registry
+        run: docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
+
+      - name: Create a github release
+        run: make github-release
