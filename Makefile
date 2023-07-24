@@ -87,7 +87,7 @@ image-build: ## Build the images with VERSION as tag. Passes BUILDX_FLAGS to bui
 .PHONY: artefacts
 artifacts: bin/kustomize build ## Create all release artifacts and put the in .dist/
 	mkdir -p .dist && rm -rf .dist/*
-	$(foreach tag,$(BUILD_TAGS),tar -czf .dist/kobold-$(tag).$(GOOS)-$(GOARCH).tgz bin/kobold-$(tag);)
+	$(foreach binary,$(wildcard bin/kobold*),tar -czf .dist/$(notdir $(binary)).$(GOOS)-$(GOARCH).tgz $(binary);)
 	bin/kustomize build manifests/dist/ -o .dist/kobold.manifests.yaml
 	cp assets/schema.json .dist/kobold.schema.json
 	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom \
