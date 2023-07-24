@@ -30,7 +30,7 @@ current = $(shell git branch --show-current)
 
 ##@ Commands
 
-help: ## Show this helptext
+help: ## Show this help text
 	bin/makehelp Makefile
 
 
@@ -59,7 +59,7 @@ test: ## Run test suite
 	go test ./...
 
 .PHONY: license-check
-license-check: bin/go-licenses ## Check for dangerous licenses of dependecies
+license-check: bin/go-licenses ## Check for dangerous licenses of dependencies
 	go-licenses check --include_tests  \
 	--allowed_licenses=0BSD,ISC,BSD-2-Clause,BSD-3-Clause,MIT,Apache-2.0,MPL-2.0 \
 	./cmd/server/
@@ -100,7 +100,8 @@ artifacts: bin/kustomize build ## Create all release artifacts and put the in .d
 .PHONY: version-next
 version-next: # internal command to set VERSION to the next semver
 	$(eval VERSION = $(shell docker run --rm -u "$$(id -u):$$(id -g)" \
-		-v $(CURDIR):/tmp -w /tmp convco/convco version --bump $(if $(filter $(PRE_RELEASE), 1),--prerelease rc)))
+		-v $(CURDIR):/tmp -w /tmp convco/convco version --bump \
+		$(if $(filter $(PRE_RELEASE), 1),--prerelease rc)))
 
 .PHONY: image-publish
 image-publish: ## Build and push the images to CONTAINER_REGISTRY
