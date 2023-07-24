@@ -1,4 +1,4 @@
-name: Triage
+name: triage
 
 on:
   issues:
