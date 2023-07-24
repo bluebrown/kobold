@@ -85,7 +85,7 @@ image-build: ## Build the images with VERSION as tag. Passes BUILDX_FLAGS to bui
 	docker buildx bake --file build/docker-bake.hcl $(BUILDX_FLAGS)
 
 .PHONY: artefacts
-artefacts: bin/kustomize build ## Create all release artefacts and put the in .dist/
+artifacts: bin/kustomize build ## Create all release artifacts and put the in .dist/
 	mkdir -p .dist && rm -rf .dist/*
 	$(foreach tag,$(BUILD_TAGS),tar -czf .dist/kobold-$(tag).$(GOOS)-$(GOARCH).tgz bin/kobold-$(tag);)
 	bin/kustomize build manifests/dist/ -o .dist/kobold.manifests.yaml
@@ -111,7 +111,7 @@ github-pages: bin/mdbook ## Build and publish the docs to github pages
 	bash docs/publish.sh
 
 .PHONY: github-release
-github-release: git-ishead git-isclean version-next artefacts image-publish ## Create a new release on GitHub and publish the images. Set PRE_RELEASE=1 for pre releases
+github-release: git-ishead git-isclean version-next artifacts image-publish ## Create a new release on GitHub and publish the images. Set PRE_RELEASE=1 for pre releases
 	bash .github/release.sh
 
 
