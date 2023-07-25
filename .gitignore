@@ -3,10 +3,11 @@
 /.dist/
 
 /bin/*
-!/bin/task
+!/bin/makehelp
 
 .env
-!manifests/base/etc/.env
-!manifests/example/etc/.env
+!/manifests/base/etc/.env
+!/manifests/example/etc/.env
+!/e2e/kobold/etc/.env
 
 dockerconfig.json

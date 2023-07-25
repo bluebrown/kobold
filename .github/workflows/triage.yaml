@@ -1,8 +1,10 @@
 name: triage
+
 on:
   issues:
     types:
       - opened
+
 jobs:
   label_issue:
     runs-on: ubuntu-latest

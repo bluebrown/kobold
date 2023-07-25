@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# the command is installed via go mod download
-# since it is required in tools.go
-exec go run github.com/go-task/task/v3/cmd/task "$@"
