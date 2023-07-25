@@ -1,8 +1,5 @@
 # File Associations
 
-In order to find image references, the file must be of a known type. Currently
-known types are `kubernetes`, `docker-compose` and `ko-build`.
-
 The type of a given yaml file is determined by using glob to math the filename.
 The default matching rules look like this:
 
@@ -28,5 +25,5 @@ subscriptions:
         pattern: "*"
 ```
 
-> **Note** If there is a filetype you would to use, that is currently not
-supported, please open and issue so we can  can add it to the codebase.
+If the builtin resolvers are not sufficient. You can [create your own
+resolver](./resolvers.md).

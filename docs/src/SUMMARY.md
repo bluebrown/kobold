@@ -14,6 +14,7 @@
     - [Pull Requests](./configuration/pull-requests.md)
     - [Scopes](./configuration/scopes.md)
     - [File Associations](./configuration/file-associations.md)
+  - [Resolvers](./configuration/resolvers.md)
   - [Registry Auth](./configuration/registry-auth.md)
 - [Deployment](./deployment/index.md)
   - [Kubernetes](./deployment/kubernetes.md)
