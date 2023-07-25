@@ -37,3 +37,6 @@ jobs:
 
       - name: Create a github release
         run: make github-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRE_RELEASE: ${{ github.event.inputs.preRelease == 'true' && '1' || '0' }}
