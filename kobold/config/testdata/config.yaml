@@ -25,8 +25,8 @@ repositories:
 
 subscriptions:
   - name: nonprod
-    endpointRefs: [{ name: my-acr }]
-    repositoryRef: { name: test }
+    endpointRefs: [{name: my-acr}]
+    repositoryRef: {name: test}
     branch: main
     strategy: commit
     scopes:
@@ -34,8 +34,8 @@ subscriptions:
       - /env/stage/
 
   - name: prod
-    endpointRefs: [{ name: my-acr }]
-    repositoryRef: { name: test }
+    endpointRefs: [{name: my-acr}]
+    repositoryRef: {name: test}
     branch: main
     strategy: pull-request
     scopes:
@@ -45,5 +45,13 @@ subscriptions:
         pattern: ".ko.yaml"
       - kind: docker-compose
         pattern: "compose.yaml"
+      - kind: custom-helm
+        pattern: "values*.yaml"
       - kind: kubernetes
         pattern: "*"
+
+resolvers:
+  - name: custom-helm
+    paths:
+      - some.path.to.image
+      - some.other

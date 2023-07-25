@@ -249,6 +249,26 @@
           "type": "string"
         }
       }
+    },
+    "resolvers": {
+      "description": "List of custom resolvers",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "The name of the resolver",
+            "type": "string"
+          },
+          "paths": {
+            "description": "List of paths to search for image refs. Does not stop on first match",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   },
   "required": [

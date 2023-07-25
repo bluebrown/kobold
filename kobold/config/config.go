@@ -82,8 +82,8 @@ const (
 )
 
 type FileTypeSpec struct {
-	Kind    string
-	Pattern string
+	Kind    string `json:"kind,omitempty"`
+	Pattern string `json:"pattern,omitempty"`
 }
 
 type EndpointRef struct {

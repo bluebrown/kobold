@@ -17,6 +17,11 @@ repositories:
   provider: github
   url: https://github.com/bluebrown/kobold-test
   username: test-usr
+resolvers:
+- name: custom-helm
+  paths:
+  - some.path.to.image
+  - some.other
 subscriptions:
 - branch: main
   endpointRefs:
@@ -32,12 +37,14 @@ subscriptions:
   endpointRefs:
   - name: my-acr
   fileAssociations:
-  - Kind: ko-build
-    Pattern: .ko.yaml
-  - Kind: docker-compose
-    Pattern: compose.yaml
-  - Kind: kubernetes
-    Pattern: '*'
+  - kind: ko-build
+    pattern: .ko.yaml
+  - kind: docker-compose
+    pattern: compose.yaml
+  - kind: custom-helm
+    pattern: values*.yaml
+  - kind: kubernetes
+    pattern: '*'
   name: prod
   repositoryRef:
     name: test
