@@ -14,9 +14,10 @@ subscriptions:
 This is useful if you want to use different strategies within the same
 repository. For example you could use the `commit` strategy for your staging
 environment and `pull-request` for the production environment.  
-This could be used to new application versions automatically deployed to staging
-for review by your stakeholders. Once they are happy, you can merge the pull
-request for your production environment.
+
+It could be used to rollout new application versions automatically to a staging
+environment, for review by your stakeholders. Once they are happy, you can merge
+the pull request for your production environment.
 
 ```yaml
 subscriptions:

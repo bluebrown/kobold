@@ -4,7 +4,7 @@ Once a webhook event is received, kobold performs a search in any
 [repository](../configuration/repositories.md) that is
 [subscribed](../configuration/subscriptions.md) to the origin
 [endpoint](../configuration/endpoints.md). It looks for image nodes containing
-an inline comment with some options to configure the bahvior on case by case
+an inline comment with some options to configure the behavior on case by case
 basis.
 
 Inline comments keep the logic lean and avoid verbosity while preserving valid

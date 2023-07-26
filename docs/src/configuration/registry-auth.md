@@ -70,7 +70,7 @@ account` as service account name.
 
 ```yaml
 registryAuth:
-  namespace: "no service account"
+  serviceAccount: "no service account"
 ```
 
 By doing this, you could remove the resource `serviceaccounts` from the rbac
@@ -78,9 +78,9 @@ role.
 
 If you don't provide a `registryAuth` key in your config and use the k8s chain,
 kobold will default to the values of the environment variables `$NAMESPACE` and
-`$SERVICE_ACCOUNT`, if set. Otherwise it will use the default namespace and `no
-service account`. This allows to use the other parts of the k8s chain without
-the actual need for rbac.
+`$SERVICE_ACCOUNT`, if set. Otherwise it will use the `default` namespace and
+`no service account`. This allows to use the other parts of the k8s chain
+without the actual need for rbac.
 
 ## Bare Metal
 

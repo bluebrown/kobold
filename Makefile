@@ -91,7 +91,7 @@ artifacts: bin/kustomize build ## Create all release artifacts and put the in .d
 	bin/kustomize build manifests/dist/ -o .dist/kobold.manifests.yaml
 	cp assets/schema.json .dist/kobold.schema.json
 	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom \
-		--set gitgo.output=type=tar,dest=.dist/kobold-gitgo.oci.tar \
+		--set gitgo.output=type=tar,dest=.dist/kobold.oci.tar \
 		--set gitexec.output=type=tar,dest=.dist/kobold-gitexec.oci.tar'
 
 
@@ -128,7 +128,7 @@ bin/kind:
 	curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 | install /dev/stdin bin/kind
 
 bin/mdbook:
-	curl -fsSL https://github.com/rust-lang/mdBook/releases/download/v0.4.14/mdbook-v0.4.14-x86_64-unknown-linux-gnu.tar.gz | tar -C bin -xzf -
+	curl -fsSL https://github.com/rust-lang/mdBook/releases/download/v0.4.32/mdbook-v0.4.32-x86_64-unknown-linux-gnu.tar.gz | tar -C bin -xzf -
 
 bin/go-licenses:
 	go install github.com/google/go-licenses@latest

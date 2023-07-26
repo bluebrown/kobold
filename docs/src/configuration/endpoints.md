@@ -25,5 +25,5 @@ Currently supported endpoint types are `acr`, `dockerhub` and `generic`. The
 generic type can be used if you want to dispatch events manually, perhaps via
 pipeline.
 
-> **Note** If there is no type for your registry of choice, please open an issue so that we
-can add it to the codebase.
+> **Note** If there is no type for your registry of choice, please open an issue
+so that we can add it to the codebase.

@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 set -o nounset -o errexit -o errtrace -o pipefail
 
-mkdir -p bin
+script_abs="$(readlink -f "$0")"
+script_dir="$(dirname "$script_abs")"
 
-if ! test -x bin/mdbook; then
-  curl -fsSL https://github.com/rust-lang/mdBook/releases/download/v0.4.14/mdbook-v0.4.14-x86_64-unknown-linux-gnu.tar.gz |
-    tar -C bin -xzf -
-fi
+cd "$script_dir/../"
 
 git worktree add /tmp/gh-pages
 
@@ -14,7 +12,7 @@ git -C /tmp/gh-pages/ update-ref -d refs/heads/gh-pages
 
 mv /tmp/gh-pages/.git /tmp/mygit
 
-bin/mdbook build --dest-dir /tmp/gh-pages/ docs/
+mdbook build --dest-dir /tmp/gh-pages/ docs/
 
 mv /tmp/mygit /tmp/gh-pages/.git
 
