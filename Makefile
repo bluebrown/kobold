@@ -98,14 +98,15 @@ artifacts: bin/kustomize build ## Create all release artifacts and put the in .d
 ###@ Publish
 
 .PHONY: version-next
-version-next: # internal command to set VERSION to the next semver
+version-next: # internal command to set VERSION to the next semver and IS_LATEST accordingly
+	$(if $(filter $(PRE_RELEASE), 0), $(eval IS_LATEST = 1))
 	$(eval VERSION = $(shell docker run --rm -u "$$(id -u):$$(id -g)" \
 		-v $(CURDIR):/tmp -w /tmp convco/convco version --bump \
 		$(if $(filter $(PRE_RELEASE), 1),--prerelease rc)))
 
 .PHONY: image-publish
 image-publish: ## Build and push the images to CONTAINER_REGISTRY
-	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom --set=*.output=type=registry'
+	IS_LATEST=$(IS_LATEST) $(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom --set=*.output=type=registry'
 
 .PHONY: github-pages
 github-pages: bin/mdbook ## Build and publish the docs to github pages
