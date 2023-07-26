@@ -19,17 +19,27 @@ func Test_payloadHandler_Validate(t *testing.T) {
 	}{
 		{
 			name:    "valid ref",
-			args:    args{b: []byte(`docker.io/foo/bar:v1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
+			args:    args{b: []byte(`index.docker.io/foo/bar:v1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
 			wantErr: false,
 		},
 		{
 			name:    "no registry",
-			args:    args{b: []byte(`foo/bar:v1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
+			args:    args{b: []byte(`yum/yam:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3`)},
+			wantErr: true,
+		},
+		{
+			name:    "no tag",
+			args:    args{b: []byte(`azurecr.io/some/thing@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
 			wantErr: true,
 		},
 		{
 			name:    "no digest",
-			args:    args{b: []byte(`docker.io/foo/bar:v1`)},
+			args:    args{b: []byte(`index.docker.io/library/busybox:123`)},
+			wantErr: true,
+		},
+		{
+			name:    "no namespace",
+			args:    args{b: []byte(`index.docker.io/redis:7.4@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
 			wantErr: true,
 		},
 	}
