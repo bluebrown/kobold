@@ -30,7 +30,8 @@ current = $(shell git branch --show-current)
 
 ##@ Commands
 
-help: ## Show this help text
+.PHONY: help
+help: bin/makehelp ## Show this help text
 	bin/makehelp Makefile
 
 
@@ -76,7 +77,7 @@ git-isclean: # Fail, if worktree is dirty
 ###@ Build
 
 .PHONY: build
-build: ## Build the binaries with for each tag of BUILD_TAGS
+build: | bin ## Build the binaries with for each tag of BUILD_TAGS
 	$(foreach tag,$(BUILD_TAGS),go build -tags $(tag) \
 		-ldflags='-w -s -X "main.version=$(VERSION)"' -o bin/kobold$(if $(filter-out $(tag), gitgo),-$(tag)) ./cmd/server/;)
 
@@ -84,7 +85,7 @@ build: ## Build the binaries with for each tag of BUILD_TAGS
 image-build: ## Build the images with VERSION as tag. Passes BUILDX_FLAGS to buildx
 	docker buildx bake --file build/docker-bake.hcl $(BUILDX_FLAGS)
 
-.PHONY: artefacts
+.PHONY: artifacts
 artifacts: bin/kustomize build ## Create all release artifacts and put the in .dist/
 	mkdir -p .dist && rm -rf .dist/*
 	$(foreach binary,$(wildcard bin/kobold*),tar -czf .dist/$(notdir $(binary)).$(GOOS)-$(GOARCH).tgz $(binary);)
@@ -119,17 +120,23 @@ github-release: git-ishead git-isclean version-next artifacts image-publish ## C
 
 ## Dependencies
 
-bin/kubectl:
+bin:
+	mkdir -p bin
+
+bin/makehelp: | bin
+	curl -fsSL https://gist.githubusercontent.com/bluebrown/2ec155902622b5e46e2bfcbaff342eb9/raw/Makehelp.awk | install /dev/stdin bin/makehelp
+
+bin/kubectl: | bin
 	curl -fsSL "https://dl.k8s.io/release/$(shell curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o bin/kubectl
 
-bin/kustomize:
+bin/kustomize: | bin
 	curl -fsSL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash -s bin
 
-bin/kind:
+bin/kind: | bin
 	curl -fsSL https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64 | install /dev/stdin bin/kind
 
-bin/mdbook:
+bin/mdbook: | bin
 	curl -fsSL https://github.com/rust-lang/mdBook/releases/download/v0.4.32/mdbook-v0.4.32-x86_64-unknown-linux-gnu.tar.gz | tar -C bin -xzf -
 
-bin/go-licenses:
+bin/go-licenses: | bin
 	go install github.com/google/go-licenses@latest
