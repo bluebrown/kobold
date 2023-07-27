@@ -101,7 +101,7 @@ artifacts: bin/kustomize build ## Create all release artifacts and put the in .d
 .PHONY: version-next
 version-next: # internal command to set VERSION to the next semver and IS_LATEST accordingly
 	$(if $(filter $(PRE_RELEASE), 0), $(eval IS_LATEST = 1))
-	$(eval VERSION = $(shell docker run --rm -u "$$(id -u):$$(id -g)" \
+	$(eval VERSION = v$(shell docker run --rm -u "$$(id -u):$$(id -g)" \
 		-v $(CURDIR):/tmp -w /tmp convco/convco version --bump \
 		$(if $(filter $(PRE_RELEASE), 1),--prerelease rc)))
 
