@@ -40,3 +40,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PRE_RELEASE: ${{ github.event.inputs.preRelease == 'true' && '1' || '0' }}
+
+      - name: Publish docs
+        run: make github-pages
+        if: github.events.inputs.preRelease != 'true'
