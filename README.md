@@ -51,6 +51,8 @@ The above config requires to add create some additional resources. Below is the
 config file for kobold. Adjust this to your needs.
 
 ```yaml
+version: v1
+
 endpoints:
   - name: myacr
     type: acr
@@ -64,7 +66,6 @@ repositories:
     url: https://github.com/bluebrown/kobold
     username: "${MY_GIT_EMAIL}"
     password: "${MY_GIT_PAT}"
-    provider: github
 
 subscriptions:
   - name: kobold
@@ -73,6 +74,7 @@ subscriptions:
     repositoryRef:
       name: github-kobold
     branch: main
+    strategy: commit
 ```
 
 In addition to the above config file, an env file is used for secrets. `Kobold`
@@ -120,11 +122,11 @@ You can create an end-to-end setup using [kind](https://kind.sigs.k8s.io) and
 make e2e-up
 ```
 
-Once the stack is deployed, you can access `gitea` at http://localhost:3000
+Once the stack is deployed, you can access `gitea` at <http://localhost:3000>
 using `kobold` as value for both, the username and password.
 
 The `ingress controller` of the `kind` cluster is exposed on port 8080 and 8443.
-So you can publish test events to http://localhost:8080 as this will route the
+So you can publish test events to <http://localhost:8080> as this will route the
 traffic to the kobold server.
 
 `Kobold` is deployed to the namespace `kobold` and already configured to listen

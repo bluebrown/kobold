@@ -26,4 +26,4 @@ subscriptions:
 ```
 
 If the builtin resolvers are not sufficient. You can [create your own
-resolver](./resolvers.md).
+resolvers](./resolvers.md), that you can reference in the `fileAssociations`.
