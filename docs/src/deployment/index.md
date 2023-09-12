@@ -24,4 +24,6 @@ Usage of kobold:
         show version info
   -watch
         Reload the server on config file change
+  -debounce duration
+        debounce events until no event has been received for the provided duration (default 1m0s)
 ```

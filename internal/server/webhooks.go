@@ -81,25 +81,24 @@ type repoBot interface {
 	Do(ctx context.Context, callback func(ctx context.Context, dir string) (title string, msg string, err error)) error
 }
 
-func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger commitMessenger) chan events.PushData {
+func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger commitMessenger, delay time.Duration) chan events.PushData {
 	eventsChan := make(chan events.PushData, 10)
 	logger := log.With().Str("subscriber", id).Logger()
 	go func() {
 		var (
 			queue    = make([]events.PushData, 0, 100)
 			debounce = new(time.Timer)
-			delay    = time.Minute
 		)
 		for {
 			select {
 			case event := <-eventsChan:
 				queue = append(queue, event)
 				if debounce.C == nil {
-					logger.Debug().Msg("queueing event")
+					logger.Debug().Dur("debounceMs", delay).Msg("queueing event")
 					debounce = time.NewTimer(delay)
 					continue
 				}
-				logger.Debug().Msg("debouncing event")
+				logger.Debug().Dur("debounceMs", delay).Msg("debouncing event")
 				if !debounce.Stop() {
 					<-debounce.C
 				}

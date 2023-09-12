@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/rs/zerolog/log"
@@ -25,6 +26,7 @@ var (
 	defaultRegistry  = name.DefaultRegistry
 	imageRefTemplate = "{{ .Image }}:{{ .Tag }}@{{ .Digest }}"
 	watch            = false
+	debounce         = time.Minute
 )
 
 func main() {
@@ -41,6 +43,7 @@ func main() {
 	flag.StringVar(&defaultRegistry, "default-registry", defaultRegistry, "the default registry to use, for unprefixed images")
 	flag.StringVar(&imageRefTemplate, "imageref-template", imageRefTemplate, "the format of the image ref when updating an image node")
 	flag.BoolVar(&watch, "watch", watch, "Reload the server on config file change")
+	flag.DurationVar(&debounce, "debounce", debounce, "debounce events until no event has been received for the provided duration")
 	logging.InitFlags(nil)
 	flag.Parse()
 
@@ -70,6 +73,7 @@ func run() error {
 		server.WithDataPath(dataPath),
 		server.WithConfigPath(configPath),
 		server.WithWatch(watch),
+		server.WithDebounce(debounce),
 	}
 
 	if useK8sChain {

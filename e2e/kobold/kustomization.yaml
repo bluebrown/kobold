@@ -42,11 +42,14 @@ patches:
       - op: add
         path: /spec/template/spec/containers/0/args/-
         value: -v=7
-  # - target:
-  #     kind: ServiceAccount
-  #     name: kobold
-  #   patch: |
-  #     - op: add
-  #       path: /imagePullSecrets/-
-  #       value:
-  #         name: dockerhub
+      - op: add
+        path: /spec/template/spec/containers/0/args/-
+        value: --debounce=5s
+# - target:
+#     kind: ServiceAccount
+#     name: kobold
+#   patch: |
+#     - op: add
+#       path: /imagePullSecrets/-
+#       value:
+#         name: dockerhub

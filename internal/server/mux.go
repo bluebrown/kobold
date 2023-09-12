@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"path/filepath"
+	"time"
 
 	"github.com/hashicorp/go-retryablehttp"
 	"github.com/rs/zerolog/log"
@@ -27,6 +28,7 @@ type generator struct {
 	useK8sChain      bool
 	defaultRegistry  string
 	imagerefTemplate string
+	debounceTime     time.Duration
 }
 
 func (g generator) Generate(conf *config.NormalizedConfig) (http.Handler, error) {
@@ -110,6 +112,7 @@ func (g generator) Generate(conf *config.NormalizedConfig) (http.Handler, error)
 			bot,
 			renderer,
 			gitbot.NewTemplateCommitMessenger(conf.CommitMessage.Title, conf.CommitMessage.Description),
+			g.debounceTime,
 		)
 
 		for _, ef := range sub.EndpointRefs {
