@@ -20,7 +20,7 @@ spec:
         runAsGroup: 65532
       containers:
         - name: kobold
-          image: index.docker.io/bluebrown/kobold
+          image: index.docker.io/bluebrown/kobold:latest
           args:
             - --config=/etc/kobold/config.yaml
             - --watch
