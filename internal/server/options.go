@@ -1,6 +1,10 @@
 package server
 
-import "github.com/bluebrown/kobold/kobold/config"
+import (
+	"time"
+
+	"github.com/bluebrown/kobold/kobold/config"
+)
 
 func WithConfigPath(path string) Option {
 	return func(o *Options) {
@@ -45,5 +49,11 @@ func WithMuxGenerator(g muxGenerator) Option {
 func WithImagerefTemplate(t string) Option {
 	return func(o *Options) {
 		o.imagerefTemplate = t
+	}
+}
+
+func WithDebounce(d time.Duration) Option {
+	return func(o *Options) {
+		o.debounce = d
 	}
 }

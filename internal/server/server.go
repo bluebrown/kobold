@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"sync/atomic"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/rs/zerolog/log"
@@ -42,6 +43,7 @@ type Options struct {
 	muxGenerator     muxGenerator
 	defaultRegistry  string
 	imagerefTemplate string
+	debounce         time.Duration
 }
 
 type Option func(*Options)
@@ -87,7 +89,7 @@ func NewOrDie(options ...Option) *Server {
 		opts.Config.RegistryAuth.Namespace = os.Getenv("NAMESPACE")
 	}
 
-	// use the sa from env var is unset
+	// use the sa from env var, if unset.
 	// if the env var is also not set, use the magic string "no service account"
 	// this protects users from errors when using the k8s chain without rbac
 	// and explicit registryAuth config. So that they still get the other parts
@@ -106,6 +108,7 @@ func NewOrDie(options ...Option) *Server {
 			useK8sChain:      opts.UseK8sChain,
 			defaultRegistry:  opts.defaultRegistry,
 			imagerefTemplate: opts.imagerefTemplate,
+			debounceTime:     opts.debounce,
 		}
 	}
 
