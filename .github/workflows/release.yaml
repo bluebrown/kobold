@@ -42,5 +42,5 @@ jobs:
           PRE_RELEASE: ${{ github.event.inputs.preRelease == 'true' && '1' || '0' }}
 
       - name: Publish docs
-        run: make github-pages
+        run: make -j github-pages
         if: github.events.inputs.preRelease != 'true'

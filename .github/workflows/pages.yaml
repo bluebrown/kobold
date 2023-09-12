@@ -19,4 +19,4 @@ jobs:
           git config --global user.name "GitHub Actions"
 
       - name: Build and publish the docs to github pages
-        run: make github-pages
+        run: make -j github-pages

@@ -29,7 +29,7 @@ jobs:
         run: go mod download
 
       - name: Run all checks
-        run: make check
+        run: make -j check
 
       - name: Build artifacts
-        run: make artifacts
+        run: make -j artifacts
