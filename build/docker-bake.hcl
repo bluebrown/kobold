@@ -19,7 +19,7 @@ target "gitgo" {
 
 target "gitexec" {
   inherits = ["gitgo"]
-  args     = { BASE_IMAGE = "docker.io/alpine/git:v2.36.3", CGO_ENABLED = "0", BUILD_TAG = "gitexec", VERSION = VERSION}
+  args     = { base = "gitexec", CGO_ENABLED = "0", BUILD_TAG = "gitexec", VERSION = VERSION}
   tags     = compact([
     "${CONTAINER_REGISTRY}/bluebrown/kobold:${VERSION}-gitexec",
     equal(IS_LATEST, "1") ? "${CONTAINER_REGISTRY}/bluebrown/kobold:latest-gitexec" : null
