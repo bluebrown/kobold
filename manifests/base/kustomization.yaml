@@ -7,6 +7,8 @@ labels:
   - includeSelectors: true
     pairs:
       app.kubernetes.io/name: kobold
+  - pairs:
+      app.kubernetes.io/version: latest
 resources:
   - ./rbac.yaml
   - ./service.yaml

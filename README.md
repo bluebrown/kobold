@@ -27,13 +27,13 @@ setup.
 Typically you would deploy `kobold` to `kubernetes` providing your own config
 file and environment variables for secrets.
 
-You can create a `kustomization` using the dist `overlay` as `base`.
+For example using kustomize:
 
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - https://github.com/bluebrown/kobold//manifests/dist/?rev=main
+  - https://github.com/bluebrown/kobold/releases/latest/download/kobold.manifests.yaml
   - ingress.yaml
 configMapGenerator:
   - name: kobold-config

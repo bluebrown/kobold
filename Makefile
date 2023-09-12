@@ -86,14 +86,24 @@ image-build: ## Build the images with VERSION as tag. Passes BUILDX_FLAGS to bui
 	docker buildx bake --file build/docker-bake.hcl $(BUILDX_FLAGS)
 
 .PHONY: artifacts
-artifacts: bin/kustomize build ## Create all release artifacts and put the in .dist/
+artifacts: ## Create all release artifacts and put the in .dist/
 	mkdir -p .dist && rm -rf .dist/*
-	$(foreach binary,$(wildcard bin/kobold*),tar -C bin -czf .dist/$(notdir $(binary)).$(GOOS)-$(GOARCH).tgz $(notdir $(binary));)
-	bin/kustomize build manifests/dist/ -o .dist/kobold.manifests.yaml
 	cp assets/schema.json .dist/kobold.schema.json
+	$(MAKE) artifact-binary artifact-image artifact-manifests
+
+artifact-binary: build
+	$(foreach binary,$(wildcard bin/kobold*),tar -C bin -czf .dist/$(notdir $(binary)).$(GOOS)-$(GOARCH).tgz $(notdir $(binary));)
+
+artifact-image:
 	$(MAKE) image-build BUILDX_FLAGS='--set *.attest=type=sbom \
 		--set gitgo.output=type=tar,dest=.dist/kobold.oci.tar \
 		--set gitexec.output=type=tar,dest=.dist/kobold-gitexec.oci.tar'
+
+artifact-manifests: bin/kustomize
+	bin/kustomize build manifests/base/ \
+		| sed -E 's|(index.docker.io/bluebrown/kobold):.+|\1:$(VERSION)|g' \
+		| sed -E 's|(app.kubernetes.io/version):.+|\1: $(VERSION)|g' \
+		>.dist/kobold.manifests.yaml
 
 
 ###@ Publish
@@ -114,8 +124,10 @@ github-pages: bin/mdbook ## Build and publish the docs to github pages
 	bash docs/publish.sh
 
 .PHONY: github-release
-github-release: git-ishead git-isclean version-next artifacts image-publish ## Create a new release on GitHub and publish the images. Set PRE_RELEASE=1 for pre releases
+github-release: git-ishead git-isclean version-next ## Create a new release on GitHub and publish the images. Set PRE_RELEASE=1 for pre releases
+	$(MAKE) artifacts
 	bash .github/release.sh
+	$(MAKE) image-publish
 
 
 ## Dependencies

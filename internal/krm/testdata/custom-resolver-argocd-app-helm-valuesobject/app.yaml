@@ -1,0 +1,33 @@
+kind: Application
+metadata:
+  name: banana-split
+  namespace: argocd
+spec:
+  destination:
+    namespace: fruits
+    server: https://kubernetes.default.svc
+  project: fruit-bowl
+  source:
+    path: charts/fruit
+    repoURL: git@ssh.dev.azure.com:v3/fruitful/bowl/deployments
+    helm:
+      valuesObject:
+        image: cr.fruit.bowl/banana:stable@sha256:d778e63ff3c44c71eb69d2aff908ec2bb8ea32388a71f033f017a121ede3ef41 # kobold: tag: stable; type: exact
+        imagePullSecrets:
+          - name: local-cr-cred
+        replicaCount: 1
+        envs:
+          DOTNET_ENVIRONMENT: Staging
+          VAULT_ADDRESS: http://vault.vault.svc:8200
+        opa:
+          enabled: false
+      version: v3
+  syncPolicy:
+    automated:
+      selfHeal: true
+      prune: true
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas

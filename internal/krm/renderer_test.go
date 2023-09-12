@@ -247,6 +247,28 @@ func Test_renderer_Render(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:    "custom-resolver-argocd-app-helm-valuesobject",
+			giveDir: "custom-resolver-argocd-app-helm-valuesobject",
+			giveOpts: testPipeOptions{
+				resolvers: []config.ResolverSpec{
+					{Name: "my-helm-values", Paths: []string{"spec.source.helm.valuesObject.image"}},
+				},
+				associations: []config.FileTypeSpec{{Kind: "my-helm-values", Pattern: "*.yaml"}},
+			},
+			giveEvents: []events.PushData{
+				{Image: "cr.fruit.bowl/banana", Tag: "stable", Digest: "sha256:c0b34fcdb7a249a0c81ce15a3b82d29405fe19a7be757a03385dcd0a65e5252d"},
+			},
+			wantSourceFieldValue: map[string][]wantFieldValue{
+				"app.yaml": {
+					{
+						rnodeIndex: 0,
+						field:      "spec.source.helm.valuesObject.image",
+						value:      "cr.fruit.bowl/banana:stable@sha256:c0b34fcdb7a249a0c81ce15a3b82d29405fe19a7be757a03385dcd0a65e5252d",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

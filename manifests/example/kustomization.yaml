@@ -7,7 +7,7 @@ labels:
     pairs:
       app.kubernetes.io/instance: example
 resources:
-  - ../dist/
+  - https://github.com/bluebrown/kobold/releases/latest/download/kobold.manifests.yaml
   - ./ingress.yaml
 configMapGenerator:
   - name: kobold-config
