@@ -33,6 +33,8 @@ spec:
             - secretRef:
                 name: kobold-env
           env:
+            - name: SERVICE_ACCOUNT_NAME
+              value: kobold
             - name: NAMESPACE
               valueFrom:
                 fieldRef:

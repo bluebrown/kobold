@@ -78,7 +78,7 @@ role.
 
 If you don't provide a `registryAuth` key in your config and use the k8s chain,
 kobold will default to the values of the environment variables `$NAMESPACE` and
-`$SERVICE_ACCOUNT`, if set. Otherwise it will use the `default` namespace and
+`$SERVICE_ACCOUNT_NAME`, if set. Otherwise it will use the `default` namespace and
 `no service account`. This allows to use the other parts of the k8s chain
 without the actual need for rbac.
 
