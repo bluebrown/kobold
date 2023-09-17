@@ -41,7 +41,10 @@ func ReadPath(path string) (*NormalizedConfig, error) {
 		return nil, err
 	}
 
-	return norm.Normalize(), err
+	conf := norm.Normalize()
+	conf.Defaults()
+
+	return conf, nil
 }
 
 func readExpandFile(path string) ([]byte, error) {
