@@ -13,18 +13,6 @@ import (
 	"github.com/bluebrown/kobold/kobold/config"
 )
 
-const (
-	defaultTitle       = "chore(kobold): update images"
-	defaultDescription = `
-{{- range . }}
-- change {{ .Source }}[{{ .Parent }}]:
-  - old: {{ .OldImageRef }}
-  - new: {{ .NewImageRef }}
-  - opt: {{ .OptionsExpression }}
-{{- end }}
-`
-)
-
 type muxGenerator interface {
 	Generate(conf *config.NormalizedConfig) (http.Handler, error)
 }
@@ -69,37 +57,11 @@ func NewOrDie(options ...Option) *Server {
 
 	if opts.Config == nil {
 		opts.Config = &config.NormalizedConfig{}
+		opts.Config.Defaults()
 	}
 
 	if opts.Datapath == "" {
 		opts.Datapath = filepath.Join(os.TempDir(), "kobold")
-	}
-
-	if opts.Config.CommitMessage.Title == "" {
-		opts.Config.CommitMessage.Title = defaultTitle
-	}
-
-	if opts.Config.CommitMessage.Description == "" {
-		opts.Config.CommitMessage.Description = defaultDescription
-	}
-
-	// the the namespace form env var if unset
-	// if the env var is also not set it will default to "default"
-	if opts.Config.RegistryAuth.Namespace == "" {
-		opts.Config.RegistryAuth.Namespace = os.Getenv("NAMESPACE")
-	}
-
-	// use the sa from env var, if unset.
-	// if the env var is also not set, use the magic string "no service account"
-	// this protects users from errors when using the k8s chain without rbac
-	// and explicit registryAuth config. So that they still get the other parts
-	// of the auth chain
-	if opts.Config.RegistryAuth.ServiceAccount == "" {
-		if n := os.Getenv("SERVICE_ACCOUNT_NAME"); n != "" {
-			opts.Config.RegistryAuth.ServiceAccount = n
-		} else {
-			opts.Config.RegistryAuth.ServiceAccount = "no service account"
-		}
 	}
 
 	if opts.muxGenerator == nil {

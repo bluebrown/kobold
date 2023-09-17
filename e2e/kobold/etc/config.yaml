@@ -1,12 +1,5 @@
 version: v1
 
-# FIXME: this should not be required
-# as it should default to the attached service account
-# and current namespace
-registryAuth:
-  serviceAccount: kobold
-  namespace: kobold
-
 endpoints:
   - name: test-endpoint
     type: generic
