@@ -21,20 +21,20 @@ func (ph payloadHandler) Validate(b []byte) error {
 	return err
 }
 
-func (ph payloadHandler) Decode(b []byte) (events.PushData, error) {
+func (ph payloadHandler) Decode(b []byte) ([]events.PushData, error) {
 	rawRef, digest, found := strings.Cut(string(b), "@")
 	if !found {
-		return events.PushData{}, errors.New("missing digest")
+		return nil, errors.New("missing digest")
 	}
 
 	tag, err := name.NewTag(rawRef, name.StrictValidation)
 	if err != nil {
-		return events.PushData{}, err
+		return nil, err
 	}
 
-	return events.PushData{
+	return []events.PushData{{
 		Image:  fmt.Sprintf("%s/%s", tag.RegistryStr(), tag.RepositoryStr()),
 		Tag:    tag.TagStr(),
 		Digest: digest,
-	}, nil
+	}}, nil
 }

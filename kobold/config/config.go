@@ -35,6 +35,7 @@ const (
 	EndpointTypeGeneric   EndpointType = "generic"
 	EndpointTypeACR       EndpointType = "acr"
 	EndpointTypeDockerhub EndpointType = "dockerhub"
+	EndpointTypeOSR       EndpointType = "osr"
 )
 
 type Header struct {

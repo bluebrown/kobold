@@ -1,4 +1,4 @@
-package acr
+package osr
 
 import (
 	"context"
@@ -43,15 +43,23 @@ func (ph payloadHandler) Validate(b []byte) error {
 }
 
 func (ph payloadHandler) Decode(b []byte) ([]events.PushData, error) {
-	pl := PushPayload{}
-	if err := json.Unmarshal(b, &pl); err != nil {
+	ple := PushPayloadEnvelope{}
+	if err := json.Unmarshal(b, &ple); err != nil {
 		return nil, err
 	}
-	return []events.PushData{{
-		Image:  fmt.Sprintf("%s/%s", pl.Request.Host, pl.Target.Repository),
-		Tag:    pl.Target.Tag,
-		Digest: pl.Target.Digest,
-	}}, nil
+	pushDataSlice := make([]events.PushData, len(ple.Events))
+	for i, pl := range ple.Events {
+		pushDataSlice[i] = events.PushData{
+			Image:  fmt.Sprintf("%s/%s", pl.Request.Host, pl.Target.Repository),
+			Tag:    pl.Target.Tag,
+			Digest: pl.Target.Digest,
+		}
+	}
+	return pushDataSlice, nil
+}
+
+type PushPayloadEnvelope struct {
+	Events []PushPayload `json:"events"`
 }
 
 type PushPayload struct {

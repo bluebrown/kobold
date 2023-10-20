@@ -60,17 +60,17 @@ func Test_payloadHandler_Decode(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    events.PushData
+		want    []events.PushData
 		wantErr bool
 	}{
 		{
 			name: "simple",
 			args: args{b: []byte(`index.docker.io/foo/bar:v1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248`)},
-			want: events.PushData{
+			want: []events.PushData{{
 				Image:  "index.docker.io/foo/bar",
 				Tag:    "v1",
 				Digest: "sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
-			},
+			}},
 		},
 	}
 	for _, tt := range tests {
