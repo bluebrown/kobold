@@ -21,8 +21,8 @@ endpoints:
 
 ## Types
 
-Currently supported endpoint types are `acr`, `dockerhub` and `generic`. The
-generic type expects the image reference in plain text. It can be used if you
+Currently supported endpoint types are `acr`, `dockerhub`, `distribution` and `generic`.
+The generic type expects the image reference in plain text. It can be used if you
 want to dispatch events manually, perhaps via pipeline.
 
 > **Note** If there is no type for your registry of choice, please open an issue

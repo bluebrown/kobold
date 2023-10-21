@@ -51,20 +51,22 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 		// since decoding may to external io and take some time,
 		// do the work concurrently, since we know the payload is valid
 		go func() {
-			event, err := ph.Decode(bodyBytes)
+			events, err := ph.Decode(bodyBytes)
 			if err != nil {
 				logger.Error().Err(err).Msg("failed to decode payload")
 				return
 			}
-			logger.Info().
-				Str("endpoint", id).
-				Str("image", event.Image).
-				Str("tag", event.Tag).
-				Msg("dispatching event")
-			for _, c := range subs {
-				c <- event
+			for _, event := range events {
+				logger.Info().
+					Str("endpoint", id).
+					Str("image", event.Image).
+					Str("tag", event.Tag).
+					Msg("dispatching event")
+				for _, c := range subs {
+					c <- event
+				}
+				logger.Debug().Msg("event dispatched to subscribers")
 			}
-			logger.Debug().Msg("event dispatched to subscribers")
 		}()
 
 		// return 202 accepted, while the request is being processed

@@ -32,9 +32,10 @@ type CommitMessageSpec struct {
 type EndpointType string
 
 const (
-	EndpointTypeGeneric   EndpointType = "generic"
-	EndpointTypeACR       EndpointType = "acr"
-	EndpointTypeDockerhub EndpointType = "dockerhub"
+	EndpointTypeGeneric      EndpointType = "generic"
+	EndpointTypeACR          EndpointType = "acr"
+	EndpointTypeDockerhub    EndpointType = "dockerhub"
+	EndpointTypeDistribution EndpointType = "distribution"
 )
 
 type Header struct {

@@ -49,20 +49,20 @@ func (ph payloadHandler) Validate(b []byte) error {
 	return nil
 }
 
-func (ph payloadHandler) Decode(b []byte) (events.PushData, error) {
+func (ph payloadHandler) Decode(b []byte) ([]events.PushData, error) {
 	pl := PushPayload{}
 	if err := json.Unmarshal(b, &pl); err != nil {
-		return events.PushData{}, err
+		return nil, err
 	}
 	digest, err := ph.digestFetcher.Fetch(fmt.Sprintf("index.docker.io/%s:%s", pl.Repository.RepoName, pl.PushData.Tag))
 	if err != nil {
-		return events.PushData{}, err
+		return nil, err
 	}
-	return events.PushData{
+	return []events.PushData{{
 		Image:  "index.docker.io/" + pl.Repository.RepoName,
 		Tag:    pl.PushData.Tag,
 		Digest: digest,
-	}, nil
+	}}, nil
 }
 
 type PushPayload struct {

@@ -31,7 +31,8 @@
               "enum": [
                 "generic",
                 "dockerhub",
-                "acr"
+                "acr",
+                "distribution"
               ]
             },
             "requiredHeaders": {
