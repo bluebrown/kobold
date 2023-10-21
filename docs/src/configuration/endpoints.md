@@ -2,7 +2,7 @@
 
 The endpoints section of the config file specifies the webhook endpoints that
 Kobold should listen to. These can be of different types, such as Azure
-Container Registry, Docker Hub or Open Source Registry.
+Container Registry or Docker Hub.
 
 Each endpoint must have a unique name, a type, a path and a optional list of
 requiredHeaders. The path is the URL path that the endpoint listens to, and the
@@ -21,8 +21,8 @@ endpoints:
 
 ## Types
 
-Currently supported endpoint types are `acr`, `dockerhub`, `osr` and `generic`. The
-generic type expects the image reference in plain text. It can be used if you
+Currently supported endpoint types are `acr`, `dockerhub`, `distribution` and `generic`.
+The generic type expects the image reference in plain text. It can be used if you
 want to dispatch events manually, perhaps via pipeline.
 
 > **Note** If there is no type for your registry of choice, please open an issue

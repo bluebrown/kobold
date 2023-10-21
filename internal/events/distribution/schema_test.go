@@ -1,4 +1,4 @@
-package osr
+package distribution
 
 import "testing"
 

@@ -1,7 +1,7 @@
 {
-  "$id": "kobold.sh/osr/push",
-  "$comment": "OSR Push Events must conform to this schema",
-  "title": "OSR Push",
+  "$id": "kobold.sh/distribution/push",
+  "$comment": "Distribution Push Events must conform to this schema",
+  "title": "Distribution Push",
   "type": "object",
   "properties": {
     "events": {
@@ -41,11 +41,7 @@
                 "type": "string"
               }
             },
-            "required": [
-              "digest",
-              "repository",
-              "tag"
-            ]
+            "required": ["digest", "repository", "tag"]
           },
           "request": {
             "type": "object",
@@ -63,15 +59,11 @@
                 "type": "string"
               }
             },
-            "required": [
-              "host"
-            ]
+            "required": ["host"]
           }
         }
       },
-      "required": [
-        "action"
-      ]
+      "required": ["action"]
     }
   }
 }

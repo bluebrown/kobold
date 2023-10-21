@@ -32,7 +32,7 @@
                 "generic",
                 "dockerhub",
                 "acr",
-                "osr"
+                "distribution"
               ]
             },
             "requiredHeaders": {

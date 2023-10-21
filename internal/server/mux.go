@@ -12,9 +12,9 @@ import (
 
 	"github.com/bluebrown/kobold/internal/events"
 	"github.com/bluebrown/kobold/internal/events/acr"
+	"github.com/bluebrown/kobold/internal/events/distribution"
 	"github.com/bluebrown/kobold/internal/events/dockerhub"
 	"github.com/bluebrown/kobold/internal/events/generic"
-	"github.com/bluebrown/kobold/internal/events/osr"
 	"github.com/bluebrown/kobold/internal/gitbot"
 	"github.com/bluebrown/kobold/internal/gitbot/provider/azure"
 	"github.com/bluebrown/kobold/internal/gitbot/provider/github"
@@ -144,8 +144,8 @@ func (g generator) Generate(conf *config.NormalizedConfig) (http.Handler, error)
 			ph = acr.NewPayloadHandler()
 		case config.EndpointTypeDockerhub:
 			ph = dockerhub.NewPayloadHandler(registry.NewDigestFetcher(g.defaultRegistry, keys))
-		case config.EndpointTypeOSR:
-			ph = osr.NewPayloadHandler()
+		case config.EndpointTypeDistribution:
+			ph = distribution.NewPayloadHandler()
 		default:
 			return nil, fmt.Errorf("unsupported endpoint type: %s", endpoint.Type)
 		}
