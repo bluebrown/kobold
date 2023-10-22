@@ -42,7 +42,7 @@ e2e-up: bin/kind bin/kubectl bin/kustomize ## Spin up the local e2e setup
 	bash e2e/up.sh
 
 .PHONY: e2e-down
-e2e-down: bin/kind bin/kubectl bin/kustomize ## Tear down the local e22 setup
+e2e-down: bin/kind bin/kubectl bin/kustomize ## Tear down the local e2e setup
 	bash e2e/down.sh
 
 

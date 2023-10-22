@@ -1,4 +1,4 @@
-POST /generic HTTP/1.1
+POST /events/generic HTTP/1.1
 Host: localhost:8080
 Content-Type: text/plain
 
