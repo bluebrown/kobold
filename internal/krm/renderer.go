@@ -115,7 +115,7 @@ func (r renderer) Render(ctx context.Context, dir string, events []events.PushDa
 		return c.Str("dir", dir)
 	})
 
-	log.Ctx(ctx).Trace().Msg("rendering")
+	log.Ctx(ctx).Trace().Any("events", events).Msg("rendering")
 
 	rw := &kio.LocalPackageReadWriter{
 		PackagePath:        dir,

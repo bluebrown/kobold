@@ -90,7 +90,6 @@ func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger comm
 		var (
 			queue    = make([]events.PushData, 0, 100)
 			debounce = new(time.Timer)
-			callback = makeDoCallback(queue, renderer, messenger)
 		)
 		for {
 			select {
@@ -108,7 +107,7 @@ func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger comm
 				debounce.Reset(delay)
 			case <-debounce.C:
 				logger.Debug().Msg("processing queued events")
-				if err := bot.Do(logger.WithContext(context.Background()), callback); err != nil {
+				if err := bot.Do(logger.WithContext(context.Background()), makeDoCallback(queue, renderer, messenger)); err != nil {
 					logger.Error().Err(err).Msg("error while running bot")
 				}
 				queue = queue[:0]
