@@ -45,6 +45,7 @@ e2e-up: bin/kind bin/kubectl bin/kustomize ## Spin up the local e2e setup
 e2e-down: bin/kind bin/kubectl bin/kustomize ## Tear down the local e2e setup
 	bash e2e/down.sh
 
+.PHONY: e2e-reload
 e2e-reload: ## Reload kobold
 	CONTAINER_REGISTRY=localhost:5000 $(MAKE) image-publish
 	kubectl rollout restart deploy/kobold -n kobold
