@@ -23,7 +23,7 @@ type GitTransporter interface {
 	Auth() *url.Userinfo
 	Refresh(ctx context.Context, branch string) error
 	CheckoutBranch(ctx context.Context, branch string) error
-	AddCommitPush(ctx context.Context, branch, title, description string) (bool, error)
+	AddCommitPush(ctx context.Context, branch, title, description string) error
 }
 
 func NewRepo(tranport GitTransporter, provider config.GitProvider) *repo {
@@ -45,7 +45,7 @@ type repo struct {
 
 type Repos map[string]*repo
 
-func (r *repo) Transactions(fn func(path string, transport GitTransporter) error) error {
+func (r *repo) Transaction(fn func(path string, transport GitTransporter) error) error {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	err := fn(r.transport.Path(), r.transport)
@@ -80,28 +80,34 @@ func NewGitbot(name string, repo *repo, branch string, pr PullRequester) *GitBot
 	}
 }
 
-func (bot *GitBot) Do(ctx context.Context, callback func(ctx context.Context, dir string) (string, string, error)) error {
-	return bot.repo.Transactions(func(path string, transport GitTransporter) error {
+type DoCallback func(ctx context.Context, dir string) (title string, body string, changed bool, err error)
+
+func (bot *GitBot) Do(ctx context.Context, callback DoCallback) error {
+	return bot.repo.Transaction(func(path string, transport GitTransporter) error {
 		// discard all changes, checkout the branch and fetch new changes
 		if err := transport.Refresh(ctx, bot.branch); err != nil {
 			return err
 		}
 
 		// execute the callback for this actions
-		title, description, err := callback(ctx, path)
+		title, description, changed, err := callback(ctx, path)
 		if err != nil {
 			return err
 		}
 
-		// we there is no pull requester, make a commit to the given branch and push
+		if !changed {
+			return nil
+		}
+
+		// wehen there is no pull requester, make a commit to the given branch and push
 		if bot.pr == nil {
-			changed, err := transport.AddCommitPush(ctx, bot.branch, title, description)
+			err := transport.AddCommitPush(ctx, bot.branch, title, description)
 			if err != nil {
 				return err
 			}
-			if changed {
-				bot.logger.Info().Str("base", bot.branch).Str("action", "commit/push").Msg("changed detected")
-			}
+
+			bot.logger.Info().Str("base", bot.branch).Str("action", "commit/push").Msg("change detected")
+
 			return nil
 		}
 
@@ -113,16 +119,12 @@ func (bot *GitBot) Do(ctx context.Context, callback func(ctx context.Context, di
 			return err
 		}
 
-		changed, err := transport.AddCommitPush(ctx, fmt.Sprintf("kobold/%d", time.Now().Unix()), title, description)
-		if err != nil {
+		if err := transport.AddCommitPush(ctx, fmt.Sprintf("kobold/%d", time.Now().Unix()), title, description); err != nil {
 			return err
 		}
 
-		if changed {
-			bot.logger.Info().Str("head", branch).Str("base", bot.branch).Str("action", "commit/push/pr").Msg("changed detected")
-			return bot.pr.Open(ctx, branch, bot.branch, title, description)
-		}
+		bot.logger.Info().Str("head", branch).Str("base", bot.branch).Str("action", "commit/push/pr").Msg("changed detected")
+		return bot.pr.Open(ctx, branch, bot.branch, title, description)
 
-		return nil
 	})
 }

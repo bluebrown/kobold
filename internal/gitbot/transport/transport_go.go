@@ -130,28 +130,28 @@ func (t *Transport) CheckoutBranch(ctx context.Context, branch string) error {
 	return nil
 }
 
-func (t *Transport) AddCommitPush(ctx context.Context, branch, title, description string) (bool, error) {
+func (t *Transport) AddCommitPush(ctx context.Context, branch, title, description string) error {
 	if ctx.Err() != nil {
-		return false, ctx.Err()
+		return ctx.Err()
 	}
 
 	w, err := t.repo.Worktree()
 	if err != nil {
-		return false, fmt.Errorf("could not commit/push: could not get worktree: %w", err)
+		return fmt.Errorf("get worktree: %w", err)
 	}
 
 	s, err := w.Status()
 	if err != nil {
-		return false, fmt.Errorf("could not commit/push: could not get status: %w", err)
+		return fmt.Errorf("get status: %w", err)
 	}
 
 	if s.IsClean() {
-		return false, nil
+		return ErrNoChange
 	}
 
 	_, err = w.Add(".")
 	if err != nil {
-		return false, fmt.Errorf("could not commit/push: could not commit: %w", err)
+		return fmt.Errorf("add changes: %w", err)
 	}
 
 	_, err = w.Commit(fmt.Sprintf("%s\n\n%s", title, description), &git.CommitOptions{
@@ -162,7 +162,7 @@ func (t *Transport) AddCommitPush(ctx context.Context, branch, title, descriptio
 		},
 	})
 	if err != nil {
-		return false, fmt.Errorf("could not commit/push: could not commit: %w", err)
+		return fmt.Errorf("commit: %w", err)
 	}
 
 	err = t.repo.PushContext(ctx, &git.PushOptions{
@@ -170,9 +170,10 @@ func (t *Transport) AddCommitPush(ctx context.Context, branch, title, descriptio
 		RemoteName: "origin",
 		Auth:       t.gauth,
 	})
+
 	if err != nil {
-		return false, fmt.Errorf("could not commit/push: could not push: %w", err)
+		return fmt.Errorf("push: %w", err)
 	}
 
-	return true, nil
+	return nil
 }

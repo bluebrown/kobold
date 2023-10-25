@@ -134,30 +134,14 @@ for `generic` events and act on the demo `repository` in `gitea`, like shown
 below. You can modify the [config.yaml](./e2e/kobold/etc/config.yaml), according
 to your needs.
 
-````yaml
-version: v1
-endpoints:
-  - name: test-endpoint
-    type: generic
-    path: /generic
-repositories:
-  - name: test-gitea
-    url: http://gitea.local:3000/kobold/kobold-test.git
-    username: ${GITEA_USER}
-    password: ${GITEA_PASS}
-subscriptions:
-  - name: test-sub
-    endpointRefs:
-      - name: test-endpoint
-    repositoryRef:
-      name: test-gitea
-    branch: main
-    strategy: commit
-    scopes: []
-````
-
 You can view the logs of `kobold` via:
 
 ```bash
 kubectl logs -n kobold deploy/kobold
+```
+
+If you want to test code changes, you can publish a new image to the local registry and restart kobold.
+
+```bash
+make e2e-reload
 ```

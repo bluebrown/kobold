@@ -4,7 +4,6 @@ package transport
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -67,48 +66,44 @@ func (t *Transport) Auth() *url.Userinfo {
 
 func (t *Transport) Refresh(ctx context.Context, branch string) error {
 	if err := checkout(ctx, t.path, branch); err != nil {
-		return fmt.Errorf("could not checkout branch %s: %w", branch, err)
+		return fmt.Errorf("checkout branch %s: %w", branch, err)
 	}
 	if err := fetch(ctx, t.path, branch); err != nil {
-		return fmt.Errorf("could not fetch branch %s: %w", branch, err)
+		return fmt.Errorf("fetch branch %s: %w", branch, err)
 	}
 	if err := resetHard(ctx, t.path, branch); err != nil {
-		return fmt.Errorf("could not reset branch %s: %w", branch, err)
+		return fmt.Errorf("reset branch %s: %w", branch, err)
 	}
 	return nil
 }
 
 func (t *Transport) CheckoutBranch(ctx context.Context, branch string) error {
 	if err := checkoutBranch(ctx, t.path, branch); err != nil {
-		return fmt.Errorf("could not checkout branch %s: %w", branch, err)
+		return fmt.Errorf("checkout branch %s: %w", branch, err)
 	}
 	return nil
 }
 
-func (t *Transport) AddCommitPush(ctx context.Context, branch, title, description string) (bool, error) {
+func (t *Transport) AddCommitPush(ctx context.Context, branch, title, description string) error {
 	ok, err := changed(ctx, t.path)
 	if err != nil {
-		return false, fmt.Errorf("could not check for changes: %w", err)
+		return fmt.Errorf("check for changes: %w", err)
 	}
 	if !ok {
-		return false, nil
+		return ErrNoChange
 	}
 	if err := add(ctx, t.path, "."); err != nil {
-		return true, fmt.Errorf("could not stage changes: %w", err)
+		return fmt.Errorf("stage changes: %w", err)
 	}
 	if err := commit(ctx, t.path, title, description); err != nil {
-		return true, fmt.Errorf("could not commit staged changes: %w", err)
+		return fmt.Errorf("commit staged changes: %w", err)
 	}
 
 	if err := push(ctx, t.path, branch); err != nil {
-		return true, fmt.Errorf("could not push: %w", err)
+		return fmt.Errorf("push: %w", err)
 	}
-	return true, nil
+	return nil
 }
-
-var (
-	ErrAlreadyExists = errors.New("repo already exists")
-)
 
 func exists(path string) bool {
 	_, err := os.Stat(path)
