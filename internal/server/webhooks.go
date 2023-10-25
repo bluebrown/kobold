@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/bluebrown/kobold/internal/events"
+	"github.com/bluebrown/kobold/internal/gitbot"
 	"github.com/bluebrown/kobold/internal/krm"
 	"github.com/bluebrown/kobold/kobold/config"
 )
@@ -43,12 +44,12 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 		bodyBytes := b.Bytes()
 
 		if err := ph.Validate(bodyBytes); err != nil {
-			logger.Debug().Err(err).Msg("error while validation")
+			logger.Debug().Err(err).Msg("invalid event payload")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 
-		// since decoding may to external io and take some time,
+		// since decoding may lead to external I/O, and take some time,
 		// do the work concurrently, since we know the payload is valid
 		go func() {
 			events, err := ph.Decode(bodyBytes)
@@ -58,7 +59,6 @@ func NewPushWebhook(id string, subs []chan events.PushData, ph events.PayloadHan
 			}
 			for _, event := range events {
 				logger.Info().
-					Str("endpoint", id).
 					Str("image", event.Image).
 					Str("tag", event.Tag).
 					Msg("dispatching event")
@@ -80,7 +80,7 @@ type commitMessenger interface {
 }
 
 type repoBot interface {
-	Do(ctx context.Context, callback func(ctx context.Context, dir string) (title string, msg string, err error)) error
+	Do(ctx context.Context, callback gitbot.DoCallback) error
 }
 
 func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger commitMessenger, delay time.Duration) chan events.PushData {
@@ -90,6 +90,7 @@ func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger comm
 		var (
 			queue    = make([]events.PushData, 0, 100)
 			debounce = new(time.Timer)
+			callback = makeDoCallback(queue, renderer, messenger)
 		)
 		for {
 			select {
@@ -107,13 +108,7 @@ func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger comm
 				debounce.Reset(delay)
 			case <-debounce.C:
 				logger.Debug().Msg("processing queued events")
-				if err := bot.Do(logger.WithContext(context.Background()), func(ctx context.Context, dir string) (string, string, error) {
-					changes, err := renderer.Render(ctx, dir, queue)
-					if err != nil {
-						return "", "", fmt.Errorf("error while rendering: %w", err)
-					}
-					return messenger.Msg(changes)
-				}); err != nil {
+				if err := bot.Do(logger.WithContext(context.Background()), callback); err != nil {
 					logger.Error().Err(err).Msg("error while running bot")
 				}
 				queue = queue[:0]
@@ -122,4 +117,21 @@ func NewSubscriber(id string, bot repoBot, renderer krm.Renderer, messenger comm
 		}
 	}()
 	return eventsChan
+}
+
+func makeDoCallback(queue []events.PushData, renderer krm.Renderer, messenger commitMessenger) gitbot.DoCallback {
+	return func(ctx context.Context, dir string) (string, string, bool, error) {
+		changes, err := renderer.Render(ctx, dir, queue)
+		if err != nil {
+			return "", "", false, fmt.Errorf("render: %w", err)
+		}
+
+		if len(changes) < 1 {
+			return "", "", false, nil
+		}
+
+		t, m, err := messenger.Msg(changes)
+
+		return t, m, true, err
+	}
 }
