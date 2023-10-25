@@ -105,9 +105,9 @@ func (bot *GitBot) Do(ctx context.Context, callback DoCallback) error {
 			if err != nil {
 				return err
 			}
-			if changed {
-				bot.logger.Info().Str("base", bot.branch).Str("action", "commit/push").Msg("change detected")
-			}
+
+			bot.logger.Info().Str("base", bot.branch).Str("action", "commit/push").Msg("change detected")
+
 			return nil
 		}
 
@@ -119,8 +119,7 @@ func (bot *GitBot) Do(ctx context.Context, callback DoCallback) error {
 			return err
 		}
 
-		err = transport.AddCommitPush(ctx, fmt.Sprintf("kobold/%d", time.Now().Unix()), title, description)
-		if err != nil {
+		if err := transport.AddCommitPush(ctx, fmt.Sprintf("kobold/%d", time.Now().Unix()), title, description); err != nil {
 			return err
 		}
 
