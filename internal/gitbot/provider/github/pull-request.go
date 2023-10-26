@@ -104,6 +104,7 @@ func NewPrClient(upstreamRepo string, auth *url.Userinfo, client httpClient) (*p
 // git@github.com:bluebrown/kobold-test.git
 func getOwnerRepo(u string) (owner, repo string, err error) {
 	u = strings.TrimPrefix(u, "git@github.com:")
+	u = strings.TrimSuffix(u, "/")
 	u = strings.TrimSuffix(u, ".git")
 	parts := strings.Split(u, "/")
 	if len(parts) < 2 {

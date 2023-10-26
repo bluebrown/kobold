@@ -45,6 +45,22 @@ func TestUrlParse(t *testing.T) {
 			wantRepoId:  "my-repo",
 			wantError:   false,
 		},
+		{
+			name:        "https-trailing-slash",
+			giveUrl:     "https://my-org@dev.azure.com/my-org/my-project/_git/my-repo/",
+			wantOrg:     "my-org",
+			wantProject: "my-project",
+			wantRepoId:  "my-repo",
+			wantError:   false,
+		},
+		{
+			name:        "ssh-trailing-slash",
+			giveUrl:     "git@ssh.dev.azure.com:v3/my-org/my-project/my-repo.git/",
+			wantOrg:     "my-org",
+			wantProject: "my-project",
+			wantRepoId:  "my-repo",
+			wantError:   false,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

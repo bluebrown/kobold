@@ -27,6 +27,20 @@ func TestUrlParse(t *testing.T) {
 			wantRepo:  "kobold-test",
 			wantError: false,
 		},
+		{
+			name:      "https-trailing-slash",
+			giveUrl:   "https://github.com/bluebrown/kobold-test/",
+			wantOwner: "bluebrown",
+			wantRepo:  "kobold-test",
+			wantError: false,
+		},
+		{
+			name:      "ssh-trailing-slash",
+			giveUrl:   "git@github.com:bluebrown/kobold-test.git/",
+			wantOwner: "bluebrown",
+			wantRepo:  "kobold-test",
+			wantError: false,
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
