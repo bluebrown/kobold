@@ -112,6 +112,7 @@ func NewPrClient(upstreamRepo string, auth *url.Userinfo, client httpClient) (*p
 // https://<org>@dev.azure.com/<org>/<project>/_git/<repoId>
 // git@ssh.dev.azure.com:v3/<org>/<project>/<repoId>
 func getOrgProjRepo(u string) (org, proj, repo string, err error) {
+	u = strings.TrimSuffix(u, "/")
 	u = strings.TrimSuffix(u, ".git")
 	parts := strings.Split(u, "/")
 	if strings.HasPrefix(u, "git@ssh") {
