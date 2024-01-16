@@ -1,0 +1,24 @@
+name: image
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+    - refactor/rewrite
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Login to the container registry
+      run: docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
+
+    - name: build image
+      run: make image
+      env:
+        DOCKER_BUILDKIT: "1"
+
+    - name: publish image
+      run: docker push docker.io/bluebrown/kobold --all-tags

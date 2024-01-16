@@ -1,6 +1,11 @@
-continue_on_error: true
+doublestar: true
+include:
+- "**/*.yaml"
+exclude:
+- "**/testdata/**"
 formatter:
   type: basic
   indent: 2
   scan_folded_as_literal: true
   retain_line_breaks: true
+  indentless_arrays: true
