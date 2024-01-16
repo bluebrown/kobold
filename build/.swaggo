@@ -1,0 +1,2 @@
+replace github.com/volatiletech/null/v8.String string
+replace kioutil.GitPackageURI string

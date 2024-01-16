@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: distribution-config
+data:
+  config.yml: |
+    version: 0.1
+    storage:
+      filesystem:
+        rootdirectory: /var/lib/registry
+    http:
+      addr: 0.0.0.0:5000
+      host: http://localhost:8080
+    notifications:
+      events:
+        includereferences: true
+      endpoints:
+      - name: kobold
+        url: http://kobold-webhook:80/kobold/events?chan=distribution
+        ignore:
+          mediatypes:
+          - application/octet-stream
+          actions:
+          - pull
+          - delete
+

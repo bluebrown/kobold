@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp
+spec:
+  containers:
+  - name: myapp
+    image: docker.io/foo/bar:latest # kobold: tag: latest; type: exact
+    resources: {}

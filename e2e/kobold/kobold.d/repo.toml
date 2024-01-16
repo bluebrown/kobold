@@ -1,0 +1,13 @@
+version = "2"
+
+[[pipeline]]
+name = "stage"
+channels = ["lines", "distribution"]
+repo_uri = "http://gitea/dev/test.git@main/stage"
+
+[[pipeline]]
+name = "prod"
+channels = ["lines", "distribution"]
+repo_uri = "http://gitea/dev/test.git@main/prod"
+dest_branch = "release"
+post_hook = "builtin.gitea-pr@v1"

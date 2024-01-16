@@ -1,0 +1,34 @@
+version = "2"
+
+[[channel]]
+name = "acr"
+decoder = "builtin.distribution@v1"
+
+[[channel]]
+name = "distribution"
+decoder = "builtin.distribution@v1"
+
+[[channel]]
+name = "dockerhub"
+decoder = "builtin.dockerhub@v1"
+
+[[channel]]
+name = "generic"
+decoder = "builtin.lines@v1"
+
+[[pipeline]]
+name = "e2e"
+repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@main"
+channels = ["acr", "dockerhub", "distribution", "generic"]
+
+[[pipeline]]
+name = "pr-test"
+repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@master/test"
+dest_branch = "kobold"
+channels = ["acr"]
+
+[[pipeline]]
+name = "pr-prod"
+repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@master/prod"
+dest_branch = "kobold"
+channels = ["acr"]

@@ -1,7 +1,0 @@
-{
-  "yaml.schemas": {
-    "assets/schema.json": [
-      "config.yaml"
-    ]
-  }
-}

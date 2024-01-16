@@ -1,0 +1,32 @@
+apiVersion: skaffold/v4beta8
+kind: Config
+metadata:
+  name: kobold
+deploy:
+  kubeContext: kind-kobold
+  kubectl: {}
+profiles:
+- name: kobold
+  build:
+    local:
+      useBuildkit: true
+    artifacts:
+    - image: docker.io/bluebrown/kobold
+      context: .
+      docker:
+        dockerfile: build/Dockerfile
+        cacheFrom:
+        - docker.io/bluebrown/kobolod
+  manifests:
+    kustomize:
+      paths:
+      - e2e/kobold/
+- name: testinfra
+  manifests:
+    rawYaml:
+    - e2e/ingress.yaml
+    kustomize:
+      paths:
+      - e2e/nginx/
+      - e2e/registry/
+      - e2e/gitea/

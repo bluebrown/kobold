@@ -1,0 +1,3 @@
+[host."http://container-registry.default.svc.cluster.local:5000"]
+capabilities = ["pull", "resolve"]
+skip_verify = true

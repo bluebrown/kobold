@@ -1,96 +1,125 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
+	"os/signal"
 	"time"
 
-	"github.com/google/go-containerregistry/pkg/name"
-	"github.com/rs/zerolog/log"
+	"golang.org/x/sync/errgroup"
+	_ "modernc.org/sqlite"
 
-	"github.com/bluebrown/kobold/internal/gitbot/transport"
-	"github.com/bluebrown/kobold/internal/logging"
-	"github.com/bluebrown/kobold/internal/server"
+	"github.com/bluebrown/kobold/api"
+	"github.com/bluebrown/kobold/config"
+	"github.com/bluebrown/kobold/dbutil"
+	ts "github.com/bluebrown/kobold/sql"
+	"github.com/bluebrown/kobold/task"
+	"github.com/bluebrown/kobold/webhook"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var (
-	version          = "unknown"
-	showVersion      = false
-	configPath       string
-	dataPath         string
-	port             = 8080
-	useK8sChain      = false
-	defaultRegistry  = name.DefaultRegistry
-	imageRefTemplate = "{{ .Image }}:{{ .Tag }}@{{ .Digest }}"
-	watch            = false
-	debounce         = time.Minute
-)
+func init() {
+	dbutil.MustMakeUUID()
+	dbutil.MustMakeSha1()
+}
 
 func main() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		panic(err)
-	}
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
 
-	flag.BoolVar(&showVersion, "version", showVersion, "show version info")
-	flag.IntVar(&port, "port", port, "set the server port")
-	flag.StringVar(&configPath, "config", filepath.Join(dir, "config.yaml"), "path to the config file")
-	flag.StringVar(&dataPath, "data", filepath.Join(os.TempDir(), "kobold"), "path to temporary data")
-	flag.BoolVar(&useK8sChain, "k8schain", useK8sChain, "use k8schain for registry authentication")
-	flag.StringVar(&defaultRegistry, "default-registry", defaultRegistry, "the default registry to use, for unprefixed images")
-	flag.StringVar(&imageRefTemplate, "imageref-template", imageRefTemplate, "the format of the image ref when updating an image node")
-	flag.BoolVar(&watch, "watch", watch, "Reload the server on config file change")
-	flag.DurationVar(&debounce, "debounce", debounce, "debounce events until no event has been received for the provided duration")
-	logging.InitFlags(nil)
-	flag.Parse()
-
-	if showVersion {
-		fmt.Printf("Kobold Version: %s\n", version)
-		fmt.Printf("Kobold Git:     %s\n", transport.Tag)
-		os.Exit(0)
-	}
-
-	logging.ConfigureLogging()
-
-	if err := run(); err != nil {
-		log.Error().Err(err).Msg("error while running server")
+	if err := run(ctx, os.Args[1:], os.Environ()); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		cancel()
+		time.Sleep(time.Second)
+		os.Exit(1)
 	}
 }
 
-func run() error {
-	if err := os.RemoveAll(dataPath); err != nil {
+func run(ctx context.Context, args []string, env []string) error {
+	var (
+		set                          = flag.NewFlagSet("kobold-server", flag.ExitOnError)
+		opts                         = config.Options().Bind(set)
+		handler     task.TaskHandler = task.KoboldHandler
+		webhookAddr                  = ":8080"
+		apiAddr                      = ":9090"
+		maxprocs                     = 10
+		debounce                     = 5 * time.Second
+		prefix                       = ""
+	)
+
+	set.Var(&handler, "handler", "task handler, one of: print, kobold, error")
+	set.StringVar(&webhookAddr, "addr-webhook", webhookAddr, "webhook listen address")
+	set.StringVar(&apiAddr, "addr-api", apiAddr, "api listen address")
+	set.IntVar(&maxprocs, "maxprocs", 10, "max number of concurrent runs")
+	set.DurationVar(&debounce, "debounce", time.Minute, "debounce interval for webhook events")
+	set.StringVar(&prefix, "prefix", prefix, "prefix for all routes, must NOT contain trailing slash")
+
+	set.VisitAll(config.UseEnv(env, "KOBOLD_"))
+
+	if err := set.Parse(args); err != nil {
+		return fmt.Errorf("parse args: %w", err)
+	}
+
+	model, err := config.Configure(ctx, *opts, ts.TaskSchema)
+	if err != nil {
+		return fmt.Errorf("configure: %w", err)
+	}
+
+	g, ctx := errgroup.WithContext(ctx)
+	sched := task.NewScheduler(ctx, model, maxprocs, 5*time.Second)
+
+	g.Go(func() error {
+		sched.SetHandler(handler)
+		return sched.Run(debounce)
+	})
+
+	g.Go(func() error {
+		apmux := http.NewServeMux()
+		apmux.Handle(prefix+"/api/", http.StripPrefix(prefix+"/api", api.New(prefix+"/api", model)))
+		apmux.Handle(prefix+"/metrics", promhttp.Handler())
+		return listenAndServeContext(ctx, "api", apiAddr, apmux)
+	})
+
+	g.Go(func() error {
+		whmux := http.NewServeMux()
+		whmux.Handle(prefix+"/events", http.StripPrefix(prefix, webhook.New(sched)))
+		return listenAndServeContext(ctx, "webhook", webhookAddr, whmux)
+	})
+
+	return g.Wait()
+}
+
+func listenAndServeContext(ctx context.Context, name, addr string, handler http.Handler) error {
+	slog.InfoContext(ctx, "server startup", "name", name, "addr", addr)
+
+	if err := ctx.Err(); err != nil {
 		return err
 	}
 
-	m := http.NewServeMux()
+	var (
+		server = http.Server{Addr: addr, Handler: handler}
+		errc   = make(chan error, 1)
+	)
 
-	opts := []server.Option{
-		server.WithImagerefTemplate(imageRefTemplate),
-		server.WithDefaultRegistry(defaultRegistry),
-		server.WithDataPath(dataPath),
-		server.WithConfigPath(configPath),
-		server.WithWatch(watch),
-		server.WithDebounce(debounce),
+	go func() {
+		defer close(errc)
+		errc <- server.ListenAndServe()
+	}()
+
+	select {
+	case <-ctx.Done():
+		slog.InfoContext(ctx, "server shutdown", "name", name)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return server.Shutdown(ctx)
+	case err := <-errc:
+		if err == http.ErrServerClosed {
+			return nil
+		}
+		return fmt.Errorf("server %s: %w", name, err)
 	}
-
-	if useK8sChain {
-		opts = append(opts, server.WithK8sChain)
-	}
-
-	m.Handle("/", server.NewOrDie(opts...))
-
-	// implement commonly used health check endpoints
-	m.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {})
-	m.HandleFunc("/livez", func(w http.ResponseWriter, r *http.Request) {})
-	m.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {})
-
-	log.Info().Int("port", port).Msg("starting server")
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), m); err != http.ErrServerClosed {
-		return err
-	}
-
-	return nil
 }

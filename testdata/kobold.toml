@@ -1,0 +1,35 @@
+version = "2"
+
+[[channel]]
+name = "default"
+
+[[channel]]
+name = "gh"
+decoder = "builtin.lines@v1"
+
+[[channel]]
+name = "dockerhub"
+decoder = "builtin.dockerhub@v1"
+
+[[pipeline]]
+name = "github"
+channels = ["gh", "dockerhub"]
+repo_uri = "git@github.com:bluebrown/foobar.git@main/manifests"
+dest_branch = "kobold"
+post_hook = "builtin.github-pr@v1"
+
+[[channel]]
+name = "ado"
+decoder = "builtin.dstribution@v1"
+
+[[pipeline]]
+name = "azure-devops-stage"
+channels = ["ado"]
+repo_uri = "$ADO_HOST/kobold-test.git@main/stage"
+
+[[pipeline]]
+name = "azure-devops-prod"
+channels = ["ado"]
+repo_uri = "$ADO_HOST/kobold-test.git@main/prod"
+dest_branch = "kobold"
+post_hook = "builtin.ado-pr@v1"

@@ -1,0 +1,431 @@
+definitions:
+  api.errorMsg:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  store.Channel:
+    properties:
+      decoder_name:
+        type: string
+      name:
+        type: string
+    type: object
+  store.Decoder:
+    properties:
+      name:
+        type: string
+      script:
+        items:
+          type: integer
+        type: array
+    type: object
+  store.PipelineListItem:
+    properties:
+      channels:
+        items:
+          type: string
+        type: array
+      dest_branch:
+        type: string
+      name:
+        type: string
+      post_hook_name:
+        type: string
+      repo_uri:
+        type: string
+    type: object
+  store.PipelineRunListRow:
+    properties:
+      dest_branch:
+        type: string
+      error: {}
+      fingerprint:
+        type: string
+      msgs:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      post_hook:
+        type: string
+      repo_uri:
+        type: string
+      status:
+        type: string
+      timestamp: {}
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  store.PostHook:
+    properties:
+      name:
+        type: string
+      script:
+        items:
+          type: integer
+        type: array
+    type: object
+  store.Run:
+    properties:
+      dest_branch:
+        type: string
+      error: {}
+      fingerprint:
+        type: string
+      msgs:
+        items:
+          type: string
+        type: array
+      post_hook:
+        type: string
+      repo_uri:
+        type: string
+      status:
+        type: string
+      timestamp: {}
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+  store.Task:
+    properties:
+      dest_branch:
+        type: string
+      failure_reason:
+        type: string
+      id:
+        type: string
+      msgs:
+        items:
+          type: string
+        type: array
+      post_hook_name:
+        type: string
+      repo_uri:
+        type: string
+      status:
+        type: string
+      task_group_fingerprint:
+        type: string
+      timestamp:
+        type: string
+      warnings:
+        items:
+          type: string
+        type: array
+    type: object
+info:
+  contact: {}
+  license:
+    name: BSD-3-Clause
+paths:
+  /channels:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Channel'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of channels
+      tags:
+      - channels
+  /channels/{name}:
+    get:
+      parameters:
+      - description: channel name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Channel'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a channel by name
+      tags:
+      - channels
+  /decoders:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Decoder'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of decoders
+      tags:
+      - decoders
+  /decoders/{name}:
+    get:
+      parameters:
+      - description: decoder name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Decoder'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a decoder by name
+      tags:
+      - decoders
+  /pipelines:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.PipelineListItem'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of pipelines
+      tags:
+      - pipelines
+  /pipelines/{name}:
+    get:
+      parameters:
+      - description: pipeline name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.PipelineListItem'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a pipeline by name
+      tags:
+      - pipelines
+  /pipelines/{name}/runs:
+    get:
+      parameters:
+      - description: pipeline name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: run status
+        in: query
+        name: status
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.PipelineRunListRow'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get runs for a pipeline
+      tags:
+      - pipelines
+  /posthooks:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.PostHook'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of posthooks
+      tags:
+      - posthooks
+  /posthooks/{name}:
+    get:
+      parameters:
+      - description: posthook name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.PostHook'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a posthook by name
+      tags:
+      - posthooks
+  /runs:
+    get:
+      parameters:
+      - description: run status
+        in: query
+        name: status
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Run'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of runs
+      tags:
+      - runs
+  /runs/{id}:
+    get:
+      parameters:
+      - description: run fingerprint
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Run'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a run by fingerprint
+      tags:
+      - runs
+  /tasks:
+    get:
+      parameters:
+      - description: task status
+        in: query
+        name: status
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/store.Task'
+            type: array
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a list of tasks
+      tags:
+      - tasks
+  /tasks/{id}:
+    get:
+      parameters:
+      - description: task id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/store.Task'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/api.errorMsg'
+      summary: get a task by name
+      tags:
+      - tasks
+swagger: "2.0"

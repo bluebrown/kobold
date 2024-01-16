@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: distribution
+spec:
+  selector:
+    app.kubernetes.io/name: distribution
+  ports:
+  - port: 5000
+    targetPort: 5000
