@@ -13,6 +13,7 @@ type GitPackageURI struct {
 	Pkg  string `json:"pkg,omitempty" toml:"pkg"`
 }
 
+// TODO: appending .git here can cause mismatching git-credentials
 func (r *GitPackageURI) String() string {
 	return fmt.Sprintf("%s.git@%s%s", r.Repo, r.Ref, r.Pkg)
 }

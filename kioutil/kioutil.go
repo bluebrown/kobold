@@ -118,6 +118,7 @@ func (g GitPackageReader) Read() ([]*yaml.RNode, error) {
 		PackageFileName:    ".krmignore",
 		IncludeSubpackages: true,
 		PackagePath:        pkgPath,
+		WrapBareSeqNode:    true,
 	}
 
 	if g.SetPathAnnotation {
@@ -128,6 +129,7 @@ func (g GitPackageReader) Read() ([]*yaml.RNode, error) {
 
 	nodes, err := r.Read()
 	if err != nil {
+		os.RemoveAll(hostPath)
 		return nil, fmt.Errorf("read package: %w", err)
 	}
 
