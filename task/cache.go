@@ -40,7 +40,7 @@ func (cache *repoCache) fill(ctx context.Context, gg []store.TaskGroup, lim int)
 	for uri, path := range cache.repos {
 		uri, refs := uri, path
 		g.Go(func() error {
-			return cache.ensure(ctx, uri, refs)
+			return cache.ensure(ctx, uri, dedupe(refs))
 		})
 	}
 
@@ -112,4 +112,17 @@ func run(ctx context.Context, args ...string) error {
 		return fmt.Errorf("%w: %s", err, string(b))
 	}
 	return nil
+}
+
+func dedupe(ss []string) []string {
+	seen := make(map[string]struct{})
+	var out []string
+	for _, s := range ss {
+		if _, ok := seen[s]; ok {
+			continue
+		}
+		seen[s] = struct{}{}
+		out = append(out, s)
+	}
+	return out
 }
