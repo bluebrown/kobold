@@ -14,9 +14,9 @@ decoder = "builtin.dockerhub@v1"
 [[pipeline]]
 name = "github"
 channels = ["gh", "dockerhub"]
-repo_uri = "git@github.com:bluebrown/foobar.git@main/manifests"
-dest_branch = "kobold"
-post_hook = "builtin.github-pr@v1"
+repo_uri = "git@github.com:bluebrown/foobar.git@test/manifests"
+# dest_branch = "kobold"
+# post_hook = "builtin.github-pr@v1"
 
 [[channel]]
 name = "ado"

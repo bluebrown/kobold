@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -123,7 +122,9 @@ func (g GitPackageReader) Read() ([]*yaml.RNode, error) {
 			return nil, fmt.Errorf("clone repo: %w", err)
 		}
 	} else {
-		slog.InfoContext(g.ctx, "cache hit, skip cloning", "repo", g.srcURI.Repo)
+		if err := gitE(g.ctx, "-C", g.cachePath, "switch", g.srcURI.Ref); err != nil {
+			return nil, fmt.Errorf("checkout branch: %w", err)
+		}
 	}
 
 	pkgPath := filepath.Join(g.cachePath, g.srcURI.Pkg)

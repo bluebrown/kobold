@@ -40,10 +40,11 @@ func KoboldHandler(ctx context.Context, cache string, g store.TaskGroup, runner 
 	}
 
 	pipline := krm.Pipeline{
-		RepoURI:   g.RepoUri.String(),
-		SrcBranch: g.RepoUri.Ref,
-		DstBranch: g.DestBranch.String,
-		CachePath: cache,
+		RepoURI:     g.RepoUri.String(),
+		SrcBranch:   g.RepoUri.Ref,
+		DstBranch:   g.DestBranch.String,
+		CachePath:   cache,
+		PushCounter: metricGitPush,
 	}
 
 	if err := ctx.Err(); err != nil {

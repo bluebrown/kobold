@@ -7,14 +7,16 @@ import (
 	"text/template"
 
 	"github.com/bluebrown/kobold/kioutil"
+	"github.com/prometheus/client_golang/prometheus"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
 type Pipeline struct {
-	RepoURI   string `json:"repoUri,omitempty"`
-	SrcBranch string `json:"sourceBranch,omitempty"`
-	DstBranch string `json:"destinationBranch,omitempty"`
-	CachePath string `json:"cachePath,omitempty"`
+	RepoURI     string `json:"repoUri,omitempty"`
+	SrcBranch   string `json:"sourceBranch,omitempty"`
+	DstBranch   string `json:"destinationBranch,omitempty"`
+	CachePath   string `json:"cachePath,omitempty"`
+	PushCounter *prometheus.CounterVec
 }
 
 func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, changes, warnings []string, err error) {
@@ -52,6 +54,10 @@ func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, c
 
 	if err := pipe.Execute(); err != nil {
 		return "", nil, nil, err
+	}
+
+	if len(kf.Changes) > 0 && opts.PushCounter != nil {
+		opts.PushCounter.With(prometheus.Labels{"repo": opts.RepoURI}).Inc()
 	}
 
 	return grw.CommitMessage(), kf.Changes, kf.Warnings, nil

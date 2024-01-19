@@ -9,7 +9,6 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -76,8 +75,9 @@ func (p *Pool) Dispatch() error {
 
 	// each dispatch gets its own cache, to avoid collisions
 	cache := &repoCache{
-		repos: make(map[string]string),
-		base:  filepath.Join(os.TempDir(), "kobold-cache-"+uuid.NewString()),
+		repos: make(map[string][]string),
+		cache: filepath.Join(os.TempDir(), "kobold-cache", "repos"),
+		tmp:   filepath.Join(os.TempDir(), "kobold-cache", uuid.NewString()),
 	}
 
 	// find all unique repos and clone them beforehand in order to avoid
@@ -92,7 +92,7 @@ func (p *Pool) Dispatch() error {
 
 	go func() {
 		wg.Wait()
-		cache.purge()
+		cache.cleanTmp()
 	}()
 
 	for _, g := range taskGroups {
@@ -129,9 +129,8 @@ func (p *Pool) Dispatch() error {
 			}
 
 			slog.InfoContext(p.ctx, "task group dispatched", "fingerprint", g.Fingerprint)
-			l := prometheus.Labels{"status": string(StatusRunning), "repo": g.RepoUri.Repo}
-			metricRun.With(l).Inc()
-			defer metricRun.With(l).Add(-1)
+			metricRunsActive.Inc()
+			defer metricRunsActive.Add(-1)
 
 			var (
 				status = StatusSuccess
@@ -159,7 +158,7 @@ func (p *Pool) Dispatch() error {
 			})
 
 			slog.InfoContext(p.ctx, "task group done", "fingerprint", g.Fingerprint, "status", status)
-			metricRun.With(prometheus.Labels{"status": string(status), "repo": g.RepoUri.Repo}).Add(1)
+			metricRunStatus.With(prometheus.Labels{"status": string(status), "repo": g.RepoUri.Repo}).Add(1)
 
 			if err != nil {
 				return err
@@ -251,81 +250,4 @@ func (p *Pool) QueueReader(ctx context.Context, channel string, r io.Reader) err
 		}
 	}
 	return scanner.Err()
-}
-
-type repoCache struct {
-	repos map[string]string
-	base  string
-	path  string
-}
-
-func (cache *repoCache) fill(ctx context.Context, gg []store.TaskGroup, lim int) error {
-
-	// add a random dir inside the cache path to avoid collisions
-	cache.path = cache.base
-
-	if err := os.MkdirAll(cache.path, 0755); err != nil {
-		return err
-	}
-
-	for _, g := range gg {
-		cache.repos[g.RepoUri.Repo] = filepath.Join(cache.path, g.RepoUri.Repo)
-	}
-
-	g := errgroup.Group{}
-	g.SetLimit(lim)
-
-	for uri, path := range cache.repos {
-		uri, path := uri, path
-		g.Go(func() error {
-			return cache.ensure(ctx, uri, path)
-		})
-	}
-
-	err := g.Wait()
-
-	return err
-}
-
-func (cache *repoCache) ensure(ctx context.Context, uri, path string) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-
-	// since fetching leads to merge conflicts, we just delete the repo and
-	// clone it again with depth 1
-	if err := os.RemoveAll(path); err != nil {
-		return fmt.Errorf("remove repo %q: %w", uri, err)
-	}
-
-	cmd := exec.CommandContext(ctx, "git", "clone", "--depth", "1", uri, path)
-	if b, err := cmd.CombinedOutput(); err != nil {
-		return fmt.Errorf("git clone %q: %w: %s", uri, err, string(b))
-	}
-
-	metricClone.With(prometheus.Labels{"repo": uri}).Inc()
-	slog.InfoContext(ctx, "repo cloned", "repo", uri, "cache", path)
-
-	return nil
-}
-
-func (cache *repoCache) get(repo string) string {
-	path := cache.repos[repo]
-	if path == "" {
-		return ""
-	}
-
-	d := filepath.Join(cache.path, uuid.NewString())
-
-	cmd := exec.Command("cp", "-r", path, d)
-	if b, err := cmd.CombinedOutput(); err != nil {
-		slog.Warn("failed to copy repo", "error", err, "output", string(b))
-		return ""
-	}
-
-	return d
-}
-
-func (cache *repoCache) purge() error {
-	return os.RemoveAll(cache.path)
 }
