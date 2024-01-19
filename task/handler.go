@@ -22,11 +22,11 @@ func KoboldHandler(ctx context.Context, cache string, g store.TaskGroup, runner 
 		msg         string
 	)
 
-	// TODO: this should be emitted to the monitoring system
 	defer func(ts time.Time) {
 		slog.InfoContext(ctx,
 			"pipeline run completed",
 			"fingerprint", g.Fingerprint,
+			"repoUri", g.RepoUri.String(),
 			"changes", len(changes),
 			"warnings", len(warnings),
 			"pipelineErr", pipelineErr,
@@ -40,7 +40,7 @@ func KoboldHandler(ctx context.Context, cache string, g store.TaskGroup, runner 
 	}
 
 	pipline := krm.Pipeline{
-		RepoURI:     g.RepoUri.String(),
+		RepoURI:     g.RepoUri,
 		SrcBranch:   g.RepoUri.Ref,
 		DstBranch:   g.DestBranch.String,
 		CachePath:   cache,

@@ -26,4 +26,8 @@ var (
 		Name: "kobold_git_push",
 		Help: "number of git pushes",
 	}, []string{"repo"})
+	metricImageSeen = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "kobold_image_seen",
+		Help: "number of images seen",
+	}, []string{"ref"})
 )

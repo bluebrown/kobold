@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/volatiletech/null/v8"
@@ -231,6 +232,12 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 		refs, err = p.decoder.Decode(channel, dec, msg)
 		if err != nil {
 			return errors.Join(ErrNotDecodable, err)
+		}
+	}
+
+	for i := range refs {
+		if r, err := name.ParseReference(refs[i]); err == nil {
+			metricImageSeen.With(prometheus.Labels{"ref": r.Context().RepositoryStr()}).Inc()
 		}
 	}
 

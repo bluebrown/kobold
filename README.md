@@ -406,15 +406,26 @@ Kobold exposes prometheus metrics on port 8080. The metrics are exposed in the
 `$KOBOLD_ADDR_API/metrics` endpoint. The metrics are prefixed with `kobold_`.
 
 ```python
-# HELP kobold_recv number of messages received
-# TYPE kobold_recv counter
-kobold_recv{channel="distribution",rejected="false"} 13
-kobold_recv{channel="distribution",rejected="true"} 2
-# HELP kobold_run run status (task groups)
-# TYPE kobold_run gauge
-kobold_run{repo="http://gitea/dev/test",status="running"} 2
-kobold_run{repo="http://gitea/dev/test",status="success"} 5
-kobold_run{repo="http://gitea/dev/test",status="failure"} 1
+# HELP kobold_git_fetch number of git fetches
+# TYPE kobold_git_fetch counter
+kobold_git_fetch{repo="git@github.com:bluebrown/foobar"} 3
+# HELP kobold_git_push number of git pushes
+# TYPE kobold_git_push counter
+kobold_git_push{repo="git@github.com:bluebrown/foobar"} 1
+# HELP kobold_image_seen number of images seen
+# TYPE kobold_image_seen counter
+kobold_image_seen{ref="docker.io/bluebrown/busybox"} 3
+kobold_image_seen{ref="docker.io/bluebrown/nginx"} 2
+# HELP kobold_msg_recv number of messages received
+# TYPE kobold_msg_recv counter
+kobold_msg_recv{channel="dockerhub",rejected="false"} 5
+# HELP kobold_run_active number of active runs
+# TYPE kobold_run_active gauge
+kobold_run_active 0
+# HELP kobold_run_status run status (task groups)
+# TYPE kobold_run_status counter
+kobold_run_status{repo="git@github.com:bluebrown/foobar",status="success"} 2
+kobold_run_status{repo="git@github.com:bluebrown/foobar",status="failure"} 1
 ```
 
 ## Web API

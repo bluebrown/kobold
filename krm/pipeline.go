@@ -12,17 +12,17 @@ import (
 )
 
 type Pipeline struct {
-	RepoURI     string `json:"repoUri,omitempty"`
-	SrcBranch   string `json:"sourceBranch,omitempty"`
-	DstBranch   string `json:"destinationBranch,omitempty"`
-	CachePath   string `json:"cachePath,omitempty"`
+	RepoURI     kioutil.GitPackageURI `json:"repoUri,omitempty"`
+	SrcBranch   string                `json:"sourceBranch,omitempty"`
+	DstBranch   string                `json:"destinationBranch,omitempty"`
+	CachePath   string                `json:"cachePath,omitempty"`
 	PushCounter *prometheus.CounterVec
 }
 
 func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, changes, warnings []string, err error) {
 	kf := NewImageRefUpdateFilter(nil, imageRefs...)
 
-	grw := kioutil.NewGitPackageReadWriter(ctx, opts.RepoURI, opts.DstBranch)
+	grw := kioutil.NewGitPackageReadWriter(ctx, opts.RepoURI.String(), opts.DstBranch)
 
 	grw.SetCachePath(opts.CachePath)
 
@@ -35,7 +35,7 @@ func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, c
 		msg := "chore(kobold): update krm package"
 		var buf bytes.Buffer
 		if err := tpl.Execute(&buf, TemplateContext{
-			Repo:     opts.RepoURI,
+			Repo:     opts.RepoURI.String(),
 			Branch:   opts.DstBranch,
 			Changes:  kf.Changes,
 			Warnings: kf.Warnings,
@@ -57,7 +57,7 @@ func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, c
 	}
 
 	if len(kf.Changes) > 0 && opts.PushCounter != nil {
-		opts.PushCounter.With(prometheus.Labels{"repo": opts.RepoURI}).Inc()
+		opts.PushCounter.With(prometheus.Labels{"repo": opts.RepoURI.Repo}).Inc()
 	}
 
 	return grw.CommitMessage(), kf.Changes, kf.Warnings, nil
