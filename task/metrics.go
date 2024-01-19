@@ -14,4 +14,8 @@ var (
 		Name: "kobold_recv",
 		Help: "number of messages received",
 	}, []string{"channel", "rejected"})
+	metricClone = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "kobold_clone",
+		Help: "number of clone",
+	}, []string{"repo"})
 )

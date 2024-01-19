@@ -1,9 +1,9 @@
 POST /events?chan=dockerhub HTTP/1.1
-Host: localhost:9999
+Host: localhost:9000
 
 {
   "push_data": {
-    "tag": "v1.1.2"
+    "tag": "v1.1.3"
   },
   "repository": {
     "repo_name": "library/busybox"

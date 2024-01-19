@@ -24,7 +24,7 @@ type HookRunner interface {
 	Run(group store.TaskGroup, msg string, changes []string, warnings []string) error
 }
 
-type TaskHandler func(ctx context.Context, g store.TaskGroup, hook HookRunner) ([]string, error)
+type TaskHandler func(ctx context.Context, hostPath string, g store.TaskGroup, hook HookRunner) ([]string, error)
 
 // implement the flag.Value interface
 func (t *TaskHandler) String() string {

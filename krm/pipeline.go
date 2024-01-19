@@ -14,12 +14,15 @@ type Pipeline struct {
 	RepoURI   string `json:"repoUri,omitempty"`
 	SrcBranch string `json:"sourceBranch,omitempty"`
 	DstBranch string `json:"destinationBranch,omitempty"`
+	CachePath string `json:"cachePath,omitempty"`
 }
 
 func (opts Pipeline) Run(ctx context.Context, imageRefs []string) (msg string, changes, warnings []string, err error) {
 	kf := NewImageRefUpdateFilter(nil, imageRefs...)
 
 	grw := kioutil.NewGitPackageReadWriter(ctx, opts.RepoURI, opts.DstBranch)
+
+	grw.SetCachePath(opts.CachePath)
 
 	grw.SetDiffFunc(func(s1, s2 string) (any, bool, error) {
 		return kf.Changes, len(kf.Changes) > 0, nil

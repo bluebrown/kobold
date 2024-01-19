@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -33,6 +34,7 @@ type GitPackageReadWriter struct {
 	msgFunc           MessageFunc
 	ctx               context.Context
 	msg               string
+	cachePath         string
 }
 
 func NewGitPackageReadWriter(ctx context.Context, uri, dstBranch string) *GitPackageReadWriter {
@@ -50,6 +52,7 @@ func (g GitPackageReadWriter) Read() ([]*yaml.RNode, error) {
 		srcURI:            g.srcURI,
 		SetPathAnnotation: g.SetPathAnnotation,
 		ctx:               g.ctx,
+		cachePath:         g.cachePath,
 	}).Read()
 
 }
@@ -86,6 +89,10 @@ func (g *GitPackageReadWriter) SetMsgFunc(fn MessageFunc) {
 	g.msgFunc = fn
 }
 
+func (g *GitPackageReadWriter) SetCachePath(path string) {
+	g.cachePath = path
+}
+
 const (
 	PathAnnotation = "kio.bluebrown.github.io/path"
 )
@@ -94,6 +101,9 @@ type GitPackageReader struct {
 	srcURI            GitPackageURI
 	SetPathAnnotation bool
 	ctx               context.Context
+	// if set, the reader will read from
+	// the hostpath instead of cloning
+	cachePath string
 }
 
 func NewGitPackageReader(srcURI string) *GitPackageReader {
@@ -107,12 +117,16 @@ func (g GitPackageReader) Read() ([]*yaml.RNode, error) {
 		g.ctx = context.Background()
 	}
 
-	hostPath := mustTempDir()
-	pkgPath := filepath.Join(hostPath, g.srcURI.Pkg)
-
-	if err := gitE(g.ctx, "clone", "--branch", g.srcURI.Ref, "--depth", "1", g.srcURI.Repo, hostPath); err != nil {
-		return nil, fmt.Errorf("clone repo: %w", err)
+	if g.cachePath == "" {
+		g.cachePath = mustTempDir()
+		if err := gitE(g.ctx, "clone", "--branch", g.srcURI.Ref, "--depth", "1", g.srcURI.Repo, g.cachePath); err != nil {
+			return nil, fmt.Errorf("clone repo: %w", err)
+		}
+	} else {
+		slog.InfoContext(g.ctx, "cache hit, skip cloning", "repo", g.srcURI.Repo)
 	}
+
+	pkgPath := filepath.Join(g.cachePath, g.srcURI.Pkg)
 
 	r := kio.LocalPackageReader{
 		PackageFileName:    ".krmignore",
@@ -122,14 +136,14 @@ func (g GitPackageReader) Read() ([]*yaml.RNode, error) {
 	}
 
 	if g.SetPathAnnotation {
-		r.SetAnnotations = map[string]string{PathAnnotation: hostPath}
+		r.SetAnnotations = map[string]string{PathAnnotation: g.cachePath}
 	} else {
-		defer os.RemoveAll(hostPath)
+		defer os.RemoveAll(g.cachePath)
 	}
 
 	nodes, err := r.Read()
 	if err != nil {
-		os.RemoveAll(hostPath)
+		os.RemoveAll(g.cachePath)
 		return nil, fmt.Errorf("read package: %w", err)
 	}
 
@@ -173,15 +187,12 @@ func (g *GitPackageWriter) Write(nodes []*yaml.RNode) error {
 
 	if remoteHostPath == "" {
 		remoteHostPath = mustTempDir()
+		defer os.RemoveAll(remoteHostPath)
 	}
 
 	localHostPath := mustTempDir()
 	localPkgPath := filepath.Join(localHostPath)
-
-	defer func() {
-		_ = os.RemoveAll(localHostPath)
-		_ = os.RemoveAll(remoteHostPath)
-	}()
+	defer os.RemoveAll(localHostPath)
 
 	if err := os.MkdirAll(filepath.Dir(localPkgPath), 0755); err != nil {
 		return fmt.Errorf("create dir: %w", err)
