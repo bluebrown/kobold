@@ -62,7 +62,7 @@ func (uri *PackageURI) Scan(value interface{}) error {
 	case []byte:
 		b = v
 	default:
-		return fmt.Errorf("cannot convert %T to GitPackageURI", value)
+		return fmt.Errorf("cannot convert %T to PackageURI", value)
 	}
 	return uri.UnmarshalText(b)
 }

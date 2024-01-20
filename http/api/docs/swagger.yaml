@@ -6,15 +6,6 @@ definitions:
       message:
         type: string
     type: object
-  git.PackageURI:
-    properties:
-      pkg:
-        type: string
-      ref:
-        type: string
-      repo:
-        type: string
-    type: object
   model.Channel:
     properties:
       decoder_name:
@@ -44,7 +35,7 @@ definitions:
       post_hook_name:
         type: string
       repo_uri:
-        $ref: '#/definitions/git.PackageURI'
+        type: string
     type: object
   model.PipelineRunListRow:
     properties:
@@ -62,7 +53,7 @@ definitions:
       post_hook:
         type: string
       repo_uri:
-        $ref: '#/definitions/git.PackageURI'
+        type: string
       status:
         type: string
       timestamp: {}
@@ -94,7 +85,7 @@ definitions:
       post_hook:
         type: string
       repo_uri:
-        $ref: '#/definitions/git.PackageURI'
+        type: string
       status:
         type: string
       timestamp: {}
@@ -118,7 +109,7 @@ definitions:
       post_hook_name:
         type: string
       repo_uri:
-        $ref: '#/definitions/git.PackageURI'
+        type: string
       status:
         type: string
       task_group_fingerprint:

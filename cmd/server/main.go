@@ -14,12 +14,12 @@ import (
 	"golang.org/x/sync/errgroup"
 	_ "modernc.org/sqlite"
 
-	"github.com/bluebrown/kobold/api"
 	"github.com/bluebrown/kobold/config"
+	"github.com/bluebrown/kobold/http/api"
+	"github.com/bluebrown/kobold/http/webhook"
 	"github.com/bluebrown/kobold/store"
 	"github.com/bluebrown/kobold/store/schema"
 	"github.com/bluebrown/kobold/task"
-	"github.com/bluebrown/kobold/webhook"
 )
 
 func init() {

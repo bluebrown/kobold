@@ -5,6 +5,8 @@ out="${1:-.artifacts}"
 out="${out%/}"
 tag="${RELEASE_TAG:-dev}"
 
+echo "Building artifacts in $out" >&2
+
 script_dir="$(dirname "$(readlink -f "$0")")"
 cd "$script_dir/.."
 
@@ -13,6 +15,8 @@ mkdir -p "$out" && rm -rf "${out:?}"/*
 td="build/.tmp"
 trap 'rm -rf "$td"' EXIT
 mkdir -p "$td" && rm -rf "${td:?}"/*
+
+echo "Building manifests..." >&2
 
 cd "$td"
 kustomize create
@@ -23,8 +27,12 @@ kustomize edit set label "app.kubernetes.io/version:$tag"
 cd -
 kustomize build "$td" >"$out/manifests.yaml"
 
+echo "Building OCI image..." >&2
+
 docker build -f build/Dockerfile -t "docker.io/bluebrown/kobold:$tag" .
 docker save "docker.io/bluebrown/kobold:$tag" >"$out/oci.tar"
+
+echo "Building binaries..." >&2
 
 GOBIN="$script_dir/../$out" go install ./cmd/...
 
@@ -36,3 +44,5 @@ for f in $out/*; do
     mv "$f" "$out/kobold-${f##*/}"
   fi
 done
+
+echo "Done" >&2

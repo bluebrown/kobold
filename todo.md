@@ -8,7 +8,8 @@ would be more solid, if we didnt have to rely on the user to do this.
 
 ## starlark files
 
-store starlark scripts in file instead of db
+store starlark scripts in file instead of db? This would make it more easy to mount
+custom scripts into the container
 
 ## generic pipeline handler
 
@@ -34,15 +35,3 @@ allow to configure the commit and pr messages
 some tools split image references across fields (e.g. image and tag). This
 should be supported by kobold. There could be another option tag to specify what
 part of the image ref should be set.
-
-## option to truncate tables
-
-when the config file is reads, the tables will be updated. But it will never
-delete entries that are not present in the config file. This could lead to
-unwanted pipelines runs. There should be an option to truncate the tables before
-updating them.
-
-## track noop changes
-
-not every pipeline run leads to actual changes in a git repo. This could be
-tracked as additional field in the database and as prometheus metric.

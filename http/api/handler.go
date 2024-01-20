@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/schema"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
-	"github.com/bluebrown/kobold/api/docs"
+	"github.com/bluebrown/kobold/http/api/docs"
 	"github.com/bluebrown/kobold/store/model"
 )
 
