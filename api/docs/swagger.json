@@ -487,6 +487,20 @@
                 }
             }
         },
+        "git.PackageURI": {
+            "type": "object",
+            "properties": {
+                "pkg": {
+                    "type": "string"
+                },
+                "ref": {
+                    "type": "string"
+                },
+                "repo": {
+                    "type": "string"
+                }
+            }
+        },
         "store.Channel": {
             "type": "object",
             "properties": {
@@ -531,7 +545,7 @@
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 }
             }
         },
@@ -558,7 +572,7 @@
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"
@@ -606,7 +620,7 @@
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"
@@ -642,7 +656,7 @@
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"

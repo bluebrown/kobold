@@ -409,13 +409,13 @@ Kobold exposes prometheus metrics on port 8080. The metrics are exposed in the
 # HELP kobold_git_fetch number of git fetches
 # TYPE kobold_git_fetch counter
 kobold_git_fetch{repo="git@github.com:bluebrown/foobar"} 3
+kobold_git_fetch{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test"} 3
 # HELP kobold_git_push number of git pushes
 # TYPE kobold_git_push counter
-kobold_git_push{repo="git@github.com:bluebrown/foobar"} 1
+kobold_git_push{repo="git@github.com:bluebrown/foobar"} 4
 # HELP kobold_image_seen number of images seen
 # TYPE kobold_image_seen counter
-kobold_image_seen{ref="docker.io/bluebrown/busybox"} 3
-kobold_image_seen{ref="docker.io/bluebrown/nginx"} 2
+kobold_image_seen{ref="library/busybox"} 5
 # HELP kobold_msg_recv number of messages received
 # TYPE kobold_msg_recv counter
 kobold_msg_recv{channel="dockerhub",rejected="false"} 5
@@ -424,8 +424,8 @@ kobold_msg_recv{channel="dockerhub",rejected="false"} 5
 kobold_run_active 0
 # HELP kobold_run_status run status (task groups)
 # TYPE kobold_run_status counter
-kobold_run_status{repo="git@github.com:bluebrown/foobar",status="success"} 2
-kobold_run_status{repo="git@github.com:bluebrown/foobar",status="failure"} 1
+kobold_run_status{repo="git@github.com:bluebrown/foobar",status="success"} 6
+kobold_run_status{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test",status="success"} 3
 ```
 
 ## Web API
@@ -498,22 +498,9 @@ items:
 - test.azurecr.io/nginx:v1@sha256:993518ca49ede3c4e751fe799837ede16e60bc410452e3922602ebceda9b4c73
 ```
 
-### Git Read/Writer
-
-The `grw` command is a git read/writer. It reads from a source repository and
-emits the resources to stdout. Optionally, by using the `-a` flag, it sets
-tracking annotation, to improve the write performance, by preventing multiple
-clones.
-
-This example reads from git, pipes to a krm filter, and writes back to git:
-
-```bash
-bin/grw -a source 'git@github.com:bluebrown/foobar.git@main/manifests' \
-  | bin/image-ref-updater testdata/events.yaml - \
-  | bin/grw sink 'git@github.com:bluebrown/foobar.git@main/manifests'
-```
-
 ### ConFix
+
+TODO: fix this program. It is currently broken.
 
 The `confix` command can be used to migrate from the v1 to the v2 config format.
 I tries to conver the config on a best effort basis, but careful review is

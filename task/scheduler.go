@@ -29,7 +29,7 @@ func NewScheduler(ctx context.Context, q *store.Queries, size int, interval time
 	}
 }
 
-func (s *Scheduler) SetHandler(h TaskHandler) {
+func (s *Scheduler) SetHandler(h Handler) {
 	s.pool.SetHandler(h)
 }
 

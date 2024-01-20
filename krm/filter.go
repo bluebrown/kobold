@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bluebrown/kobold/kioutil"
 	"github.com/google/go-containerregistry/pkg/name"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
@@ -64,7 +63,7 @@ func NewImageRefUpdateFilter(handler NodeHandler, imageRefs ...string) *ImageRef
 
 func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error) {
 	// TODO: use top level loop to capture the current source file info
-	err := kioutil.VisitMapLeafs(nodes, func(mn *yaml.MapNode) error {
+	err := VisitMapLeafs(nodes, func(mn *yaml.MapNode) error {
 		lineComment := mn.Value.YNode().LineComment
 
 		if !strings.HasPrefix(lineComment, CommentPrefix) {
@@ -109,4 +108,46 @@ func parseImageRefWithDigest(s string) (name.Reference, string, error) {
 	}
 
 	return tag, digest, nil
+}
+
+func VisitMapLeafs(nodes []*yaml.RNode, fn func(*yaml.MapNode) error) error {
+	for _, node := range nodes {
+		switch node.YNode().Kind {
+		case yaml.SequenceNode:
+			els, err := node.Elements()
+			if err != nil {
+				return err
+			}
+			if err := VisitMapLeafs(els, fn); err != nil {
+				return err
+			}
+		case yaml.MappingNode:
+			fields, err := node.Fields()
+			if err != nil {
+				return err
+			}
+			for _, field := range fields {
+				f := node.Field(field)
+				switch f.Value.YNode().Kind {
+				case yaml.ScalarNode:
+					if err := fn(f); err != nil {
+						return err
+					}
+				case yaml.SequenceNode:
+					els, err := f.Value.Elements()
+					if err != nil {
+						return err
+					}
+					if err := VisitMapLeafs(els, fn); err != nil {
+						return err
+					}
+				default:
+					if err := VisitMapLeafs([]*yaml.RNode{f.Value}, fn); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+	return nil
 }

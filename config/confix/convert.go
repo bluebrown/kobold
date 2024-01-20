@@ -8,7 +8,7 @@ import (
 
 	"github.com/bluebrown/kobold/config"
 	"github.com/bluebrown/kobold/config/confix/old"
-	"github.com/bluebrown/kobold/kioutil"
+	"github.com/bluebrown/kobold/git"
 )
 
 var prm = map[string]string{
@@ -68,7 +68,7 @@ func MakeConfig(v1 *old.NormalizedConfig) (*config.Config, error) {
 				continue
 			}
 
-			uri := kioutil.GitPackageURI{}
+			uri := git.PackageURI{}
 			uri.UnmarshalText([]byte(fmt.Sprintf("%s@%s%s", repo.URL, sub.Branch, scope)))
 
 			scope = strings.ReplaceAll(scope, "/", "-")

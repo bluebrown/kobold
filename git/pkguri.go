@@ -1,4 +1,4 @@
-package kioutil
+package git
 
 import (
 	"database/sql/driver"
@@ -7,26 +7,26 @@ import (
 	"strings"
 )
 
-type GitPackageURI struct {
+type PackageURI struct {
 	Repo string `json:"repo,omitempty" toml:"repo"`
 	Ref  string `json:"ref,omitempty" toml:"ref"`
 	Pkg  string `json:"pkg,omitempty" toml:"pkg"`
 }
 
 // TODO: appending .git here can cause mismatching git-credentials
-func (r *GitPackageURI) String() string {
+func (r *PackageURI) String() string {
 	return fmt.Sprintf("%s.git@%s%s", r.Repo, r.Ref, r.Pkg)
 }
 
 var pattern = regexp.MustCompile(`^(?P<repo>.*)@(?P<ref>\w+)(?P<pkg>\/.+)?$`)
 
-func (uri *GitPackageURI) MustUnmarshalText(s string) {
+func (uri *PackageURI) MustUnmarshalText(s string) {
 	if err := uri.UnmarshalText([]byte(s)); err != nil {
 		panic(err)
 	}
 }
 
-func (uri *GitPackageURI) UnmarshalText(b []byte) error {
+func (uri *PackageURI) UnmarshalText(b []byte) error {
 	matches := pattern.FindStringSubmatch(string(b))
 	if len(matches) == 0 {
 		return fmt.Errorf("invalid git package uri: %q", string(b))
@@ -47,11 +47,11 @@ func (uri *GitPackageURI) UnmarshalText(b []byte) error {
 	return nil
 }
 
-func (uri GitPackageURI) MarshalText() ([]byte, error) {
+func (uri PackageURI) MarshalText() ([]byte, error) {
 	return []byte(uri.String()), nil
 }
 
-func (uri *GitPackageURI) Scan(value interface{}) error {
+func (uri *PackageURI) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
@@ -67,7 +67,7 @@ func (uri *GitPackageURI) Scan(value interface{}) error {
 	return uri.UnmarshalText(b)
 }
 
-func (uri GitPackageURI) Value() (driver.Value, error) {
+func (uri PackageURI) Value() (driver.Value, error) {
 	if uri.Repo == "" {
 		return nil, nil
 	}

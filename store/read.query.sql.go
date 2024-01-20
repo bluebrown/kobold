@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	dbutil "github.com/bluebrown/kobold/dbutil"
-	kioutil "github.com/bluebrown/kobold/kioutil"
+	git "github.com/bluebrown/kobold/git"
 	null "github.com/volatiletech/null/v8"
 )
 
@@ -174,16 +174,16 @@ type PipelineRunListParams struct {
 }
 
 type PipelineRunListRow struct {
-	Name        null.String           `json:"name"`
-	Fingerprint string                `json:"fingerprint"`
-	RepoUri     kioutil.GitPackageURI `json:"repo_uri"`
-	DestBranch  null.String           `json:"dest_branch"`
-	PostHook    null.String           `json:"post_hook"`
-	Status      string                `json:"status"`
-	Timestamp   interface{}           `json:"timestamp"`
-	Warnings    dbutil.SliceText      `json:"warnings"`
-	Error       interface{}           `json:"error"`
-	Msgs        dbutil.SliceText      `json:"msgs"`
+	Name        null.String      `json:"name"`
+	Fingerprint string           `json:"fingerprint"`
+	RepoUri     git.PackageURI   `json:"repo_uri"`
+	DestBranch  null.String      `json:"dest_branch"`
+	PostHook    null.String      `json:"post_hook"`
+	Status      string           `json:"status"`
+	Timestamp   interface{}      `json:"timestamp"`
+	Warnings    dbutil.SliceText `json:"warnings"`
+	Error       interface{}      `json:"error"`
+	Msgs        dbutil.SliceText `json:"msgs"`
 }
 
 // PipelineRunList

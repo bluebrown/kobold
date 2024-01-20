@@ -1,54 +1,54 @@
 version: "2"
 sql:
-- engine: sqlite
-  queries: ../sql/*.query.sql
-  schema: ../sql/*.schema.sql
-  gen:
-    go:
-      package: store
-      out: ../store/
-      emit_json_tags: true
-      emit_empty_slices: true
-      emit_sql_as_comment: true
+  - engine: sqlite
+    queries: ../sql/*.query.sql
+    schema: ../sql/*.schema.sql
+    gen:
+      go:
+        package: store
+        out: ../store/
+        emit_json_tags: true
+        emit_empty_slices: true
+        emit_sql_as_comment: true
 
-      overrides:
-      - db_type: text
-        nullable: true
-        go_type:
-          import: github.com/volatiletech/null/v8
-          package: "null"
-          type: String
+        overrides:
+          - db_type: text
+            nullable: true
+            go_type:
+              import: github.com/volatiletech/null/v8
+              package: "null"
+              type: String
 
-      - column: "*.repo_uri"
-        go_type:
-          import: github.com/bluebrown/kobold/kioutil
-          package: kioutil
-          type: GitPackageURI
+          - column: "*.repo_uri"
+            go_type:
+              import: github.com/bluebrown/kobold/git
+              package: git
+              type: PackageURI
 
-      - column: "*.msgs"
-        go_type:
-          import: github.com/bluebrown/kobold/dbutil
-          package: dbutil
-          type: SliceText
+          - column: "*.msgs"
+            go_type:
+              import: github.com/bluebrown/kobold/dbutil
+              package: dbutil
+              type: SliceText
 
-      - column: "*.warnings"
-        go_type:
-          import: github.com/bluebrown/kobold/dbutil
-          package: dbutil
-          type: SliceText
+          - column: "*.warnings"
+            go_type:
+              import: github.com/bluebrown/kobold/dbutil
+              package: dbutil
+              type: SliceText
 
-      - column: "*.task_ids"
-        go_type:
-          import: github.com/bluebrown/kobold/dbutil
-          package: dbutil
-          type: SliceText
+          - column: "*.task_ids"
+            go_type:
+              import: github.com/bluebrown/kobold/dbutil
+              package: dbutil
+              type: SliceText
 
-      - column: "*.fingerprint"
-        go_type:
-          type: string
+          - column: "*.fingerprint"
+            go_type:
+              type: string
 
-      - column: "*.channels"
-        go_type:
-          import: github.com/bluebrown/kobold/dbutil
-          package: dbutil
-          type: JsonArray
+          - column: "*.channels"
+            go_type:
+              import: github.com/bluebrown/kobold/dbutil
+              package: dbutil
+              type: JsonArray

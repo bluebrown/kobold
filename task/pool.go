@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 
@@ -20,6 +18,7 @@ import (
 	"golang.org/x/sync/errgroup"
 
 	"github.com/bluebrown/kobold/dbutil"
+	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/store"
 )
 
@@ -36,17 +35,20 @@ type Pool struct {
 	group      *errgroup.Group
 	queries    *store.Queries
 	ctx        context.Context
-	handler    TaskHandler
+	handler    Handler
 	decoder    Decoder
 	hookRunner HookRunner
 	cancel     context.CancelFunc
 	size       int
+	cache      *git.RepoCache
 }
 
 func NewPool(ctx context.Context, size int, queries *store.Queries) *Pool {
 	ctx, cancel := context.WithCancel(ctx)
 	eg, ectx := errgroup.WithContext(ctx)
 	eg.SetLimit(size)
+	cache := git.NewRepoCache("kobold")
+	cache.SetCounter(metricGitFetch)
 	return &Pool{
 		ctx:        ectx,
 		cancel:     cancel,
@@ -56,10 +58,11 @@ func NewPool(ctx context.Context, size int, queries *store.Queries) *Pool {
 		decoder:    NewStarlarkDecoder(),
 		hookRunner: NewStarlarkPostHook(),
 		size:       size,
+		cache:      cache,
 	}
 }
 
-func (p *Pool) SetHandler(h TaskHandler) {
+func (p *Pool) SetHandler(h Handler) {
 	p.handler = h
 }
 
@@ -74,26 +77,24 @@ func (p *Pool) Dispatch() error {
 		return err
 	}
 
-	// each dispatch gets its own cache, to avoid collisions
-	cache := &repoCache{
-		repos: make(map[string][]string),
-		cache: filepath.Join(os.TempDir(), "kobold-cache", "repos"),
-		tmp:   filepath.Join(os.TempDir(), "kobold-cache", uuid.NewString()),
+	// fill the cache with all repos that are part of this dispatch call
+	uris := make([]git.PackageURI, 0, len(taskGroups))
+	for _, g := range taskGroups {
+		uris = append(uris, g.RepoUri)
 	}
 
-	// find all unique repos and clone them beforehand in order to avoid
-	// exsessive cloning
-	if err := cache.fill(p.ctx, taskGroups, p.size); err != nil {
+	if err := p.cache.Fill(p.ctx, uris, p.size); err != nil {
 		slog.WarnContext(p.ctx, "failed to fill cache", "error", err)
 	}
 
 	// the waitgroups is used to know when all task groups of this dispatch call
 	// have been processed. This is used to purge the cache
 	wg := sync.WaitGroup{}
+	ns := uuid.NewString()
 
 	go func() {
 		wg.Wait()
-		cache.cleanTmp()
+		// p.cache.Purge(ns)
 	}()
 
 	for _, g := range taskGroups {
@@ -139,14 +140,20 @@ func (p *Pool) Dispatch() error {
 				warns  []string
 			)
 
-			if p.handler != nil {
-				warns, err = p.handler(p.ctx, cache.get(g.RepoUri.Repo), g, p.hookRunner)
-				// if the handler throws an error, we record the outcome but
-				// continue to process other tasks
+			if path, err := p.cache.Get(p.ctx, ns, g.RepoUri.Repo); err == nil && p.handler != nil {
+				warns, err = p.handler(p.ctx, path, g, p.hookRunner)
 				if err != nil {
 					status = StatusFailure
 					reason = err.Error()
+					slog.WarnContext(p.ctx, "handler error", "fingerprint", g.Fingerprint, "error", err)
 				}
+				if len(warns) > 0 {
+					slog.WarnContext(p.ctx, "handler warnings", "fingerprint", g.Fingerprint, "warnings", warns)
+				}
+			} else if err != nil {
+				status = StatusFailure
+				reason = err.Error()
+				slog.WarnContext(p.ctx, "cache error", "fingerprint", g.Fingerprint, "error", err)
 			}
 
 			swapped, err = p.queries.TaskGroupsStatusCompSwap(p.ctx, store.TaskGroupsStatusCompSwapParams{
@@ -206,8 +213,8 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 	defer func() {
 		slog.InfoContext(ctx, "task queued",
 			"channel", channel,
-			"defaultDecoder",
-			len(dec) == 0, "error", err)
+			"dec", len(dec) == 0,
+			"error", err)
 
 		metricMsgRecv.With(prometheus.Labels{
 			"channel":  channel,

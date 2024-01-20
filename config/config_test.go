@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/BurntSushi/toml"
-	"github.com/bluebrown/kobold/kioutil"
+	"github.com/bluebrown/kobold/git"
 )
 
 func TestReadDir(t *testing.T) {
@@ -24,7 +24,7 @@ func TestReadDir(t *testing.T) {
 				Channels: []Channel{{Name: "foo"}},
 				Pipelines: []Pipeline{{
 					Name: "bar",
-					RepoURI: kioutil.GitPackageURI{
+					RepoURI: git.PackageURI{
 						Repo: "git@github.com:bluebrown/testing",
 						Ref:  "dev",
 						Pkg:  "/resources",

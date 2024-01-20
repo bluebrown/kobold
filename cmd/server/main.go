@@ -41,14 +41,14 @@ func main() {
 
 func run(ctx context.Context, args []string, env []string) error {
 	var (
-		set                          = flag.NewFlagSet("kobold-server", flag.ExitOnError)
-		opts                         = config.Options().Bind(set)
-		handler     task.TaskHandler = task.KoboldHandler
-		webhookAddr                  = ":8080"
-		apiAddr                      = ":9090"
-		maxprocs                     = 10
-		debounce                     = 5 * time.Second
-		prefix                       = ""
+		set                      = flag.NewFlagSet("kobold-server", flag.ExitOnError)
+		opts                     = config.Options().Bind(set)
+		handler     task.Handler = task.KoboldHandler
+		webhookAddr              = ":8080"
+		apiAddr                  = ":9090"
+		maxprocs                 = 10
+		debounce                 = 5 * time.Second
+		prefix                   = ""
 	)
 
 	set.Var(&handler, "handler", "task handler, one of: print, kobold, error")

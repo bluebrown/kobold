@@ -5,7 +5,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bluebrown/kobold/kioutil"
+	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/store"
 	"github.com/volatiletech/null/v8"
 )
@@ -26,11 +26,11 @@ type PostHook struct {
 }
 
 type Pipeline struct {
-	Name       string                `toml:"name"`
-	RepoURI    kioutil.GitPackageURI `toml:"repo_uri"`
-	DestBranch string                `toml:"dest_branch"`
-	Channels   []string              `toml:"channels"`
-	PostHook   string                `toml:"post_hook"`
+	Name       string         `toml:"name"`
+	RepoURI    git.PackageURI `toml:"repo_uri"`
+	DestBranch string         `toml:"dest_branch"`
+	Channels   []string       `toml:"channels"`
+	PostHook   string         `toml:"post_hook"`
 }
 
 type Config struct {

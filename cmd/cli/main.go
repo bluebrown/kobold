@@ -44,10 +44,10 @@ func main() {
 func run(ctx context.Context, args []string, env []string, input io.Reader) error {
 	var (
 		channel  string
-		handler  task.TaskHandler = task.KoboldHandler
-		set                       = flag.NewFlagSet("kobold-cli", flag.ExitOnError)
-		opts                      = config.Options().Bind(set)
-		maxprocs                  = 10
+		handler  task.Handler = task.KoboldHandler
+		set                   = flag.NewFlagSet("kobold-cli", flag.ExitOnError)
+		opts                  = config.Options().Bind(set)
+		maxprocs              = 10
 	)
 
 	set.StringVar(&channel, "channel", "", "channel to publish msgs to")

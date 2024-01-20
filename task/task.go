@@ -24,14 +24,14 @@ type HookRunner interface {
 	Run(group store.TaskGroup, msg string, changes []string, warnings []string) error
 }
 
-type TaskHandler func(ctx context.Context, hostPath string, g store.TaskGroup, hook HookRunner) ([]string, error)
+type Handler func(ctx context.Context, hostPath string, g store.TaskGroup, hook HookRunner) ([]string, error)
 
 // implement the flag.Value interface
-func (t *TaskHandler) String() string {
+func (t *Handler) String() string {
 	return fmt.Sprintf("%T", *t)
 }
 
-func (t *TaskHandler) Set(s string) error {
+func (t *Handler) Set(s string) error {
 	switch s {
 	case "kobold":
 		*t = KoboldHandler

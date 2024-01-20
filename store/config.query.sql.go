@@ -8,7 +8,7 @@ package store
 import (
 	"context"
 
-	kioutil "github.com/bluebrown/kobold/kioutil"
+	git "github.com/bluebrown/kobold/git"
 	null "github.com/volatiletech/null/v8"
 )
 
@@ -56,10 +56,10 @@ on conflict(name) do update set repo_uri = excluded.repo_uri, dest_branch = excl
 `
 
 type PipelinePutParams struct {
-	Name         string                `json:"name"`
-	RepoUri      kioutil.GitPackageURI `json:"repo_uri"`
-	DestBranch   null.String           `json:"dest_branch"`
-	PostHookName null.String           `json:"post_hook_name"`
+	Name         string         `json:"name"`
+	RepoUri      git.PackageURI `json:"repo_uri"`
+	DestBranch   null.String    `json:"dest_branch"`
+	PostHookName null.String    `json:"post_hook_name"`
 }
 
 // PipelinePut

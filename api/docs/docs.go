@@ -498,6 +498,20 @@ const docTemplate = `{
                 }
             }
         },
+        "git.PackageURI": {
+            "type": "object",
+            "properties": {
+                "pkg": {
+                    "type": "string"
+                },
+                "ref": {
+                    "type": "string"
+                },
+                "repo": {
+                    "type": "string"
+                }
+            }
+        },
         "store.Channel": {
             "type": "object",
             "properties": {
@@ -542,7 +556,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 }
             }
         },
@@ -569,7 +583,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"
@@ -617,7 +631,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"
@@ -653,7 +667,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "repo_uri": {
-                    "type": "string"
+                    "$ref": "#/definitions/git.PackageURI"
                 },
                 "status": {
                     "type": "string"
