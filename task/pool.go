@@ -84,8 +84,8 @@ func (p *Pool) Dispatch() error {
 		uris = append(uris, g.RepoUri)
 	}
 
-	if err := p.cache.Fill(p.ctx, uris, p.size); err != nil {
-		slog.WarnContext(p.ctx, "failed to fill cache", "error", err)
+	if err := p.cache.Fill(p.ctx, p.size, uris...); err != nil {
+		slog.WarnContext(p.ctx, "fill cache", "error", err)
 	}
 
 	// the waitgroups is used to know when all task groups of this dispatch call
@@ -95,7 +95,7 @@ func (p *Pool) Dispatch() error {
 
 	go func() {
 		wg.Wait()
-		// p.cache.Purge(ns)
+		p.cache.Purge(ns)
 	}()
 
 	for _, g := range taskGroups {

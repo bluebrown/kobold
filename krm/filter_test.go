@@ -232,13 +232,13 @@ func Test_renderer_Render(t *testing.T) {
 				}
 				f, err := fs.Open(source)
 				if err != nil {
-					t.Errorf("%s: failed to open file %v", source, err)
+					t.Errorf("%s: open file %v", source, err)
 					continue
 				}
 				defer f.Close()
 				rnodes, err := (&kio.ByteReader{Reader: f}).Read()
 				if err != nil {
-					t.Errorf("%s: failed to parse buffer into rnode: %v", source, err)
+					t.Errorf("%s: parse buffer into rnode: %v", source, err)
 					continue
 				}
 				for _, fieldValue := range fieldValues {

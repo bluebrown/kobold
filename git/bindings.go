@@ -24,23 +24,21 @@ func Init(ctx context.Context, dir, uri string) error {
 	return nil
 }
 
-// replace all fetch branches with refs and then fetch with depth 1
+// fetch the given refs from origin with depth 1
 func FetchShallow(ctx context.Context, dir string, refs ...string) error {
-	args := []string{"remote", "set-branches", "origin"}
-	args = append(args, (refs)...)
-
-	if _, err := run(ctx, dir, args...); err != nil {
-		return fmt.Errorf("git remote set-branches: %w", err)
+	refs = unique(refs)
+	args := []string{"fetch", "--depth", "1", "origin"}
+	clean := make([]string, 0, len(refs))
+	for _, ref := range refs {
+		clean = append(clean, fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", ref, ref))
 	}
-
-	if _, err := run(ctx, dir, "fetch", "--depth", "1", "-v"); err != nil {
-		return fmt.Errorf("git fetch: %w", err)
-	}
-
-	return nil
+	args = append(args, clean...)
+	_, err := run(ctx, dir, args...)
+	return err
 }
 
-// perform init and fetch in one step but only init if the repo doesn't exist
+// perform init and fetch in one step but only init if the repo doesn't exist.
+// otherwise, update its fetch refs and re-fetch with depth 1
 func Ensure(ctx context.Context, dir, uri string, refs ...string) error {
 	if _, err := os.Stat(dir); err != nil {
 		if os.IsNotExist(err) {
@@ -59,31 +57,32 @@ func Ensure(ctx context.Context, dir, uri string, refs ...string) error {
 	return nil
 }
 
-// switch to ref
+// switch to ref. This should be called after Ensure
+// to get a writeable branch
 func Switch(ctx context.Context, dir, ref string) error {
 	_, err := run(ctx, dir, "checkout", ref)
 	return err
 }
 
-// create a new branch ref
+// create a new branch and check it out
 func CheckoutB(ctx context.Context, dir, ref string) error {
 	_, err := run(ctx, dir, "checkout", "-b", ref)
 	return err
 }
 
-// add all files in dir to the index
+// add all files in given dir to the index
 func AddRoot(ctx context.Context, dir string) error {
 	_, err := run(ctx, dir, "add", ".")
 	return err
 }
 
-// commit the index with msg
+// commit the index with the given message
 func Commit(ctx context.Context, dir, msg string) error {
 	_, err := run(ctx, dir, "commit", "-m", msg)
 	return err
 }
 
-// push refs to origin
+// push the given refs to origin
 func Push(ctx context.Context, dir string, refs ...string) error {
 	args := []string{"push", "origin"}
 	args = append(args, refs...)

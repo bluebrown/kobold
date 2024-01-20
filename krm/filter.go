@@ -54,6 +54,13 @@ type ImageRefUpdateFilter struct {
 	Warnings  []string
 }
 
+// create a new krm filter. The filter will traverse all nodes and invoke the
+// handler if a map node with a line comment matching the CommentPrefix is
+// found. The handler is responsible for determining if the node should be
+// updated or not and what the new value should be. If no handler is passed, a
+// default handler will be used. the image refs passed are new images references
+// that may replace the current image ref. For any found map node, the handler
+// will be invoked, once for each pased image ref
 func NewImageRefUpdateFilter(handler NodeHandler, imageRefs ...string) *ImageRefUpdateFilter {
 	if handler == nil {
 		handler = DefaultNodeHandler

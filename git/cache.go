@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"sync"
 
@@ -13,6 +12,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// the repo cache will keep a clean version of each repo fetched via Fill().
+// Each time a repo is requested with Get(), a new copy of the local repo is
+// made, and the path to it is returned. These copies are unique and persist in
+// the given namespace until that namespace is purged. This allows multiple
+// callers to use the same repo without worrying about collisions. It also
+// allows the cache to refetch the repo, without having to reset branches or
+// clean up after itself. The cached repositories contain only the .git
+// directory, because they are obtained with git fetch. Therefore, after the
+// caller has retrieved the path to the repo, they need to git switch to their
+// desired branch. Repos and branches that have not been passed to Fill() will
+// not be available. Calling Fill() with a repo that has already been cached
+// will cause the cache to refetch the repo.
 type RepoCache struct {
 	repos  map[string][]string
 	mu     *sync.RWMutex
@@ -32,7 +43,7 @@ func (cache *RepoCache) SetCounter(cfetch *prometheus.CounterVec) {
 	cache.cfetch = cfetch
 }
 
-func (cache *RepoCache) Fill(ctx context.Context, uris []PackageURI, lim int) error {
+func (cache *RepoCache) Fill(ctx context.Context, lim int, uris ...PackageURI) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -81,8 +92,6 @@ func (cache *RepoCache) Get(ctx context.Context, namespace, repo string) (string
 		return "", fmt.Errorf("mkdir %q: %w", d, err)
 	}
 
-	// each caller gets a fresh copy of the repo. this will avoid collisions and
-	// keep the source re-fetchable
 	d = filepath.Join(d, uuid.NewString())
 
 	if err := copy(ctx, src, d); err != nil {
@@ -95,15 +104,6 @@ func (cache *RepoCache) Purge(namespace string) error {
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 	return os.RemoveAll(filepath.Join(cache.dir, "namespaces", namespace))
-}
-
-func copy(ctx context.Context, src, dst string) error {
-	cmd := exec.CommandContext(ctx, "cp", "-r", src, dst)
-	b, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("cp: %w: %s", err, string(b))
-	}
-	return nil
 }
 
 func unique(ss []string) []string {

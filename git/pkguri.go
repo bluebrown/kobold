@@ -7,13 +7,21 @@ import (
 	"strings"
 )
 
+// the package uri is a special uri format to specifiy a git repo, ref, and
+// package path withing the repo under the ref. the uri is of the form:
+//
+//	<repo>@<ref>[<pkg>]
+//
+// where <repo> is the git repo uri, <ref> is the git ref (branch, tag, commit),
+// and <pkg> is the package path within the repo. if <pkg> is not specified, the
+// root of the repo is assumed
 type PackageURI struct {
 	Repo string `json:"repo,omitempty" toml:"repo"`
 	Ref  string `json:"ref,omitempty" toml:"ref"`
 	Pkg  string `json:"pkg,omitempty" toml:"pkg"`
 }
 
-// TODO: appending .git here can cause mismatching git-credentials
+// FIXME: appending .git can lead to confusion or invalid URIs
 func (r *PackageURI) String() string {
 	return fmt.Sprintf("%s.git@%s%s", r.Repo, r.Ref, r.Pkg)
 }
