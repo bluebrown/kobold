@@ -10,7 +10,6 @@ import (
 	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
 // the task handler is the final point of execution. after decoding, debouncing
@@ -26,30 +25,10 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 		return nil, fmt.Errorf("git switch:	%s, %s: %w", g.RepoUri.Repo, g.RepoUri.Ref, err)
 	}
 
-	rw := &kio.LocalPackageReadWriter{
-		PackageFileName:     ".krmignore",
-		PackagePath:         filepath.Join(cache, g.RepoUri.Pkg),
-		WrapBareSeqNode:     true,
-		IncludeSubpackages:  true,
-		PreserveSeqIndent:   true,
-		NoDeleteFiles:       true,
-		ErrorIfNonResources: false,
+	changes, warnings, err := krm.Pipeline(ctx, filepath.Join(cache, g.RepoUri.Pkg), g.Msgs...)
+	if err != nil {
+		return nil, fmt.Errorf("krm pipeline: %w", err)
 	}
-
-	filter := krm.NewImageRefUpdateFilter(nil, g.Msgs...)
-
-	pipe := kio.Pipeline{
-		Inputs:  []kio.Reader{rw},
-		Filters: []kio.Filter{filter},
-		Outputs: []kio.Writer{rw},
-	}
-
-	if err := pipe.Execute(); err != nil {
-		return nil, fmt.Errorf("kio pipeline: %w", err)
-	}
-
-	warnings = append(warnings, filter.Warnings...)
-	changes = append(changes, filter.Changes...)
 
 	if len(changes) < 1 {
 		return nil, nil
