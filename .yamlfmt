@@ -7,5 +7,5 @@ formatter:
   type: basic
   indent: 2
   scan_folded_as_literal: true
-  retain_line_breaks: true
+  retain_line_breaks: false
   indentless_arrays: true

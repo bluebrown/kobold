@@ -94,6 +94,8 @@ func MakeConfig(v1 *old.NormalizedConfig) (*config.Config, error) {
 func MakeGitCredentials(v1 *old.NormalizedConfig) (string, error) {
 	var buf bytes.Buffer
 
+	seen := map[string]struct{}{}
+
 	for _, repo := range v1.Repositories {
 		if repo.Username == "" || repo.Password == "" {
 			continue
@@ -101,10 +103,32 @@ func MakeGitCredentials(v1 *old.NormalizedConfig) (string, error) {
 
 		u, err := url.Parse(repo.URL)
 		if err != nil {
-			fmt.Printf("[WARN] invalid url %q: %v\n", repo.URL, err)
+			warn("nvalid url %q: %v\n", repo.URL, err)
 			continue
 		}
-		fmt.Fprintf(&buf, "%s://%s:%s@%s\n", u.Scheme, repo.Username, repo.Password, repo.URL[7:])
+
+		pw := repo.Password
+		us := repo.Username
+
+		if v := u.User.Username(); v != "" {
+			warn("repo=%q: username already set to %s\n", repo.Name, v)
+			us = v
+		}
+
+		if v, ok := u.User.Password(); ok {
+			warn("repo=%q: password already set\n", repo.Name)
+			pw = v
+		}
+
+		u.User = url.UserPassword(us, pw)
+		u.Path = ""
+		key := u.String()
+
+		if _, ok := seen[key]; !ok {
+			seen[key] = struct{}{}
+			fmt.Fprintf(&buf, "%s\n", key)
+		}
+
 	}
 
 	return buf.String(), nil
@@ -128,4 +152,13 @@ func tern[T any](cond bool, yes, no T) T {
 		return yes
 	}
 	return no
+}
+
+var seenw = map[string]struct{}{}
+
+func warn(msg string, args ...interface{}) {
+	if _, ok := seenw[msg]; !ok {
+		fmt.Printf("[WARNING] "+msg+"\n", args...)
+		seenw[msg] = struct{}{}
+	}
 }

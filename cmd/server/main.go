@@ -64,13 +64,13 @@ func run(ctx context.Context, args []string, env []string) error {
 		return fmt.Errorf("parse args: %w", err)
 	}
 
-	model, err := config.Configure(ctx, *opts, schema.TaskSchema)
+	query, err := config.Configure(ctx, *opts, schema.TaskSchema)
 	if err != nil {
 		return fmt.Errorf("configure: %w", err)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	sched := task.NewScheduler(ctx, model, maxprocs, 5*time.Second)
+	sched := task.NewScheduler(ctx, query, maxprocs, 5*time.Second)
 
 	g.Go(func() error {
 		sched.SetHandler(handler)
@@ -79,7 +79,7 @@ func run(ctx context.Context, args []string, env []string) error {
 
 	g.Go(func() error {
 		apmux := http.NewServeMux()
-		apmux.Handle(prefix+"/api/", http.StripPrefix(prefix+"/api", api.New(prefix+"/api", model)))
+		apmux.Handle(prefix+"/api/", http.StripPrefix(prefix+"/api", api.New(prefix+"/api", query)))
 		apmux.Handle(prefix+"/metrics", promhttp.Handler())
 		return listenAndServeContext(ctx, "api", apiAddr, apmux)
 	})

@@ -3,7 +3,6 @@ apiVersion: kind.x-k8s.io/v1alpha4
 name: kobold
 nodes:
 - role: control-plane
-
   # https://kind.sigs.k8s.io/docs/user/ingress/#ingress-nginx
   kubeadmConfigPatches:
   - |
@@ -11,7 +10,6 @@ nodes:
     nodeRegistration:
       kubeletExtraArgs:
         node-labels: "ingress-ready=true"
-
   extraPortMappings:
   - containerPort: 80
     hostPort: 8080
@@ -19,12 +17,10 @@ nodes:
   - containerPort: 443
     hostPort: 8443
     protocol: TCP
-
   # https://github.com/containerd/containerd/blob/main/docs/hosts.md
   extraMounts:
   - hostPath: ./etc/containerd/certs.d
     containerPath: /etc/containerd/certs.d
-
 containerdConfigPatches:
 - |-
   [plugins."io.containerd.grpc.v1.cri".registry]

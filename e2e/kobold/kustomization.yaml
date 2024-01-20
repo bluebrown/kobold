@@ -3,11 +3,9 @@ kind: Kustomization
 sortOptions: {order: fifo}
 resources:
 - ../../build/kube/
-
 images:
 - name: docker.io/bluebrown/kobold
   newTag: e2e
-
 configMapGenerator:
 - name: kobold-confd
   behavior: merge
@@ -18,7 +16,6 @@ configMapGenerator:
   behavior: merge
   files:
   - ./.gitconfig
-
 secretGenerator:
 - name: kobold-env
   behavior: merge
@@ -31,7 +28,6 @@ secretGenerator:
   behavior: merge
   files:
   - ./.git-credentials
-
 patches:
 - target:
     group: apps

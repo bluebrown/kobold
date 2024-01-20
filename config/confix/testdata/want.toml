@@ -19,16 +19,34 @@ decoder = "builtin.lines@v1"
 [[pipeline]]
 name = "e2e"
 repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@main"
+dest_branch = ""
 channels = ["acr", "dockerhub", "distribution", "generic"]
+post_hook = ""
 
 [[pipeline]]
 name = "pr-test"
 repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@master/test"
 dest_branch = "kobold"
 channels = ["acr"]
+post_hook = ""
 
 [[pipeline]]
 name = "pr-prod"
 repo_uri = "http://gitea.local:3000/kobold/kobold-test.git@master/prod"
 dest_branch = "kobold"
 channels = ["acr"]
+post_hook = ""
+
+[[pipeline]]
+name = "azure"
+repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo.git@main"
+dest_branch = ""
+channels = ["distribution"]
+post_hook = ""
+
+[[pipeline]]
+name = "azure2"
+repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo2.git@main"
+dest_branch = "kobold"
+channels = ["acr", "generic"]
+post_hook = "builtin.ado-pr@v1"

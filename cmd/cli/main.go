@@ -60,12 +60,12 @@ func run(ctx context.Context, args []string, env []string, input io.Reader) erro
 		return fmt.Errorf("parse args: %w", err)
 	}
 
-	model, err := config.Configure(ctx, *opts, schema.TaskSchema)
+	query, err := config.Configure(ctx, *opts, schema.TaskSchema)
 	if err != nil {
 		return fmt.Errorf("configure: %w", err)
 	}
 
-	pool := task.NewPool(ctx, maxprocs, model)
+	pool := task.NewPool(ctx, maxprocs, query)
 	pool.SetHandler(handler)
 
 	if input != nil {

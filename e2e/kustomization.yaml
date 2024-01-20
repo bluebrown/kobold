@@ -7,4 +7,3 @@ resources:
 - ./registry/
 - ./gitea/
 - ./kobold/
-
