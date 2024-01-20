@@ -163,7 +163,7 @@ func (p *Pool) Dispatch() error {
 				ReqStatus:            string(StatusRunning),
 				Status:               string(status),
 				FailureReason:        null.NewString(reason, reason != ""),
-				Warnings:             store.SliceText(warns),
+				Warnings:             store.FlatList(warns),
 			})
 
 			slog.InfoContext(p.ctx, "task group done", "fingerprint", g.Fingerprint, "status", status)
@@ -250,7 +250,7 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 	}
 
 	_, err = p.queries.TasksAppend(ctx, model.TasksAppendParams{
-		Msgs: store.SliceText(refs),
+		Msgs: store.FlatList(refs),
 		Name: channel,
 	})
 

@@ -28,11 +28,11 @@ type Pipeline struct {
 }
 
 type PipelineListItem struct {
-	Name         string          `json:"name"`
-	RepoUri      git.PackageURI  `json:"repo_uri"`
-	DestBranch   null.String     `json:"dest_branch"`
-	PostHookName null.String     `json:"post_hook_name"`
-	Channels     store.JsonArray `json:"channels"`
+	Name         string         `json:"name"`
+	RepoUri      git.PackageURI `json:"repo_uri"`
+	DestBranch   null.String    `json:"dest_branch"`
+	PostHookName null.String    `json:"post_hook_name"`
+	Channels     store.FlatList `json:"channels"`
 }
 
 type PostHook struct {
@@ -41,15 +41,15 @@ type PostHook struct {
 }
 
 type Run struct {
-	Fingerprint string          `json:"fingerprint"`
-	RepoUri     git.PackageURI  `json:"repo_uri"`
-	DestBranch  null.String     `json:"dest_branch"`
-	PostHook    null.String     `json:"post_hook"`
-	Status      string          `json:"status"`
-	Timestamp   interface{}     `json:"timestamp"`
-	Warnings    store.SliceText `json:"warnings"`
-	Error       interface{}     `json:"error"`
-	Msgs        store.SliceText `json:"msgs"`
+	Fingerprint string         `json:"fingerprint"`
+	RepoUri     git.PackageURI `json:"repo_uri"`
+	DestBranch  null.String    `json:"dest_branch"`
+	PostHook    null.String    `json:"post_hook"`
+	Status      string         `json:"status"`
+	Timestamp   interface{}    `json:"timestamp"`
+	Warnings    store.FlatList `json:"warnings"`
+	Error       interface{}    `json:"error"`
+	Msgs        store.FlatList `json:"msgs"`
 }
 
 type Subscription struct {
@@ -58,23 +58,23 @@ type Subscription struct {
 }
 
 type Task struct {
-	ID                   string          `json:"id"`
-	Msgs                 store.SliceText `json:"msgs"`
-	RepoUri              git.PackageURI  `json:"repo_uri"`
-	DestBranch           null.String     `json:"dest_branch"`
-	PostHookName         null.String     `json:"post_hook_name"`
-	Status               string          `json:"status"`
-	Timestamp            string          `json:"timestamp"`
-	Warnings             store.SliceText `json:"warnings"`
-	FailureReason        null.String     `json:"failure_reason"`
-	TaskGroupFingerprint null.String     `json:"task_group_fingerprint"`
+	ID                   string         `json:"id"`
+	Msgs                 store.FlatList `json:"msgs"`
+	RepoUri              git.PackageURI `json:"repo_uri"`
+	DestBranch           null.String    `json:"dest_branch"`
+	PostHookName         null.String    `json:"post_hook_name"`
+	Status               string         `json:"status"`
+	Timestamp            string         `json:"timestamp"`
+	Warnings             store.FlatList `json:"warnings"`
+	FailureReason        null.String    `json:"failure_reason"`
+	TaskGroupFingerprint null.String    `json:"task_group_fingerprint"`
 }
 
 type TaskGroup struct {
-	Fingerprint string          `json:"fingerprint"`
-	RepoUri     git.PackageURI  `json:"repo_uri"`
-	DestBranch  null.String     `json:"dest_branch"`
-	PostHook    []byte          `json:"post_hook"`
-	TaskIds     store.SliceText `json:"task_ids"`
-	Msgs        store.SliceText `json:"msgs"`
+	Fingerprint string         `json:"fingerprint"`
+	RepoUri     git.PackageURI `json:"repo_uri"`
+	DestBranch  null.String    `json:"dest_branch"`
+	PostHook    []byte         `json:"post_hook"`
+	TaskIds     store.FlatList `json:"task_ids"`
+	Msgs        store.FlatList `json:"msgs"`
 }

@@ -65,43 +65,9 @@ select
   repo_uri,
   dest_branch,
   ph.script as post_hook,
-  group_concat(id, '⍂') as task_ids,
-  group_concat(msgs, '⍂') as msgs
+  json_group_array(id) as task_ids,
+  json_group_array(json(msgs)) as msgs
 from task
 left join post_hook ph on task.post_hook_name = ph.name
 where status = 'pending'
 group by repo_uri, dest_branch, post_hook_name;
-
--- the run view is like a container part to the task group view. Its primarly
--- use case is to show the actual run information of the task groups returned by
--- the task group view. runs with a fingerprint have been executed and will
--- never change. However, pending runs, have not been executed yet, and they can
--- still change until they are executed
-create view if not exists run as
-select
-  (case when task_group_fingerprint is null then "" else task_group_fingerprint end) as fingerprint,
-  repo_uri,
-  dest_branch,
-  post_hook_name as post_hook,
-  status,
-  max(timestamp) as timestamp,
-  max(warnings) as warnings,
-  max(failure_reason) as error,
-  group_concat(msgs, '⍂') as msgs
-from task
-group by
-  task_group_fingerprint,
-  repo_uri,
-  dest_branch,
-  post_hook_name,
-  status;
-
--- this is for the web api. So that it can display the channels embedded in the
--- pipeline json object
-create view if not exists pipeline_list_item as
-select
-  pipeline.*,
-  json_group_array(subscription.channel_name) as channels
-from pipeline
-left join subscription on subscription.pipeline_name = pipeline.name
-group by pipeline.name;

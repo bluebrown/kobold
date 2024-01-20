@@ -174,16 +174,16 @@ type PipelineRunListParams struct {
 }
 
 type PipelineRunListRow struct {
-	Name        null.String     `json:"name"`
-	Fingerprint string          `json:"fingerprint"`
-	RepoUri     git.PackageURI  `json:"repo_uri"`
-	DestBranch  null.String     `json:"dest_branch"`
-	PostHook    null.String     `json:"post_hook"`
-	Status      string          `json:"status"`
-	Timestamp   interface{}     `json:"timestamp"`
-	Warnings    store.SliceText `json:"warnings"`
-	Error       interface{}     `json:"error"`
-	Msgs        store.SliceText `json:"msgs"`
+	Name        null.String    `json:"name"`
+	Fingerprint string         `json:"fingerprint"`
+	RepoUri     git.PackageURI `json:"repo_uri"`
+	DestBranch  null.String    `json:"dest_branch"`
+	PostHook    null.String    `json:"post_hook"`
+	Status      string         `json:"status"`
+	Timestamp   interface{}    `json:"timestamp"`
+	Warnings    store.FlatList `json:"warnings"`
+	Error       interface{}    `json:"error"`
+	Msgs        store.FlatList `json:"msgs"`
 }
 
 // PipelineRunList

@@ -64,7 +64,7 @@ func run(ctx context.Context, args []string, env []string) error {
 		return fmt.Errorf("parse args: %w", err)
 	}
 
-	query, err := config.Configure(ctx, *opts, schema.TaskSchema)
+	query, err := config.Configure(ctx, *opts, schema.TaskSchema, schema.ReadSchema)
 	if err != nil {
 		return fmt.Errorf("configure: %w", err)
 	}

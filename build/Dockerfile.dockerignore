@@ -1,5 +1,6 @@
 .*
 build/
+!build/.sqliterc
 e2e/
 vendor/
 *.md

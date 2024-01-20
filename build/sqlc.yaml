@@ -1,8 +1,13 @@
 version: "2"
 sql:
 - engine: sqlite
-  queries: ../store/schema/*.query.sql
-  schema: ../store/schema/*.schema.sql
+  queries:
+  - ../store/schema/task.query.sql
+  - ../store/schema/read.query.sql
+  - ../store/schema/config.query.sql
+  schema:
+  - ../store/schema/task.schema.sql
+  - ../store/schema/read.schema.sql
   gen:
     go:
       package: model
@@ -26,17 +31,17 @@ sql:
         go_type:
           import: github.com/bluebrown/kobold/store
           package: store
-          type: SliceText
+          type: FlatList
       - column: "*.warnings"
         go_type:
           import: github.com/bluebrown/kobold/store
           package: store
-          type: SliceText
+          type: FlatList
       - column: "*.task_ids"
         go_type:
           import: github.com/bluebrown/kobold/store
           package: store
-          type: SliceText
+          type: FlatList
       - column: "*.fingerprint"
         go_type:
           type: string
@@ -44,4 +49,4 @@ sql:
         go_type:
           import: github.com/bluebrown/kobold/store
           package: store
-          type: JsonArray
+          type: FlatList

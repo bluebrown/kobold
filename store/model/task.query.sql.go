@@ -77,12 +77,12 @@ returning id
 `
 
 type TaskGroupsStatusCompSwapParams struct {
-	TaskGroupFingerprint null.String     `json:"task_group_fingerprint"`
-	Status               string          `json:"status"`
-	Warnings             store.SliceText `json:"warnings"`
-	FailureReason        null.String     `json:"failure_reason"`
-	ReqStatus            string          `json:"req_status"`
-	Ids                  []string        `json:"ids"`
+	TaskGroupFingerprint null.String    `json:"task_group_fingerprint"`
+	Status               string         `json:"status"`
+	Warnings             store.FlatList `json:"warnings"`
+	FailureReason        null.String    `json:"failure_reason"`
+	ReqStatus            string         `json:"req_status"`
+	Ids                  []string       `json:"ids"`
 }
 
 // set the status of all tasks in a group where the status matches the
@@ -154,8 +154,8 @@ returning id
 `
 
 type TasksAppendParams struct {
-	Msgs store.SliceText `json:"msgs"`
-	Name string          `json:"name"`
+	Msgs store.FlatList `json:"msgs"`
+	Name string         `json:"name"`
 }
 
 // TasksAppend

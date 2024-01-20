@@ -26,7 +26,7 @@ RUN apk add --no-cache --update ca-certificates git openssh-client
 COPY --from=sqlite /usr/local/bin /usr/local/bin
 COPY --from=sqlite /usr/local/lib /usr/local/lib
 RUN ldconfig /usr/local/lib
-RUN printf '.load sha1\n.load uuid\n' > /root/.sqliterc
+COPY .sqliterc /root/
 
 FROM runtime as nonroot
 ARG NONROOT_HOME=/etc/kobold
