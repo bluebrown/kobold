@@ -15,14 +15,14 @@ definitions:
       repo:
         type: string
     type: object
-  store.Channel:
+  model.Channel:
     properties:
       decoder_name:
         type: string
       name:
         type: string
     type: object
-  store.Decoder:
+  model.Decoder:
     properties:
       name:
         type: string
@@ -31,7 +31,7 @@ definitions:
           type: integer
         type: array
     type: object
-  store.PipelineListItem:
+  model.PipelineListItem:
     properties:
       channels:
         items:
@@ -46,7 +46,7 @@ definitions:
       repo_uri:
         $ref: '#/definitions/git.PackageURI'
     type: object
-  store.PipelineRunListRow:
+  model.PipelineRunListRow:
     properties:
       dest_branch:
         type: string
@@ -71,7 +71,7 @@ definitions:
           type: string
         type: array
     type: object
-  store.PostHook:
+  model.PostHook:
     properties:
       name:
         type: string
@@ -80,7 +80,7 @@ definitions:
           type: integer
         type: array
     type: object
-  store.Run:
+  model.Run:
     properties:
       dest_branch:
         type: string
@@ -103,7 +103,7 @@ definitions:
           type: string
         type: array
     type: object
-  store.Task:
+  model.Task:
     properties:
       dest_branch:
         type: string
@@ -144,7 +144,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.Channel'
+              $ref: '#/definitions/model.Channel'
             type: array
         default:
           description: Error
@@ -167,7 +167,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Channel'
+            $ref: '#/definitions/model.Channel'
         default:
           description: Error
           schema:
@@ -184,7 +184,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.Decoder'
+              $ref: '#/definitions/model.Decoder'
             type: array
         default:
           description: Error
@@ -207,7 +207,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Decoder'
+            $ref: '#/definitions/model.Decoder'
         default:
           description: Error
           schema:
@@ -224,7 +224,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.PipelineListItem'
+              $ref: '#/definitions/model.PipelineListItem'
             type: array
         default:
           description: Error
@@ -247,7 +247,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.PipelineListItem'
+            $ref: '#/definitions/model.PipelineListItem'
         default:
           description: Error
           schema:
@@ -282,7 +282,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.PipelineRunListRow'
+              $ref: '#/definitions/model.PipelineRunListRow'
             type: array
         default:
           description: Error
@@ -300,7 +300,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.PostHook'
+              $ref: '#/definitions/model.PostHook'
             type: array
         default:
           description: Error
@@ -323,7 +323,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.PostHook'
+            $ref: '#/definitions/model.PostHook'
         default:
           description: Error
           schema:
@@ -353,7 +353,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.Run'
+              $ref: '#/definitions/model.Run'
             type: array
         default:
           description: Error
@@ -376,7 +376,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Run'
+            $ref: '#/definitions/model.Run'
         default:
           description: Error
           schema:
@@ -406,7 +406,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/store.Task'
+              $ref: '#/definitions/model.Task'
             type: array
         default:
           description: Error
@@ -429,7 +429,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/store.Task'
+            $ref: '#/definitions/model.Task'
         default:
           description: Error
           schema:

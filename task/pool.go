@@ -17,9 +17,10 @@ import (
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/bluebrown/kobold/dbutil"
 	"github.com/bluebrown/kobold/git"
+	"github.com/bluebrown/kobold/plugin"
 	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 )
 
 // pool implements a worker pool backed by the storage layer. Tasks are first
@@ -33,17 +34,17 @@ import (
 // the pool drains remaining task and returns the error
 type Pool struct {
 	group      *errgroup.Group
-	queries    *store.Queries
+	queries    *model.Queries
 	ctx        context.Context
 	handler    Handler
-	decoder    Decoder
+	decoder    DecoderRunner
 	hookRunner HookRunner
 	cancel     context.CancelFunc
 	size       int
 	cache      *git.RepoCache
 }
 
-func NewPool(ctx context.Context, size int, queries *store.Queries) *Pool {
+func NewPool(ctx context.Context, size int, queries *model.Queries) *Pool {
 	ctx, cancel := context.WithCancel(ctx)
 	eg, ectx := errgroup.WithContext(ctx)
 	eg.SetLimit(size)
@@ -55,8 +56,8 @@ func NewPool(ctx context.Context, size int, queries *store.Queries) *Pool {
 		group:      eg,
 		queries:    queries,
 		handler:    nil,
-		decoder:    NewStarlarkDecoder(),
-		hookRunner: NewStarlarkPostHook(),
+		decoder:    plugin.NewDecoderRunner(),
+		hookRunner: plugin.NewPostHookRunner(),
 		size:       size,
 		cache:      cache,
 	}
@@ -109,7 +110,7 @@ func (p *Pool) Dispatch() error {
 
 			ids := []string(g.TaskIds)
 
-			swapped, err := p.queries.TaskGroupsStatusCompSwap(p.ctx, store.TaskGroupsStatusCompSwapParams{
+			swapped, err := p.queries.TaskGroupsStatusCompSwap(p.ctx, model.TaskGroupsStatusCompSwapParams{
 				TaskGroupFingerprint: null.NewString(g.Fingerprint, true),
 				Status:               string(StatusRunning),
 				ReqStatus:            string(StatusPending),
@@ -156,13 +157,13 @@ func (p *Pool) Dispatch() error {
 				slog.WarnContext(p.ctx, "cache error", "fingerprint", g.Fingerprint, "error", err)
 			}
 
-			swapped, err = p.queries.TaskGroupsStatusCompSwap(p.ctx, store.TaskGroupsStatusCompSwapParams{
+			swapped, err = p.queries.TaskGroupsStatusCompSwap(p.ctx, model.TaskGroupsStatusCompSwapParams{
 				TaskGroupFingerprint: null.NewString(g.Fingerprint, true),
 				Ids:                  ids,
 				ReqStatus:            string(StatusRunning),
 				Status:               string(status),
 				FailureReason:        null.NewString(reason, reason != ""),
-				Warnings:             dbutil.SliceText(warns),
+				Warnings:             store.SliceText(warns),
 			})
 
 			slog.InfoContext(p.ctx, "task group done", "fingerprint", g.Fingerprint, "status", status)
@@ -248,8 +249,8 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 		}
 	}
 
-	_, err = p.queries.TasksAppend(ctx, store.TasksAppendParams{
-		Msgs: dbutil.SliceText(refs),
+	_, err = p.queries.TasksAppend(ctx, model.TasksAppendParams{
+		Msgs: store.SliceText(refs),
 		Name: channel,
 	})
 

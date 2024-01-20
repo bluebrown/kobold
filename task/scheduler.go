@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 )
 
 // Scheduler wraps the pool and provides a scheduling interface events can be
@@ -20,7 +20,7 @@ type Scheduler struct {
 	pool    *Pool
 }
 
-func NewScheduler(ctx context.Context, q *store.Queries, size int, interval time.Duration) *Scheduler {
+func NewScheduler(ctx context.Context, q *model.Queries, size int, interval time.Duration) *Scheduler {
 	return &Scheduler{
 		// buffer incoming events to prevent blocking the caller,
 		// incase the scheduler is currently blocking on pool.Dispatch()

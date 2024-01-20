@@ -1,4 +1,4 @@
-package starutil
+package plugin
 
 import (
 	"reflect"
@@ -24,7 +24,7 @@ func TestRunMain(t *testing.T) {
 		{
 			name: "simple",
 			args: args{
-				thread: DefaultThread("test"),
+				thread: defaultThread("test"),
 				name:   "test",
 				script: []byte(`def main(): return 1`),
 				args:   starlark.Tuple{},
@@ -34,7 +34,7 @@ func TestRunMain(t *testing.T) {
 		{
 			name: "lookup env",
 			args: args{
-				thread: DefaultThread("test"),
+				thread: defaultThread("test"),
 				name:   "test",
 				script: []byte(`def main(): return host_env["FOO"]`),
 				args:   starlark.Tuple{},
@@ -51,7 +51,7 @@ func TestRunMain(t *testing.T) {
 		{
 			name: "pass args",
 			args: args{
-				thread: DefaultThread("test"),
+				thread: defaultThread("test"),
 				name:   "test",
 				script: []byte(`def main(a, b): return a + b`),
 				args:   starlark.Tuple{starlark.MakeInt(1), starlark.MakeInt(2)},
@@ -61,7 +61,7 @@ func TestRunMain(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := RunMain(tt.args.thread, tt.args.name, tt.args.script, tt.args.args, tt.args.hostEnv)
+			got, err := runMain(tt.args.thread, tt.args.name, tt.args.script, tt.args.args, tt.args.hostEnv)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RunMain() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -93,7 +93,7 @@ func TestEnvToStarlarkDict(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := EnvToStarlarkDict(tt.giveEnv); !reflect.DeepEqual(got, tt.wantDict) {
+			if got := envToStarlarkDict(tt.giveEnv); !reflect.DeepEqual(got, tt.wantDict) {
 				t.Errorf("OsEnvToStarlarkDict() = %v, want %v", got, tt.wantDict)
 			}
 		})
@@ -119,7 +119,7 @@ func TestAsStringSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := AsStringSlice(tt.args.v)
+			got, err := asStringSlice(tt.args.v)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AsStringSlice() error = %v, wantErr %v", err, tt.wantErr)
 				return

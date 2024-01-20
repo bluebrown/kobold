@@ -1,4 +1,4 @@
-package dbutil
+package store
 
 import (
 	"database/sql/driver"
@@ -23,7 +23,7 @@ func (s *SliceText) Scan(value interface{}) error {
 	case []byte:
 		str = string(v)
 	default:
-		return fmt.Errorf("dbutil: cannot convert %T to SliceText", value)
+		return fmt.Errorf("store: cannot convert %T to SliceText", value)
 	}
 
 	out := strings.Split(str, SEPERATOR)
@@ -54,7 +54,7 @@ func (s *JsonArray) Scan(value interface{}) error {
 	case []byte:
 		b = v
 	default:
-		return fmt.Errorf("dbutil: cannot convert %T to JsonArray", value)
+		return fmt.Errorf("store: cannot convert %T to JsonArray", value)
 	}
 	return json.Unmarshal(b, &s)
 }

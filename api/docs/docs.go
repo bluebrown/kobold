@@ -33,7 +33,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.Channel"
+                                "$ref": "#/definitions/model.Channel"
                             }
                         }
                     },
@@ -68,7 +68,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Channel"
+                            "$ref": "#/definitions/model.Channel"
                         }
                     },
                     "default": {
@@ -95,7 +95,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.Decoder"
+                                "$ref": "#/definitions/model.Decoder"
                             }
                         }
                     },
@@ -130,7 +130,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Decoder"
+                            "$ref": "#/definitions/model.Decoder"
                         }
                     },
                     "default": {
@@ -157,7 +157,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.PipelineListItem"
+                                "$ref": "#/definitions/model.PipelineListItem"
                             }
                         }
                     },
@@ -192,7 +192,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.PipelineListItem"
+                            "$ref": "#/definitions/model.PipelineListItem"
                         }
                     },
                     "default": {
@@ -246,7 +246,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.PipelineRunListRow"
+                                "$ref": "#/definitions/model.PipelineRunListRow"
                             }
                         }
                     },
@@ -274,7 +274,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.PostHook"
+                                "$ref": "#/definitions/model.PostHook"
                             }
                         }
                     },
@@ -309,7 +309,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.PostHook"
+                            "$ref": "#/definitions/model.PostHook"
                         }
                     },
                     "default": {
@@ -356,7 +356,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.Run"
+                                "$ref": "#/definitions/model.Run"
                             }
                         }
                     },
@@ -391,7 +391,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Run"
+                            "$ref": "#/definitions/model.Run"
                         }
                     },
                     "default": {
@@ -438,7 +438,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/store.Task"
+                                "$ref": "#/definitions/model.Task"
                             }
                         }
                     },
@@ -473,7 +473,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/store.Task"
+                            "$ref": "#/definitions/model.Task"
                         }
                     },
                     "default": {
@@ -512,7 +512,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Channel": {
+        "model.Channel": {
             "type": "object",
             "properties": {
                 "decoder_name": {
@@ -523,7 +523,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Decoder": {
+        "model.Decoder": {
             "type": "object",
             "properties": {
                 "name": {
@@ -537,7 +537,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.PipelineListItem": {
+        "model.PipelineListItem": {
             "type": "object",
             "properties": {
                 "channels": {
@@ -560,7 +560,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.PipelineRunListRow": {
+        "model.PipelineRunListRow": {
             "type": "object",
             "properties": {
                 "dest_branch": {
@@ -597,7 +597,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.PostHook": {
+        "model.PostHook": {
             "type": "object",
             "properties": {
                 "name": {
@@ -611,7 +611,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Run": {
+        "model.Run": {
             "type": "object",
             "properties": {
                 "dest_branch": {
@@ -645,7 +645,7 @@ const docTemplate = `{
                 }
             }
         },
-        "store.Task": {
+        "model.Task": {
             "type": "object",
             "properties": {
                 "dest_branch": {

@@ -3,14 +3,14 @@
 //   sqlc v1.25.0
 // source: read.query.sql
 
-package store
+package model
 
 import (
 	"context"
 	"strings"
 
-	dbutil "github.com/bluebrown/kobold/dbutil"
 	git "github.com/bluebrown/kobold/git"
+	store "github.com/bluebrown/kobold/store"
 	null "github.com/volatiletech/null/v8"
 )
 
@@ -174,16 +174,16 @@ type PipelineRunListParams struct {
 }
 
 type PipelineRunListRow struct {
-	Name        null.String      `json:"name"`
-	Fingerprint string           `json:"fingerprint"`
-	RepoUri     git.PackageURI   `json:"repo_uri"`
-	DestBranch  null.String      `json:"dest_branch"`
-	PostHook    null.String      `json:"post_hook"`
-	Status      string           `json:"status"`
-	Timestamp   interface{}      `json:"timestamp"`
-	Warnings    dbutil.SliceText `json:"warnings"`
-	Error       interface{}      `json:"error"`
-	Msgs        dbutil.SliceText `json:"msgs"`
+	Name        null.String     `json:"name"`
+	Fingerprint string          `json:"fingerprint"`
+	RepoUri     git.PackageURI  `json:"repo_uri"`
+	DestBranch  null.String     `json:"dest_branch"`
+	PostHook    null.String     `json:"post_hook"`
+	Status      string          `json:"status"`
+	Timestamp   interface{}     `json:"timestamp"`
+	Warnings    store.SliceText `json:"warnings"`
+	Error       interface{}     `json:"error"`
+	Msgs        store.SliceText `json:"msgs"`
 }
 
 // PipelineRunList

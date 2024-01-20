@@ -10,21 +10,21 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
 	_ "modernc.org/sqlite"
 
 	"github.com/bluebrown/kobold/api"
 	"github.com/bluebrown/kobold/config"
-	"github.com/bluebrown/kobold/dbutil"
-	ts "github.com/bluebrown/kobold/sql"
+	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/schema"
 	"github.com/bluebrown/kobold/task"
 	"github.com/bluebrown/kobold/webhook"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func init() {
-	dbutil.MustMakeUUID()
-	dbutil.MustMakeSha1()
+	store.MustMakeUUID()
+	store.MustMakeSha1()
 }
 
 func main() {
@@ -64,7 +64,7 @@ func run(ctx context.Context, args []string, env []string) error {
 		return fmt.Errorf("parse args: %w", err)
 	}
 
-	model, err := config.Configure(ctx, *opts, ts.TaskSchema)
+	model, err := config.Configure(ctx, *opts, schema.TaskSchema)
 	if err != nil {
 		return fmt.Errorf("configure: %w", err)
 	}

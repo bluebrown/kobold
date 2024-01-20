@@ -1,4 +1,4 @@
-package dbutil
+package store
 
 import (
 	"crypto/sha1"

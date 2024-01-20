@@ -12,12 +12,12 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	"github.com/bluebrown/kobold/api/docs"
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 )
 
 // @license.name	BSD-3-Clause
 type WebAPI struct {
-	q      *store.Queries
+	q      *model.Queries
 	router *mux.Router
 }
 
@@ -25,7 +25,7 @@ type WebAPI struct {
 // on, in order to generate correct swagger docs. It will not register routes on
 // the basepath, the caller should remove the basepath from the mux before
 // calling ServeHTTP
-func New(basepath string, q *store.Queries) *WebAPI {
+func New(basepath string, q *model.Queries) *WebAPI {
 	api := WebAPI{q, mux.NewRouter()}
 
 	docs.SwaggerInfo.Title = "Kobold API"
@@ -105,7 +105,7 @@ func (api *WebAPI) respond(w http.ResponseWriter, r *http.Request, data any, err
 //	@Tags		channels
 //	@Produce	json
 //	@Param		name	path		string	true	"channel name"
-//	@Success	200		{object}	store.Channel
+//	@Success	200		{object}	model.Channel
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetChannel(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -119,7 +119,7 @@ func (api *WebAPI) GetChannel(w http.ResponseWriter, r *http.Request) {
 //	@Summary	get a list of channels
 //	@Tags		channels
 //	@Produce	json
-//	@Success	200		{array}		store.Channel
+//	@Success	200		{array}		model.Channel
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetChannelList(w http.ResponseWriter, r *http.Request) {
 	d, err := api.q.ChannelList(r.Context())
@@ -133,7 +133,7 @@ func (api *WebAPI) GetChannelList(w http.ResponseWriter, r *http.Request) {
 //	@Tags		decoders
 //	@Produce	json
 //	@Param		name	path		string	true	"decoder name"
-//	@Success	200		{object}	store.Decoder
+//	@Success	200		{object}	model.Decoder
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetDecoder(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -147,7 +147,7 @@ func (api *WebAPI) GetDecoder(w http.ResponseWriter, r *http.Request) {
 //	@Summary	get a list of decoders
 //	@Tags		decoders
 //	@Produce	json
-//	@Success	200		{array}		store.Decoder
+//	@Success	200		{array}		model.Decoder
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetDecoderList(w http.ResponseWriter, r *http.Request) {
 	d, err := api.q.DecoderList(r.Context())
@@ -161,7 +161,7 @@ func (api *WebAPI) GetDecoderList(w http.ResponseWriter, r *http.Request) {
 //	@Tags		pipelines
 //	@Produce	json
 //	@Param		name	path		string	true	"pipeline name"
-//	@Success	200		{object}	store.PipelineListItem
+//	@Success	200		{object}	model.PipelineListItem
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetPipeline(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -175,7 +175,7 @@ func (api *WebAPI) GetPipeline(w http.ResponseWriter, r *http.Request) {
 //	@Summary	get a list of pipelines
 //	@Tags		pipelines
 //	@Produce	json
-//	@Success	200		{array}		store.PipelineListItem
+//	@Success	200		{array}		model.PipelineListItem
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetPipelineList(w http.ResponseWriter, r *http.Request) {
 	d, err := api.q.PipelineList(r.Context())
@@ -192,10 +192,10 @@ func (api *WebAPI) GetPipelineList(w http.ResponseWriter, r *http.Request) {
 //	@Param		status	query		string	false	"run status"
 //	@Param		limit	query		int		false	"limit"
 //	@Param		offset	query		int		false	"offset"
-//	@Success	200		{array}		store.PipelineRunListRow
+//	@Success	200		{array}		model.PipelineRunListRow
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetPipelineRunList(w http.ResponseWriter, r *http.Request) {
-	var params store.PipelineRunListParams
+	var params model.PipelineRunListParams
 
 	if err := decoder.Decode(&params, r.URL.Query()); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -223,7 +223,7 @@ func (api *WebAPI) GetPipelineRunList(w http.ResponseWriter, r *http.Request) {
 //	@Tags		posthooks
 //	@Produce	json
 //	@Param		name	path		string	true	"posthook name"
-//	@Success	200		{object}	store.PostHook
+//	@Success	200		{object}	model.PostHook
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetPostHook(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -237,7 +237,7 @@ func (api *WebAPI) GetPostHook(w http.ResponseWriter, r *http.Request) {
 //	@Summary	get a list of posthooks
 //	@Tags		posthooks
 //	@Produce	json
-//	@Success	200		{array}		store.PostHook
+//	@Success	200		{array}		model.PostHook
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetPostHookList(w http.ResponseWriter, r *http.Request) {
 	d, err := api.q.PostHookList(r.Context())
@@ -251,7 +251,7 @@ func (api *WebAPI) GetPostHookList(w http.ResponseWriter, r *http.Request) {
 //	@Tags		tasks
 //	@Produce	json
 //	@Param		id		path		string	true	"task id"
-//	@Success	200		{object}	store.Task
+//	@Success	200		{object}	model.Task
 //	@Response	default	{object}	errorMsg "Error"
 func (a *WebAPI) GetTask(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -268,10 +268,10 @@ func (a *WebAPI) GetTask(w http.ResponseWriter, r *http.Request) {
 //	@Param		status	query		string	false	"task status"
 //	@Param		limit	query		int		false	"limit"
 //	@Param		offset	query		int		false	"offset"
-//	@Success	200		{array}		store.Task
+//	@Success	200		{array}		model.Task
 //	@Response	default	{object}	errorMsg "Error"
 func (a *WebAPI) GetTaskList(w http.ResponseWriter, r *http.Request) {
-	var params store.TaskListParams
+	var params model.TaskListParams
 
 	if err := decoder.Decode(&params, r.URL.Query()); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -297,7 +297,7 @@ func (a *WebAPI) GetTaskList(w http.ResponseWriter, r *http.Request) {
 //	@Tags		runs
 //	@Produce	json
 //	@Param		id		path		string	true	"run fingerprint"
-//	@Success	200		{object}	store.Run
+//	@Success	200		{object}	model.Run
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetRun(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
@@ -314,10 +314,10 @@ func (api *WebAPI) GetRun(w http.ResponseWriter, r *http.Request) {
 //	@Param		status	query		string	false	"run status"
 //	@Param		limit	query		int		false	"limit"
 //	@Param		offset	query		int		false	"offset"
-//	@Success	200		{array}		store.Run
+//	@Success	200		{array}		model.Run
 //	@Response	default	{object}	errorMsg "Error"
 func (api *WebAPI) GetRunList(w http.ResponseWriter, r *http.Request) {
-	var params store.RunListParams
+	var params model.RunListParams
 
 	if err := decoder.Decode(&params, r.URL.Query()); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bluebrown/kobold/builtin"
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/plugin/builtin"
+	"github.com/bluebrown/kobold/store/model"
 )
 
-func ApplyBuiltins(ctx context.Context, q *store.Queries) error {
+func ApplyBuiltins(ctx context.Context, q *model.Queries) error {
 	for _, d := range builtin.Decoders() {
-		if err := q.DecoderPut(ctx, store.DecoderPutParams{
+		if err := q.DecoderPut(ctx, model.DecoderPutParams{
 			Name:   d.Name,
 			Script: []byte(d.Script),
 		}); err != nil {
@@ -19,7 +19,7 @@ func ApplyBuiltins(ctx context.Context, q *store.Queries) error {
 	}
 
 	for _, p := range builtin.PostHooks() {
-		if err := q.PostHookPut(ctx, store.PostHookPutParams{
+		if err := q.PostHookPut(ctx, model.PostHookPutParams{
 			Name:   p.Name,
 			Script: []byte(p.Script),
 		}); err != nil {

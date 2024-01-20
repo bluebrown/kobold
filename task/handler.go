@@ -8,14 +8,14 @@ import (
 
 	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/krm"
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
 // the task handler is the final point of execution. after decoding, debouncing
 // and aggregating the events, this handler is resonbible for the actual work
-func KoboldHandler(ctx context.Context, cache string, g store.TaskGroup, runner HookRunner) ([]string, error) {
+func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	var (
 		changes  []string
 		warnings []string
@@ -86,7 +86,7 @@ func KoboldHandler(ctx context.Context, cache string, g store.TaskGroup, runner 
 
 var _ Handler = KoboldHandler
 
-func PrintHandler(ctx context.Context, hostPath string, g store.TaskGroup, runner HookRunner) ([]string, error) {
+func PrintHandler(ctx context.Context, hostPath string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	b, err := json.MarshalIndent(g, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal task group: %w", err)
@@ -97,7 +97,7 @@ func PrintHandler(ctx context.Context, hostPath string, g store.TaskGroup, runne
 
 var _ Handler = PrintHandler
 
-func ThrowHandler(ctx context.Context, hostPath string, g store.TaskGroup, runner HookRunner) ([]string, error) {
+func ThrowHandler(ctx context.Context, hostPath string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	return nil, fmt.Errorf("throw handler error")
 }
 

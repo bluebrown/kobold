@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 )
 
 type Status string
@@ -16,17 +16,16 @@ const (
 	StatusFailure Status = "failure"
 )
 
-type Decoder interface {
+type DecoderRunner interface {
 	Decode(name string, script []byte, data []byte) ([]string, error)
 }
 
 type HookRunner interface {
-	Run(group store.TaskGroup, msg string, changes []string, warnings []string) error
+	Run(group model.TaskGroup, msg string, changes []string, warnings []string) error
 }
 
-type Handler func(ctx context.Context, hostPath string, g store.TaskGroup, hook HookRunner) ([]string, error)
+type Handler func(ctx context.Context, hostPath string, g model.TaskGroup, hook HookRunner) ([]string, error)
 
-// implement the flag.Value interface
 func (t *Handler) String() string {
 	return fmt.Sprintf("%T", *t)
 }

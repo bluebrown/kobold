@@ -1,4 +1,4 @@
-package task
+package plugin
 
 import (
 	"fmt"
@@ -7,28 +7,25 @@ import (
 
 	"go.starlark.net/starlark"
 
-	"github.com/bluebrown/kobold/starutil"
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 )
 
-type StarlarkHookRunner struct {
+type PostHookRunner struct {
 	hostEnv *starlark.Dict
 }
 
-var _ HookRunner = (*StarlarkHookRunner)(nil)
-
-func NewStarlarkPostHook() *StarlarkHookRunner {
-	return &StarlarkHookRunner{
-		hostEnv: starutil.EnvToStarlarkDict(os.Environ()),
+func NewPostHookRunner() *PostHookRunner {
+	return &PostHookRunner{
+		hostEnv: envToStarlarkDict(os.Environ()),
 	}
 }
 
-func (d *StarlarkHookRunner) Run(group store.TaskGroup, msg string, changes []string, warnings []string) error {
+func (d *PostHookRunner) Run(group model.TaskGroup, msg string, changes []string, warnings []string) error {
 	if group.PostHook == nil {
 		return nil
 	}
 
-	res, err := starutil.RunMain(starutil.DefaultThread(group.Fingerprint), "post_hook", group.PostHook, d.args(group, msg, changes, warnings), d.hostEnv)
+	res, err := runMain(defaultThread(group.Fingerprint), "post_hook", group.PostHook, d.args(group, msg, changes, warnings), d.hostEnv)
 	if err != nil {
 		return fmt.Errorf("run main: %w", err)
 	}
@@ -40,7 +37,7 @@ func (d *StarlarkHookRunner) Run(group store.TaskGroup, msg string, changes []st
 	return nil
 }
 
-func (runner *StarlarkHookRunner) args(group store.TaskGroup, msg string, changes []string, warnings []string) starlark.Tuple {
+func (runner *PostHookRunner) args(group model.TaskGroup, msg string, changes []string, warnings []string) starlark.Tuple {
 	title, body, ok := strings.Cut(msg, "\n")
 	if !ok {
 		title = msg

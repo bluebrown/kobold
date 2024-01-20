@@ -7,11 +7,11 @@ import (
 	"log/slog"
 	"net/url"
 
-	ksql "github.com/bluebrown/kobold/sql"
-	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
+	ksql "github.com/bluebrown/kobold/store/schema"
 )
 
-func Configure(ctx context.Context, opts options, schemas ...[]byte) (*store.Queries, error) {
+func Configure(ctx context.Context, opts options, schemas ...[]byte) (*model.Queries, error) {
 	SetLog(opts.w, opts.logfmt, slog.Level(opts.loglvl))
 
 	sqliteDSN := "file:" + opts.dbfile + "?" + query(UsePragmas)
@@ -32,7 +32,7 @@ func Configure(ctx context.Context, opts options, schemas ...[]byte) (*store.Que
 		}
 	}
 
-	model := store.New(db)
+	model := model.New(db)
 
 	if err := ApplyBuiltins(ctx, model); err != nil {
 		return nil, fmt.Errorf("apply builtins: %w", err)

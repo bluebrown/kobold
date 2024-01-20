@@ -1,4 +1,4 @@
-package starutil
+package plugin
 
 // TODO: dont panic on error
 
@@ -11,7 +11,7 @@ import (
 	"go.starlark.net/starlark"
 )
 
-func RunMain(thread *starlark.Thread, name string, script []byte, args starlark.Tuple, hostEnv *starlark.Dict) (starlark.Value, error) {
+func runMain(thread *starlark.Thread, name string, script []byte, args starlark.Tuple, hostEnv *starlark.Dict) (starlark.Value, error) {
 	globals := starlark.StringDict{
 		"host_env": hostEnv,
 	}
@@ -26,7 +26,7 @@ func RunMain(thread *starlark.Thread, name string, script []byte, args starlark.
 	return starlark.Call(thread, m, args, nil)
 }
 
-func AsStringSlice(v starlark.Value) ([]string, error) {
+func asStringSlice(v starlark.Value) ([]string, error) {
 	_, ok := v.(starlark.Iterable)
 	if !ok {
 		return nil, fmt.Errorf("expected iterable, got %s", v.Type())
@@ -45,7 +45,7 @@ func AsStringSlice(v starlark.Value) ([]string, error) {
 	return slice, nil
 }
 
-func EnvToStarlarkDict(env []string) *starlark.Dict {
+func envToStarlarkDict(env []string) *starlark.Dict {
 	d := starlark.NewDict(0)
 	for _, e := range env {
 		key, val, ok := strings.Cut(e, "=")
@@ -59,7 +59,7 @@ func EnvToStarlarkDict(env []string) *starlark.Dict {
 	return d
 }
 
-func DefaultThread(name string) *starlark.Thread {
+func defaultThread(name string) *starlark.Thread {
 	return &starlark.Thread{
 		Name: name,
 		Load: starlib.Loader,
