@@ -9,11 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Login to the container registry
-      run: docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
-    - name: build image
-      run: docker build -t "docker.io/bluebrown/kobold:$(git describe --tags --always --dirty)" -f build/Dockerfile .
+    - run: |
+        docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
+        docker build -t "docker.io/bluebrown/kobold:$(git describe --tags --always --dirty)" -f build/Dockerfile .
+        docker push docker.io/bluebrown/kobold --all-tags
       env:
         DOCKER_BUILDKIT: "1"
-    - name: publish image
-      run: docker push docker.io/bluebrown/kobold --all-tags
