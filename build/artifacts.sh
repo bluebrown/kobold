@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -o nounset -o errexit -o errtrace -o pipefail
 
+tag="$(sh build/gettag.sh)"
+
 out="${1:-.artifacts}"
 out="${out%/}"
-tag="${RELEASE_TAG:-dev}"
 
 echo "Building artifacts in $out" >&2
 
@@ -23,13 +24,19 @@ kustomize create
 kustomize edit add resource "../kube"
 kustomize edit set image "docker.io/bluebrown/kobold:$tag"
 kustomize edit set label app.kubernetes.io/name:kobold
-kustomize edit set label "app.kubernetes.io/version:$tag"
+cat <<EOF >>kustomization.yaml
+labels:
+- includeSelectors: false
+  pairs:
+    app.kubernetes.io/version: $tag
+EOF
 cd -
 kustomize build "$td" >"$out/manifests.yaml"
 
 echo "Building OCI image..." >&2
 
-docker build -f build/Dockerfile -t "docker.io/bluebrown/kobold:$tag" .
+bash build/image.sh
+
 docker save "docker.io/bluebrown/kobold:$tag" >"$out/oci.tar"
 
 echo "Building binaries..." >&2

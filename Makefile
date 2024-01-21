@@ -2,8 +2,6 @@
 .PHONY: install check lint test vet generate testinfra dev
 bin=.local/bin
 
-export RELEASE_TAG ?= $(shell git describe --tags --always --dirty)
-
 artifacts:
 	bash build/artifacts.sh
 

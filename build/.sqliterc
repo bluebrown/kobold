@@ -1,2 +1,3 @@
 .load uuid
 .load sha1
+.mode json

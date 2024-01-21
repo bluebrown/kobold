@@ -22,7 +22,7 @@ ADD https://www.sqlite.org/src/raw/5bb2264c1b64d163efa46509544fd7500cb8769cb7c16
 RUN gcc -shared -fPIC -o /usr/local/lib/uuid.so uuid.c
 
 FROM base as runtime
-RUN apk add --no-cache --update ca-certificates git openssh-client
+RUN apk add --no-cache --update ca-certificates git openssh-client jq
 COPY --from=sqlite /usr/local/bin /usr/local/bin
 COPY --from=sqlite /usr/local/lib /usr/local/lib
 RUN ldconfig /usr/local/lib
@@ -52,3 +52,13 @@ ENV GIT_AUTHOR_NAME="kobold[bot]" \
     GIT_AUTHOR_EMAIL="kobold@noreply.local"
 ENV GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME" \
     GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+LABEL org.opencontainers.image.title="kobold" \
+      org.opencontainers.image.description="Image reference update bot" \
+      org.opencontainers.image.authors="Nico Braun" \
+      org.opencontainers.image.vendor="bluebrown" \
+      org.opencontainers.image.licenses="BSD-3-Clause" \
+      org.opencontainers.image.url="https://hub.docker.com/r/bluebrown/kobold" \
+      org.opencontainers.image.source="https://github.com/bluebrown/kobold"
+ARG BUILD_DATE="unknown" VCS_REF="unknown"
+LABEL org.opencontainers.image.created="$BUILD_DATE" \
+      org.opencontainers.image.revision="$VCS_REF"
