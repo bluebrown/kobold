@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // initialite the git repo at dir and set the remote origin to uri
@@ -112,7 +113,7 @@ func run(ctx context.Context, dir string, args ...string) ([]byte, error) {
 	cmd.Dir = dir
 	b, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("git %s: %w", args, err)
+		return nil, fmt.Errorf("%w: %s: %s", err, string(b), strings.Join(args, " "))
 	}
 	return b, nil
 }

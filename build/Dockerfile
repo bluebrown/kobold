@@ -22,7 +22,7 @@ ADD https://www.sqlite.org/src/raw/5bb2264c1b64d163efa46509544fd7500cb8769cb7c16
 RUN gcc -shared -fPIC -o /usr/local/lib/uuid.so uuid.c
 
 FROM base as runtime
-RUN apk add --no-cache --update ca-certificates git openssh-client jq
+RUN apk add --no-cache --update ca-certificates git openssh-client
 COPY --from=sqlite /usr/local/bin /usr/local/bin
 COPY --from=sqlite /usr/local/lib /usr/local/lib
 RUN ldconfig /usr/local/lib

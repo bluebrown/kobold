@@ -245,7 +245,8 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 
 	for i := range refs {
 		if r, err := name.ParseReference(refs[i]); err == nil {
-			metricImageSeen.With(prometheus.Labels{"ref": r.Context().RepositoryStr()}).Inc()
+			metricImageSeen.With(prometheus.Labels{"ref": fmt.Sprintf("%s/%s",
+				r.Context().RegistryStr(), r.Context().RepositoryStr())}).Inc()
 		}
 	}
 

@@ -73,12 +73,14 @@ func (cache *RepoCache) Fill(ctx context.Context, lim int, uris ...PackageURI) e
 				cache.cfetch.With(prometheus.Labels{"repo": uri}).Inc()
 			}
 			if err := Ensure(ctx, filepath.Join(cache.dir, "repos", uri), uri, refs...); err != nil {
-				return fmt.Errorf("ensure %q: %w", uri, err)
+				return fmt.Errorf("ensure %#q: %w", uri, err)
 			}
 			return nil
 		})
 	}
 
+	// TODO: this may swallow errors,
+	// since only the first non-nil error is returned
 	err := g.Wait()
 
 	return err

@@ -22,7 +22,7 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 	)
 
 	if err := git.Switch(ctx, cache, g.RepoUri.Ref); err != nil {
-		return nil, fmt.Errorf("git switch:	%s, %s: %w", g.RepoUri.Repo, g.RepoUri.Ref, err)
+		return nil, fmt.Errorf("git switch: %#q => %#q: %w", g.RepoUri.Repo, g.RepoUri.Ref, err)
 	}
 
 	changes, warnings, err := krm.Pipeline(ctx, filepath.Join(cache, g.RepoUri.Pkg), g.Msgs...)
