@@ -1,9 +1,6 @@
 name: image
 on:
   workflow_dispatch: {}
-  push:
-    branches:
-    - refactor/rewrite
 jobs:
   image:
     runs-on: ubuntu-latest
