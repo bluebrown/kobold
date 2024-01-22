@@ -11,16 +11,15 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/bluebrown/kobold/git"
+	"github.com/bluebrown/kobold/plugin"
+	"github.com/bluebrown/kobold/store"
+	"github.com/bluebrown/kobold/store/model"
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/volatiletech/null/v8"
 	"golang.org/x/sync/errgroup"
-
-	"github.com/bluebrown/kobold/git"
-	"github.com/bluebrown/kobold/plugin"
-	"github.com/bluebrown/kobold/store"
-	"github.com/bluebrown/kobold/store/model"
 )
 
 // pool implements a worker pool backed by the storage layer. Tasks are first
@@ -31,7 +30,7 @@ import (
 // available. Call Wait() to block until all tasks have been processed. If a
 // task fails, it will be marked as failed in the database but the pool will
 // continue to process other tasks. Only if there is an irecoverable error, the
-// the pool drains remaining task and returns the error
+// pool drains remaining task and returns the error.
 type Pool struct {
 	group      *errgroup.Group
 	queries    *model.Queries
@@ -67,7 +66,7 @@ func (p *Pool) SetHandler(h Handler) {
 	p.handler = h
 }
 
-// dispatch pending tasks. Will block until all task groups have been dispatched
+// dispatch pending tasks. Will block until all task groups have been dispatched.
 func (p *Pool) Dispatch() error {
 	if err := p.ctx.Err(); err != nil {
 		return err
@@ -95,7 +94,9 @@ func (p *Pool) Dispatch() error {
 
 	go func() {
 		wg.Wait()
-		p.cache.Purge(ns)
+		if err := p.cache.Purge(ns); err != nil {
+			slog.WarnContext(p.ctx, "purge cache", "error", err)
+		}
 	}()
 
 	for _, g := range taskGroups {
@@ -132,8 +133,10 @@ func (p *Pool) Dispatch() error {
 			}
 
 			slog.InfoContext(p.ctx, "task group dispatched", "fingerprint", g.Fingerprint)
+
+			// FIXME: this does not work as intended. run_active shows always 0
 			metricRunsActive.Inc()
-			defer metricRunsActive.Add(-1)
+			defer metricRunsActive.Dec()
 
 			var (
 				status = StatusSuccess
@@ -192,13 +195,10 @@ func (p *Pool) Done() <-chan struct{} {
 	return p.ctx.Done()
 }
 
-// waits for all current tasks to complete, then cancels the context. So the
-// pool should be closed after calling this method
 func (p *Pool) Wait() error {
 	return p.group.Wait()
 }
 
-// cancels the context
 func (p *Pool) Cancel() {
 	p.cancel()
 }

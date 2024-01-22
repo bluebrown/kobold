@@ -8,10 +8,10 @@ import (
 )
 
 func TestConfig(t *testing.T) {
-	os.Setenv("ACR_TOKEN", "test-header")
-	os.Setenv("GIT_USR", "test-usr")
-	os.Setenv("GIT_PAT", "test-pwd")
-	os.Setenv("NAMESPACE", "kobold")
+	t.Setenv("ACR_TOKEN", "test-header")
+	t.Setenv("GIT_USR", "test-usr")
+	t.Setenv("GIT_PAT", "test-pwd")
+	t.Setenv("NAMESPACE", "kobold")
 
 	conf, err := ReadPath("testdata/config.yaml")
 	if err != nil {

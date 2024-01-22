@@ -5,8 +5,9 @@ import (
 	"log/slog"
 )
 
-func SetLog(w io.Writer, fmt string, lvl slog.Level) {
+func SetLog(w io.Writer, fmt string, lvl slog.Leveler) {
 	ho := &slog.HandlerOptions{Level: lvl}
+
 	var handler slog.Handler
 	switch fmt {
 	case "json":
@@ -17,6 +18,7 @@ func SetLog(w io.Writer, fmt string, lvl slog.Level) {
 		handler = slog.NewTextHandler(w, ho)
 		defer slog.Warn("unknown log format", "fmt", fmt, "using", "text")
 	}
+
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 }

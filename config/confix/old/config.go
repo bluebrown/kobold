@@ -2,7 +2,7 @@ package old
 
 // in memory representation of the config used to setup kobold
 // this is used so that the user facing config can have different
-// formats. I.e. v1 and v2 or a flat kubernetes configmap
+// formats. I.e. v1 and v2 or a flat kubernetes configmap.
 type NormalizedConfig struct {
 	// List of endpoints to listen on
 	Endpoints []EndpointSpec `json:"endpoints,omitempty"`

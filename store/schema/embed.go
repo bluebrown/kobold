@@ -8,5 +8,5 @@ var TaskSchema []byte
 //go:embed read.schema.sql
 var ReadSchema []byte
 
-// go:embed clean.sql
+//go:embed clean.sql
 var CleanConfig []byte

@@ -8,12 +8,11 @@ import (
 	"os"
 	"os/signal"
 
-	_ "modernc.org/sqlite"
-
 	"github.com/bluebrown/kobold/config"
 	"github.com/bluebrown/kobold/store"
 	"github.com/bluebrown/kobold/store/schema"
 	"github.com/bluebrown/kobold/task"
+	_ "modernc.org/sqlite"
 )
 
 func init() {

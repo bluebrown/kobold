@@ -44,8 +44,8 @@ func ParseOpts(expr string) (Options, error) {
 	return opts, nil
 }
 
-// check if the provided tag matches per options.
-// Exact, semver or regex
+// check if the provided tag matches per options,
+// Exact, semver or regex.
 func MatchTag(tag string, opts Options) (bool, error) {
 	switch opts.Type {
 	case TypeExact:

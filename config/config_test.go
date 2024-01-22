@@ -42,6 +42,7 @@ func TestReadDir(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.givePath, func(t *testing.T) {
 			var got Config
 			err := ReadConfD(filepath.Join("testdata", tt.givePath), &got)
@@ -55,11 +56,15 @@ func TestReadDir(t *testing.T) {
 					b2 bytes.Buffer
 				)
 
-				toml.NewEncoder(&b1).Encode(got)
-				toml.NewEncoder(&b2).Encode(tt.wantConfig)
+				if err := toml.NewEncoder(&b1).Encode(got); err != nil {
+					t.Fatal(err)
+				}
+
+				if err := toml.NewEncoder(&b2).Encode(tt.wantConfig); err != nil {
+					t.Fatal(err)
+				}
 
 				t.Errorf("ReadFile() got:\n%s\n\nwant:\n%s\n", b1.String(), b2.String())
-
 			}
 		})
 	}

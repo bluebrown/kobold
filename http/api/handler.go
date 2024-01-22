@@ -7,15 +7,14 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bluebrown/kobold/http/api/docs"
+	"github.com/bluebrown/kobold/store/model"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/schema"
 	httpSwagger "github.com/swaggo/http-swagger/v2"
-
-	"github.com/bluebrown/kobold/http/api/docs"
-	"github.com/bluebrown/kobold/store/model"
 )
 
-// @license.name	BSD-3-Clause
+// @license.name	BSD-3-Clause.
 type WebAPI struct {
 	q      *model.Queries
 	router *mux.Router
@@ -24,7 +23,7 @@ type WebAPI struct {
 // create a new web api handler. Requires to know the basepath its being served
 // on, in order to generate correct swagger docs. It will not register routes on
 // the basepath, the caller should remove the basepath from the mux before
-// calling ServeHTTP
+// calling ServeHTTP.
 func New(basepath string, q *model.Queries) *WebAPI {
 	api := WebAPI{q, mux.NewRouter()}
 
@@ -68,7 +67,9 @@ func (api *WebAPI) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (api *WebAPI) send(w http.ResponseWriter, r *http.Request, code int, data any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		slog.ErrorContext(r.Context(), "webhook response encoding", "error", err.Error())
+	}
 }
 
 type errorMsg struct {
@@ -86,15 +87,18 @@ func (api *WebAPI) respond(w http.ResponseWriter, r *http.Request, data any, err
 		api.error(w, r, http.StatusNotFound)
 		return
 	}
+
 	if err != nil {
 		slog.ErrorContext(r.Context(), err.Error())
 		api.error(w, r, http.StatusInternalServerError)
 		return
 	}
+
 	if data == nil {
 		api.error(w, r, http.StatusNotFound)
 		return
 	}
+
 	api.send(w, r, http.StatusOK, data)
 }
 
@@ -253,10 +257,10 @@ func (api *WebAPI) GetPostHookList(w http.ResponseWriter, r *http.Request) {
 //	@Param		id		path		string	true	"task id"
 //	@Success	200		{object}	model.Task
 //	@Response	default	{object}	errorMsg "Error"
-func (a *WebAPI) GetTask(w http.ResponseWriter, r *http.Request) {
+func (api *WebAPI) GetTask(w http.ResponseWriter, r *http.Request) {
 	name := mux.Vars(r)["name"]
-	d, err := a.q.TaskGet(r.Context(), name)
-	a.respond(w, r, d, err)
+	d, err := api.q.TaskGet(r.Context(), name)
+	api.respond(w, r, d, err)
 }
 
 // GetTaskList godoc
@@ -270,7 +274,7 @@ func (a *WebAPI) GetTask(w http.ResponseWriter, r *http.Request) {
 //	@Param		offset	query		int		false	"offset"
 //	@Success	200		{array}		model.Task
 //	@Response	default	{object}	errorMsg "Error"
-func (a *WebAPI) GetTaskList(w http.ResponseWriter, r *http.Request) {
+func (api *WebAPI) GetTaskList(w http.ResponseWriter, r *http.Request) {
 	var params model.TaskListParams
 
 	if err := decoder.Decode(&params, r.URL.Query()); err != nil {
@@ -286,8 +290,8 @@ func (a *WebAPI) GetTaskList(w http.ResponseWriter, r *http.Request) {
 		params.Status = stati
 	}
 
-	d, err := a.q.TaskList(r.Context(), params)
-	a.respond(w, r, d, err)
+	d, err := api.q.TaskList(r.Context(), params)
+	api.respond(w, r, d, err)
 }
 
 // GetRun godoc

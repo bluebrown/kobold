@@ -13,7 +13,7 @@ import (
 )
 
 // the task handler is the final point of execution. after decoding, debouncing
-// and aggregating the events, this handler is resonbible for the actual work
+// and aggregating the events, this handler is resonbible for the actual work.
 func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	var (
 		changes  []string

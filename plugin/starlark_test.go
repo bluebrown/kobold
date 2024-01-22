@@ -92,7 +92,9 @@ func TestEnvToStarlarkDict(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			if got := envToStarlarkDict(tt.giveEnv); !reflect.DeepEqual(got, tt.wantDict) {
 				t.Errorf("OsEnvToStarlarkDict() = %v, want %v", got, tt.wantDict)
 			}

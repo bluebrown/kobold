@@ -5,9 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"go.starlark.net/starlark"
-
 	"github.com/bluebrown/kobold/store/model"
+	"go.starlark.net/starlark"
 )
 
 type PostHookRunner struct {

@@ -1,4 +1,3 @@
-/* read a user friendly config file, and prepare the database accordingly. */
 package config
 
 import (
@@ -61,7 +60,6 @@ func (cfg *Config) Apply(ctx context.Context, q *model.Queries) error {
 	}
 
 	for _, c := range cfg.Channels {
-		// ch := model.ChannelPutParams{Name: c.Name, DecoderName: store.NullString{String: c.Decoder, Valid: c.Decoder != ""}}
 		ch := model.ChannelPutParams{Name: c.Name, DecoderName: null.NewString(c.Decoder, c.Decoder != "")}
 		if err := q.ChannelPut(ctx, ch); err != nil {
 			return fmt.Errorf("create channel %q: %w", c.Name, err)

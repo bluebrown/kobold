@@ -69,7 +69,11 @@ func MakeConfig(v1 *old.NormalizedConfig) (*config.Config, error) {
 			}
 
 			uri := git.PackageURI{}
-			uri.UnmarshalText([]byte(fmt.Sprintf("%s@%s%s", repo.URL, sub.Branch, scope)))
+			if err := uri.UnmarshalText([]byte(fmt.Sprintf("%s@%s%s", repo.URL, sub.Branch, scope))); err != nil {
+				fmt.Printf("[WARN] sub=%q repo=%q scope=%q: invalid uri, skipping!\n",
+					sub.Name, repo.Name, scope)
+				continue
+			}
 
 			scope = strings.ReplaceAll(scope, "/", "-")
 			scope = strings.TrimSuffix(scope, "-")

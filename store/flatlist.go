@@ -10,7 +10,7 @@ import (
 // 1 level deep. however, when calling value, it will only marshal a flat list.
 // so the converion is lossy, but it fits our use case perfectly. We use it to
 // either store flat lists on actual tables or to retrieve potentially nested
-// lists from accumulated views
+// lists from accumulated views.
 type FlatList []string
 
 func (s FlatList) Value() (driver.Value, error) {
@@ -24,6 +24,7 @@ func (s *FlatList) Scan(value interface{}) error {
 	if value == nil {
 		return nil
 	}
+
 	var b []byte
 
 	switch v := value.(type) {

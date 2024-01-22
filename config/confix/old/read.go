@@ -14,7 +14,7 @@ type normalizer interface {
 
 // read the config at the given path and expand its env var references the
 // config will be coded into an intermediate struct based on the version and
-// afterwards normalized
+// afterwards normalized.
 func ReadPath(path string) (*NormalizedConfig, error) {
 	b, err := readExpandFile(path)
 	if err != nil {

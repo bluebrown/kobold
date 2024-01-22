@@ -29,6 +29,7 @@ func TestTaskFingerPrint(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			if got := TaskFingerPrint(tt.args.ids); got != tt.want {
 				t.Errorf("TaskFingerPrint() = %v, want %v", got, tt.want)

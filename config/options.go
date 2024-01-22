@@ -36,13 +36,10 @@ func (o *options) Bind(fs *flag.FlagSet) *options {
 }
 
 func Options() *options {
-	var (
-		dir = os.TempDir()
-		err error
-	)
+	dir := os.TempDir()
 
-	if dir, err = os.UserConfigDir(); err == nil {
-		d := filepath.Join(dir, "kobold")
+	if cd, err := os.UserConfigDir(); err == nil {
+		d := filepath.Join(cd, "kobold")
 		if err = os.MkdirAll(d, 0755); err == nil {
 			dir = d
 		}

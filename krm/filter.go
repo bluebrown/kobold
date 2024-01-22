@@ -60,7 +60,7 @@ type ImageRefUpdateFilter struct {
 // updated or not and what the new value should be. If no handler is passed, a
 // default handler will be used. the image refs passed are new images references
 // that may replace the current image ref. For any found map node, the handler
-// will be invoked, once for each pased image ref
+// will be invoked, once for each passed image ref.
 func NewImageRefUpdateFilter(handler NodeHandler, imageRefs ...string) *ImageRefUpdateFilter {
 	if handler == nil {
 		handler = DefaultNodeHandler

@@ -15,15 +15,19 @@ func UseEnv(env []string, prefix string) func(*flag.Flag) {
 	return func(f *flag.Flag) {
 		name := strings.ReplaceAll(strings.ToUpper(f.Name), "-", "_")
 		name = prefix + name
+
 		f.Usage = fmt.Sprintf("%s (env: %s)", f.Usage, name)
+
 		if val, ok := Lookup(env, name, ""); ok {
-			f.Value.Set(val)
+			if err := f.Value.Set(val); err != nil {
+				panic(err)
+			}
 		}
 	}
 }
 
 // searches env for key and returns the value if found, otherwise fallback is
-// returned. Returns a boolen indicating if the key was found
+// returned. Returns a boolen indicating if the key was found.
 func Lookup(env []string, key, fallback string) (string, bool) {
 	key += "="
 	for _, e := range env {

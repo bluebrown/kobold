@@ -34,7 +34,7 @@ func (s *Scheduler) SetHandler(h Handler) {
 }
 
 // runs until error or the context passed to NewScheduler is canceled. will
-// always wait for the pool to shutdown gracefully before returning
+// always wait for the pool to shutdown gracefully before returning.
 func (s *Scheduler) Run(debounce time.Duration) (err error) {
 	// using named return values here in order to be able to join it in the
 	// deferred cleanup function. The defer has access the value of err, set by
@@ -66,7 +66,7 @@ func (s *Scheduler) Run(debounce time.Duration) (err error) {
 	// debounce interval has elapsed, the pending tasks are dispatched, and t is
 	// set to nil. Since t.C is nil, the select case for t.C will not be
 	// selected, and the loop will wait for new events. This prevents
-	// over-polling the database for pending tasks. Additonally, events that
+	// over-polling the database for pending tasks. Additionally, events that
 	// belong together are likely to be handled together, leading in fewer
 	// commits to the git repository.
 	t := new(time.Timer)

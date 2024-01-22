@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -10,16 +11,15 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"golang.org/x/sync/errgroup"
-	_ "modernc.org/sqlite"
-
 	"github.com/bluebrown/kobold/config"
 	"github.com/bluebrown/kobold/http/api"
 	"github.com/bluebrown/kobold/http/webhook"
 	"github.com/bluebrown/kobold/store"
 	"github.com/bluebrown/kobold/store/schema"
 	"github.com/bluebrown/kobold/task"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"golang.org/x/sync/errgroup"
+	_ "modernc.org/sqlite"
 )
 
 func init() {
@@ -101,7 +101,7 @@ func listenAndServeContext(ctx context.Context, name, addr string, handler http.
 	}
 
 	var (
-		server = http.Server{Addr: addr, Handler: handler}
+		server = http.Server{Addr: addr, Handler: handler, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 10 * time.Second}
 		errc   = make(chan error, 1)
 	)
 
@@ -117,7 +117,7 @@ func listenAndServeContext(ctx context.Context, name, addr string, handler http.
 		defer cancel()
 		return server.Shutdown(ctx)
 	case err := <-errc:
-		if err == http.ErrServerClosed {
+		if errors.Is(err, http.ErrServerClosed) {
 			return nil
 		}
 		return fmt.Errorf("server %s: %w", name, err)

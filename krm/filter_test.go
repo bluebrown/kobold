@@ -4,10 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/google/go-containerregistry/pkg/name"
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 	"sigs.k8s.io/kustomize/kyaml/kio"
-
-	"github.com/google/go-containerregistry/pkg/name"
 )
 
 func testPipe(caseDir string, events ...string) (filesys.FileSystem, error) {
