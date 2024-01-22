@@ -124,7 +124,7 @@ definitions:
 info:
   contact: {}
   license:
-    name: BSD-3-Clause
+    name: BSD-3-Clause.
 paths:
   /channels:
     get:
