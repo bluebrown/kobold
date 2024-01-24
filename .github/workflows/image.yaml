@@ -6,9 +6,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - run: |
-        docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
-        bash build/image.sh
-        docker push docker.io/bluebrown/kobold --all-tags
+    - run: make dockerlogin dockerimage dockerpush
       env:
         DOCKER_BUILDKIT: "1"

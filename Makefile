@@ -1,57 +1,100 @@
 .SILENT:
-.PHONY: install check lint test vet generate testinfra dev
+.SUFFIXES:
+.SUFFIXES: .go .mod .sum .sql .yaml .json .toml .sh .md
+.SHELLFLAGS: -ec
+SHELL = /bin/sh
+.DEFAULT_GOAL = help
 
-prefix := $(CURDIR)/.local
+##@ Options
 
-export GOBIN := $(prefix)/bin
+INSTALL_PREFIX ?= $(CURDIR)/.local
+RELEASE_TAG ?= $(shell bash build/gettag.sh)
+
+export GOBIN := $(INSTALL_PREFIX)/bin
 export PATH := $(GOBIN):$(PATH)
 
-test:
-	go test -cover ./...
+##@ Commands
 
-lint: $(prefix)/bin/golangci-lint
-	golangci-lint run --timeout 5m
+help: $(GOBIN)/makehelp ## Show this help
+	$(GOBIN)/makehelp $(MAKEFILE_LIST)
 
-generate: $(prefix)/bin/sqlc $(prefix)/bin/swag
+info: ## Show build info
+	@echo "INSTALL_PREFIX: $(INSTALL_PREFIX)"
+	@echo "RELEASE_TAG: $(RELEASE_TAG)"
+
+###@ Development
+
+generate: $(GOBIN)/sqlc $(GOBIN)/swag ## Generate code
 	go generate ./...
 
-artifacts:
-	bash build/artifacts.sh
+e2e: testinfra deploy ## Deploy the end-to-end setup
+	$(MAKE) deploy
 
-diff: generate
-	git diff --exit-code
-
-check: diff
-	$(MAKE) lint test
-
-testinfra: $(prefix)/bin/skaffold
+testinfra: $(GOBIN)/skaffold ## Create test infrastructure
 	bash -x e2e/kind/up.sh
 	skaffold run -f e2e/skaffold.yaml -p testinfra
 
-dev: $(prefix)/bin/skaffold
+deploy: $(GOBIN)/skaffold ## Deploy kobold, in dev mode, to k8s
 	skaffold run -f e2e/skaffold.yaml -p kobold
 
-tools: $(prefix)/bin/golangci-lint $(prefix)/bin/sqlc $(prefix)/bin/skaffold $(prefix)/bin/swag $(prefix)/bin/sqlite3
+###@ Checks
 
-$(prefix)/bin/skaffold:
-	mkdir -p $(prefix)/bin
+checks: diff ## Run all checks
+	$(MAKE) lint test
+
+test: ## Run tests
+	go test -cover ./...
+
+lint: $(GOBIN)/golangci-lint ## Run linter
+	golangci-lint run --timeout 5m
+
+diff: generate ## Check if code is up to date
+	git diff --exit-code
+
+###@ Release
+
+release: dockerlogin artifacts ## Create a release
+	$(MAKE) dockerpush upload
+
+artifacts: ## Build all release assets to .artifacts
+	bash build/artifacts.sh
+
+upload: ## Upload release assets to github
+	gh release upload $(RELEASE_TAG) .artifacts/*
+
+dockerlogin: ## Login to dockerhub
+	docker login --username bluebrown --password $(DOCKERHUB_TOKEN)
+
+dockerimage: ## Build the docker image
+	bash build/image.sh
+
+dockerpush: ## Push docker images to the container registry
+	docker push docker.io/bluebrown/kobold --all-tags
+
+## Dependencies
+
+$(GOBIN):
+	mkdir -p $(GOBIN)
+
+$(GOBIN)/makehelp: | $(GOBIN)
+	curl -fsSL https://gist.githubusercontent.com/bluebrown/2ec155902622b5e46e2bfcbaff342eb9/raw/Makehelp.awk \
+	| install /dev/stdin $(GOBIN)/makehelp
+
+$(GOBIN)/skaffold: | $(GOBIN)
 	curl -fsSL https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
-	| install /dev/stdin $(prefix)/bin/skaffold
+	| install /dev/stdin $(GOBIN)/skaffold
 
-$(prefix)/bin/golangci-lint:
-	mkdir -p $(prefix)/bin
+$(GOBIN)/golangci-lint: | $(GOBIN)
 	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-	| sh -s -- -b $(prefix)/bin v1.55.2
+	| sh -s -- -b $(GOBIN) v1.55.2
 
-$(prefix)/bin/sqlc:
-	mkdir -p $(prefix)/bin
+$(GOBIN)/sqlc: | $(GOBIN)
 	curl -fsSL https://downloads.sqlc.dev/sqlc_1.25.0_linux_amd64.tar.gz \
-	| tar -C $(prefix)/bin -xzf - sqlc
+	| tar -C $(GOBIN) -xzf - sqlc
 
-$(prefix)/bin/swag:
-	mkdir -p $(prefix)/bin
+$(GOBIN)/swag: | $(GOBIN)
 	curl -fsSL https://github.com/swaggo/swag/releases/download/v1.16.2/swag_1.16.2_Linux_x86_64.tar.gz \
-	| tar -C $(prefix)/bin -xzf - swag
+	| tar -C $(GOBIN) -xzf - swag
 
-$(prefix)/bin/sqlite3:
-	bash build/sqlite3.sh $(prefix)
+$(GOBIN)/sqlite3: | $(GOBIN)
+	bash build/sqlite3.sh $(INSTALL_PREFIX)

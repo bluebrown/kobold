@@ -28,8 +28,4 @@ jobs:
         DOCKER_BUILDKIT: "1"
         DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        docker login --username bluebrown --password "$DOCKERHUB_TOKEN"
-        bash build/artifacts.sh
-        gh release upload ${{ steps.release.outputs.tag_name }} .artifacts/*
-        docker push docker.io/bluebrown/kobold --all-tags
+      run: make -j release
