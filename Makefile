@@ -39,7 +39,7 @@ deploy: $(GOBIN)/skaffold ## Deploy kobold, in dev mode, to k8s
 
 ###@ Checks
 
-checks: diff ## Run all checks
+checks: ## Run all checks
 	$(MAKE) lint test
 
 test: ## Run tests
@@ -48,7 +48,7 @@ test: ## Run tests
 lint: $(GOBIN)/golangci-lint ## Run linter
 	golangci-lint run --timeout 5m
 
-diff: ## Check if code is up to date
+diff: generate ## Check if code is up to date
 	git diff --exit-code
 
 ###@ Release
