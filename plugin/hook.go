@@ -19,12 +19,12 @@ func NewPostHookRunner() *PostHookRunner {
 	}
 }
 
-func (d *PostHookRunner) Run(group model.TaskGroup, msg string, changes []string, warnings []string) error {
+func (runner *PostHookRunner) Run(group model.TaskGroup, msg string, changes []string, warnings []string) error {
 	if group.PostHook == nil {
 		return nil
 	}
 
-	res, err := runMain(defaultThread(group.Fingerprint), "post_hook", group.PostHook, d.args(group, msg, changes, warnings), d.hostEnv)
+	res, err := runMain(defaultThread(group.Fingerprint), "post_hook", group.PostHook, runner.args(group, msg, changes, warnings), runner.hostEnv)
 	if err != nil {
 		return fmt.Errorf("run main: %w", err)
 	}

@@ -20,10 +20,10 @@ type Scheduler struct {
 	pool    *Pool
 }
 
-func NewScheduler(ctx context.Context, q *model.Queries, size int, interval time.Duration) *Scheduler {
+func NewScheduler(ctx context.Context, q *model.Queries, size int) *Scheduler {
 	return &Scheduler{
-		// buffer incoming events to prevent blocking the caller,
-		// incase the scheduler is currently blocking on pool.Dispatch()
+		// Buffer incoming events to prevent blocking the caller,
+		// incase the scheduler is currently blocking on pool.Dispatch().
 		ingress: make(chan *ingress, 100),
 		pool:    NewPool(ctx, size, q),
 	}
@@ -33,25 +33,24 @@ func (s *Scheduler) SetHandler(h Handler) {
 	s.pool.SetHandler(h)
 }
 
-// runs until error or the context passed to NewScheduler is canceled. will
+// runs until error or the context passed to NewScheduler is canceled. Will
 // always wait for the pool to shutdown gracefully before returning.
 func (s *Scheduler) Run(debounce time.Duration) (err error) {
-	// using named return values here in order to be able to join it in the
+	// Using named return values here in order to be able to join it in the
 	// deferred cleanup function. The defer has access the value of err, set by
 	// one of the switch cases. Additionally the deferred func may need to join
 	// an error returned by the pool.
-
 	defer func() {
-		// we end up in this block by 2 conditions,
+		// We end up in this block by 2 conditions,
 		// if either of schedule or dispatch returns an error
-		// or if the context passed to NewScheduler is canceled
+		// or if the context passed to NewScheduler is canceled.
 
-		// stop incomming messages
+		// Stop incomming messages.
 		close(s.ingress)
 
 		// TODO: im am not sure if active tasks should be cancelled.
-		// if there was an error, it is likely a database error, so
-		// for now, we cancel out since database problems are dangerous
+		// If there was an error, it is likely a database error, so
+		// for now, we cancel out since database problems are dangerous.
 		s.pool.Cancel()
 
 		err = errors.Join(err, s.pool.Wait())
@@ -62,7 +61,7 @@ func (s *Scheduler) Run(debounce time.Duration) (err error) {
 		slog.InfoContext(s.pool.ctx, "scheduler shutdown completed", "status", status, "error", err)
 	}()
 
-	// t is used to debounce events. It is reset on every new event. once the
+	// T is used to debounce events. It is reset on every new event. Once the
 	// debounce interval has elapsed, the pending tasks are dispatched, and t is
 	// set to nil. Since t.C is nil, the select case for t.C will not be
 	// selected, and the loop will wait for new events. This prevents
@@ -78,8 +77,8 @@ func (s *Scheduler) Run(debounce time.Duration) (err error) {
 		case <-s.pool.Done():
 			return
 			// TODO: this doesnt need to be in the select. There is no race condition.
-			// if s.Schedule call directly poool.Queue, we can also return the task id
-			// as well as pontential decoding errors
+			// If s.Schedule call directly poool.Queue, we can also return the task id
+			// as well as pontential decoding errors.
 		case ing := <-s.ingress:
 			if err := s.schedule(ing); err != nil {
 				if errors.Is(err, ErrNotDecodable) || errors.Is(err, ErrChannelNotFound) {

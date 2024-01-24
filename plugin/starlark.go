@@ -1,6 +1,6 @@
 package plugin
 
-// TODO: dont panic on error
+// TODO: dont panic on error.
 
 import (
 	"fmt"

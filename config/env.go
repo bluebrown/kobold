@@ -7,8 +7,8 @@ import (
 )
 
 // can be used to parse environment variables into flags with
-// flag.VisitAll(UseEnv(os.Environ(), "SOME_PREFIX_")). the flag name is
-// converted to uppercase and dashes are replaced with underscores. e.g.
+// flag.VisitAll(UseEnv(os.Environ(), "SOME_PREFIX_")). The flag name is
+// converted to uppercase and dashes are replaced with underscores. E.g.
 // --foo-bar becomes FOO_BAR. The order of precedence is determined by the order
 // of flag.VisitAll and flag.Parse calls.
 func UseEnv(env []string, prefix string) func(*flag.Flag) {

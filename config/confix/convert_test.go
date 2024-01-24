@@ -9,6 +9,7 @@ import (
 )
 
 func TestMakeConfig(t *testing.T) {
+	t.Parallel()
 	v1, err := old.ReadPath("testdata/give.yaml")
 	if err != nil {
 		t.Fatal(err)
@@ -28,5 +29,4 @@ func TestMakeConfig(t *testing.T) {
 	if !reflect.DeepEqual(give, &want) {
 		t.Fatalf("want=%#v\n\ngive=%#v", &want, give)
 	}
-
 }

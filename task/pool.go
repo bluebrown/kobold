@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -18,7 +19,7 @@ import (
 	"github.com/google/go-containerregistry/pkg/name"
 	"github.com/google/uuid"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/volatiletech/null/v8"
+	null "github.com/volatiletech/null/v8"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -45,10 +46,13 @@ type Pool struct {
 
 func NewPool(ctx context.Context, size int, queries *model.Queries) *Pool {
 	ctx, cancel := context.WithCancel(ctx)
+
 	eg, ectx := errgroup.WithContext(ctx)
 	eg.SetLimit(size)
+
 	cache := git.NewRepoCache("kobold")
 	cache.SetCounter(metricGitFetch)
+
 	return &Pool{
 		ctx:        ectx,
 		cancel:     cancel,
@@ -77,7 +81,7 @@ func (p *Pool) Dispatch() error {
 		return err
 	}
 
-	// fill the cache with all repos that are part of this dispatch call
+	// Fill the cache with all repos that are part of this dispatch call.
 	uris := make([]git.PackageURI, 0, len(taskGroups))
 	for _, g := range taskGroups {
 		uris = append(uris, g.RepoUri)
@@ -87,8 +91,8 @@ func (p *Pool) Dispatch() error {
 		slog.WarnContext(p.ctx, "fill cache", "error", err)
 	}
 
-	// the waitgroups is used to know when all task groups of this dispatch call
-	// have been processed. This is used to purge the cache
+	// The waitgroups is used to know when all task groups of this dispatch call
+	// have been processed. This is used to purge the cache.
 	wg := sync.WaitGroup{}
 	ns := uuid.NewString()
 
@@ -117,16 +121,15 @@ func (p *Pool) Dispatch() error {
 				ReqStatus:            string(StatusPending),
 				Ids:                  ids,
 			})
-
-			// if there is a database error, we consider the app irrecoverable
+			// If there is a database error, we consider the app irrecoverable.
 			if err != nil {
 				return err
 			}
 
-			// swapped is the list of task ids that have been swapped from
-			// pending. any id that is not in this list, shall not be handled by
-			// this worker. for now, dont try to be smart and just bail out, if
-			// the lists dont match
+			// Swapped is the list of task ids that have been swapped from
+			// pending. Any id that is not in this list, shall not be handled by
+			// this worker. For now, dont try to be smart and just bail out, if
+			// the lists dont match.
 			if len(swapped) != len(ids) {
 				return fmt.Errorf("attempt to set non %q task to %q: swapped=%v ids=%v",
 					StatusPending, StatusRunning, swapped, ids)
@@ -134,7 +137,7 @@ func (p *Pool) Dispatch() error {
 
 			slog.InfoContext(p.ctx, "task group dispatched", "fingerprint", g.Fingerprint)
 
-			// FIXME: this does not work as intended. run_active shows always 0
+			// FIXME: this does not work as intended. Run_active shows always 0.
 			metricRunsActive.Inc()
 			defer metricRunsActive.Dec()
 
@@ -176,14 +179,14 @@ func (p *Pool) Dispatch() error {
 				return err
 			}
 
-			// the same as above. For the time being, we just bail out
+			// The same as above. For the time being, we just bail out.
 			if len(swapped) != len(ids) {
 				return fmt.Errorf("attempt to set non %q task to %q: swapped=%v ids=%v",
 					StatusRunning, status, swapped, ids)
 			}
 
-			// since we used a named return value, to capture the error, make
-			// sure we return nil here, so that no error is returned
+			// Since we used a named return value, to capture the error, make
+			// sure we return nil here, so that no error is returned.
 			return nil
 		})
 	}
@@ -219,11 +222,12 @@ func (p *Pool) Queue(ctx context.Context, channel string, msg []byte) (err error
 
 		metricMsgRecv.With(prometheus.Labels{
 			"channel":  channel,
-			"rejected": fmt.Sprintf("%v", err != nil)}).Inc()
+			"rejected": strconv.FormatBool(err != nil),
+		}).Inc()
 	}()
 
-	// fetch decoder info from db and decode data into a slice of imageRefs so
-	// that the aggregated task handler does not need to know about the decoder
+	// Fetch decoder info from db and decode data into a slice of imageRefs so
+	// that the aggregated task handler does not need to know about the decoder.
 	dec, err = p.queries.ChannelDecoderGet(ctx, channel)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

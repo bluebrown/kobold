@@ -1,4 +1,4 @@
-/* read a user friendly config file, and prepare the database accordingly. */
+/* Read a user friendly config file, and prepare the database accordingly. */
 package config
 
 import (
@@ -12,6 +12,7 @@ import (
 )
 
 func TestReadDir(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		givePath   string
 		wantConfig *Config
@@ -44,6 +45,7 @@ func TestReadDir(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.givePath, func(t *testing.T) {
+			t.Parallel()
 			var got Config
 			err := ReadConfD(filepath.Join("testdata", tt.givePath), &got)
 			if (err != nil) != tt.wantErr {

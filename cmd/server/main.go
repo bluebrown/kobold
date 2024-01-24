@@ -42,7 +42,7 @@ func main() {
 func run(ctx context.Context, args []string, env []string) error {
 	var (
 		set                      = flag.NewFlagSet("kobold-server", flag.ExitOnError)
-		opts                     = config.Options().Bind(set)
+		opts                     = config.NewOptions().Bind(set)
 		handler     task.Handler = task.KoboldHandler
 		webhookAddr              = ":8080"
 		apiAddr                  = ":9090"
@@ -70,7 +70,7 @@ func run(ctx context.Context, args []string, env []string) error {
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	sched := task.NewScheduler(ctx, query, maxprocs, 5*time.Second)
+	sched := task.NewScheduler(ctx, query, maxprocs)
 
 	g.Go(func() error {
 		sched.SetHandler(handler)
@@ -115,7 +115,7 @@ func listenAndServeContext(ctx context.Context, name, addr string, handler http.
 		slog.InfoContext(ctx, "server shutdown", "name", name)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		return server.Shutdown(ctx)
+		return server.Shutdown(ctx) //nolint:contextcheck
 	case err := <-errc:
 		if errors.Is(err, http.ErrServerClosed) {
 			return nil

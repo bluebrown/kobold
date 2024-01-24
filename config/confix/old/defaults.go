@@ -18,15 +18,15 @@ func (c *NormalizedConfig) Defaults() {
 		`
 	}
 
-	// if the namespace is empty "", the underlying
-	// auth package defaults to the "default" namespace
+	// If the namespace is empty "", the underlying
+	// auth package defaults to the "default" namespace.
 	if c.RegistryAuth.Namespace == "" {
 		c.RegistryAuth.Namespace = getEnv("NAMESPACE", "")
 	}
 
-	// if the service account is empty, set the special value
+	// If the service account is empty, set the special value
 	// "no service account", which disabled service account lookup,
-	// on the underlying package
+	// on the underlying package.
 	if c.RegistryAuth.ServiceAccount == "" {
 		c.RegistryAuth.ServiceAccount = getEnv("SERVICE_ACCOUNT_NAME", "no service account")
 	}

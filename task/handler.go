@@ -12,7 +12,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-// the task handler is the final point of execution. after decoding, debouncing
+// the task handler is the final point of execution. After decoding, debouncing
 // and aggregating the events, this handler is resonbible for the actual work.
 func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	var (
@@ -65,18 +65,20 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 
 var _ Handler = KoboldHandler
 
-func PrintHandler(ctx context.Context, hostPath string, g model.TaskGroup, runner HookRunner) ([]string, error) {
+func PrintHandler(_ context.Context, _ string, g model.TaskGroup, _ HookRunner) ([]string, error) {
 	b, err := json.MarshalIndent(g, "", "  ")
 	if err != nil {
 		return nil, fmt.Errorf("marshal task group: %w", err)
 	}
+
 	fmt.Println(string(b))
+
 	return nil, nil
 }
 
 var _ Handler = PrintHandler
 
-func ThrowHandler(ctx context.Context, hostPath string, g model.TaskGroup, runner HookRunner) ([]string, error) {
+func ThrowHandler(_ context.Context, _ string, _ model.TaskGroup, _ HookRunner) ([]string, error) {
 	return nil, fmt.Errorf("throw handler error")
 }
 

@@ -6,6 +6,7 @@ import (
 )
 
 func TestParseOpts(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		expr string
 	}
@@ -47,7 +48,9 @@ func TestParseOpts(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := ParseOpts(tt.args.expr)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseOpts() error = %v, wantErr %v", err, tt.wantErr)
@@ -61,6 +64,7 @@ func TestParseOpts(t *testing.T) {
 }
 
 func TestMatchTag(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		tag  string
 		opts Options
@@ -108,7 +112,9 @@ func TestMatchTag(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := MatchTag(tt.args.tag, tt.args.opts)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MatchTag() error = %v, wantErr %v", err, tt.wantErr)

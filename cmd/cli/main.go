@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/bluebrown/kobold/config"
 	"github.com/bluebrown/kobold/store"
@@ -21,9 +22,7 @@ func init() {
 }
 
 func main() {
-	var (
-		input io.Reader
-	)
+	var input io.Reader
 
 	if info, err := os.Stdin.Stat(); err == nil {
 		if info.Mode()&os.ModeCharDevice == 0 {
@@ -36,6 +35,8 @@ func main() {
 
 	if err := run(ctx, os.Args[1:], os.Environ(), input); err != nil {
 		fmt.Fprintln(os.Stderr, err)
+		cancel()
+		time.Sleep(2 * time.Second)
 		os.Exit(1)
 	}
 }
@@ -45,7 +46,7 @@ func run(ctx context.Context, args []string, env []string, input io.Reader) erro
 		channel  string
 		handler  task.Handler = task.KoboldHandler
 		set                   = flag.NewFlagSet("kobold-cli", flag.ExitOnError)
-		opts                  = config.Options().Bind(set)
+		opts                  = config.NewOptions().Bind(set)
 		maxprocs              = 10
 	)
 

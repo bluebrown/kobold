@@ -8,7 +8,7 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func DefaultNodeHandler(key, currentRef, nextRef string, opts Options) (string, error) {
+func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, error) {
 	if currentRef == nextRef {
 		return currentRef, nil
 	}
@@ -58,7 +58,7 @@ type ImageRefUpdateFilter struct {
 // handler if a map node with a line comment matching the CommentPrefix is
 // found. The handler is responsible for determining if the node should be
 // updated or not and what the new value should be. If no handler is passed, a
-// default handler will be used. the image refs passed are new images references
+// default handler will be used. The image refs passed are new images references
 // that may replace the current image ref. For any found map node, the handler
 // will be invoked, once for each passed image ref.
 func NewImageRefUpdateFilter(handler NodeHandler, imageRefs ...string) *ImageRefUpdateFilter {
@@ -69,7 +69,7 @@ func NewImageRefUpdateFilter(handler NodeHandler, imageRefs ...string) *ImageRef
 }
 
 func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error) {
-	// TODO: use top level loop to capture the current source file info
+	// TODO: use top level loop to capture the current source file info.
 	err := VisitMapLeafs(nodes, func(mn *yaml.MapNode) error {
 		lineComment := mn.Value.YNode().LineComment
 
@@ -107,7 +107,7 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 func parseImageRefWithDigest(s string) (name.Reference, string, error) {
 	rawRef, digest, _ := strings.Cut(s, "@")
 	// NOTE: not checking ok here, to allow the user to use refs without digest
-	// it is up to them to decide if that is acceptable or not
+	// it is up to them to decide if that is acceptable or not.
 
 	tag, err := name.NewTag(rawRef, name.StrictValidation)
 	if err != nil {
@@ -154,6 +154,8 @@ func VisitMapLeafs(nodes []*yaml.RNode, fn func(*yaml.MapNode) error) error {
 					}
 				}
 			}
+		case yaml.DocumentNode, yaml.AliasNode, yaml.ScalarNode:
+			continue
 		}
 	}
 	return nil

@@ -1,7 +1,7 @@
 package store
 
 import (
-	"crypto/sha1"
+	"crypto/sha1" //nolint:gosec
 	"database/sql/driver"
 	"encoding/hex"
 	"fmt"
@@ -12,7 +12,7 @@ import (
 )
 
 func sum(b []byte) string {
-	h := sha1.New()
+	h := sha1.New() //nolint:gosec
 	h.Write(b)
 	return hex.EncodeToString(h.Sum(nil))
 }

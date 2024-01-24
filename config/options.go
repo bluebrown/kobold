@@ -14,41 +14,41 @@ var UsePragmas = []string{
 	"foreign_keys=on",
 }
 
-type options struct {
-	config string
-	confd  string
+type Options struct {
+	Config string
+	Confd  string
 	dbfile string
-	loglvl int
-	logfmt string
-	w      io.Writer
+	Loglvl int
+	Logfmt string
+	W      io.Writer
 }
 
-func (o *options) Bind(fs *flag.FlagSet) *options {
+func (o *Options) Bind(fs *flag.FlagSet) *Options {
 	if fs == nil {
 		fs = flag.CommandLine
 	}
-	fs.StringVar(&o.config, "config", o.config, "path to config file")
-	fs.StringVar(&o.confd, "confd", o.confd, "path to config dir")
+	fs.StringVar(&o.Config, "config", o.Config, "path to config file")
+	fs.StringVar(&o.Confd, "confd", o.Confd, "path to config dir")
 	fs.StringVar(&o.dbfile, "db", o.dbfile, "path to sqlite db file")
-	fs.IntVar(&o.loglvl, "loglvl", o.loglvl, "log level")
-	fs.StringVar(&o.logfmt, "logfmt", o.logfmt, "log format, one of: json, text")
+	fs.IntVar(&o.Loglvl, "loglvl", o.Loglvl, "log level")
+	fs.StringVar(&o.Logfmt, "logfmt", o.Logfmt, "log format, one of: json, text")
 	return o
 }
 
-func Options() *options {
+func NewOptions() *Options {
 	dir := os.TempDir()
 
 	if cd, err := os.UserConfigDir(); err == nil {
 		d := filepath.Join(cd, "kobold")
-		if err = os.MkdirAll(d, 0755); err == nil {
+		if err = os.MkdirAll(d, 0o755); err == nil {
 			dir = d
 		}
 	}
 
-	return &options{
+	return &Options{
 		dbfile: filepath.Join(dir, "kobold.sqlite3"),
-		loglvl: int(slog.LevelInfo),
-		logfmt: "json",
-		w:      os.Stderr,
+		Loglvl: int(slog.LevelInfo),
+		Logfmt: "json",
+		W:      os.Stderr,
 	}
 }

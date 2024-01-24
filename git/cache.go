@@ -51,7 +51,7 @@ func (cache *RepoCache) Fill(ctx context.Context, lim int, uris ...PackageURI) e
 	cache.mu.Lock()
 	defer cache.mu.Unlock()
 
-	if err := os.MkdirAll(filepath.Join(cache.dir, "repos"), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Join(cache.dir, "repos"), 0o755); err != nil {
 		return err
 	}
 
@@ -80,7 +80,7 @@ func (cache *RepoCache) Fill(ctx context.Context, lim int, uris ...PackageURI) e
 	}
 
 	// TODO: this may swallow errors,
-	// since only the first non-nil error is returned
+	// since only the first non-nil error is returned.
 	err := g.Wait()
 
 	return err
@@ -89,19 +89,20 @@ func (cache *RepoCache) Fill(ctx context.Context, lim int, uris ...PackageURI) e
 func (cache *RepoCache) Get(ctx context.Context, namespace, repo string) (string, error) {
 	cache.mu.RLock()
 	defer cache.mu.RUnlock()
-	src := filepath.Join(cache.dir, "repos", repo)
 
+	src := filepath.Join(cache.dir, "repos", repo)
 	d := filepath.Join(cache.dir, "namespaces", namespace, repo)
 
-	if err := os.MkdirAll(d, 0755); err != nil {
+	if err := os.MkdirAll(d, 0o755); err != nil {
 		return "", fmt.Errorf("mkdir %q: %w", d, err)
 	}
 
 	d = filepath.Join(d, uuid.NewString())
 
-	if err := copy(ctx, src, d); err != nil {
+	if err := copyDir(ctx, src, d); err != nil {
 		return "", fmt.Errorf("copy %q: %w", src, err)
 	}
+
 	return d, nil
 }
 
@@ -113,7 +114,7 @@ func (cache *RepoCache) Purge(namespace string) error {
 
 func unique(ss []string) []string {
 	seen := make(map[string]struct{})
-	var out []string
+	out := make([]string, 0, len(ss))
 	for _, s := range ss {
 		if _, ok := seen[s]; ok {
 			continue

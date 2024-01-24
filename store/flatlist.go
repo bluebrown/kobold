@@ -7,8 +7,8 @@ import (
 )
 
 // this is a special json array. When scanning, it will flatten the input up to
-// 1 level deep. however, when calling value, it will only marshal a flat list.
-// so the converion is lossy, but it fits our use case perfectly. We use it to
+// 1 level deep. However, when calling value, it will only marshal a flat list.
+// So the converion is lossy, but it fits our use case perfectly. We use it to
 // either store flat lists on actual tables or to retrieve potentially nested
 // lists from accumulated views.
 type FlatList []string

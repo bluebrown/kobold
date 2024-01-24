@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-func copy(ctx context.Context, src, dst string) error {
+func copyDir(ctx context.Context, src, dst string) error {
 	cmd := exec.CommandContext(ctx, "cp", "-r", src, dst)
 	b, err := cmd.CombinedOutput()
 	if err != nil {

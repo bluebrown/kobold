@@ -59,7 +59,7 @@ func MatchTag(tag string, opts Options) (bool, error) {
 		}
 		v, err := semver.NewVersion(tag)
 		if err != nil || !c.Check(v) {
-			return false, nil
+			return false, nil //nolint:nilerr
 		}
 	case TypeRegex:
 		ok, err := regexp.MatchString(fmt.Sprintf("^%s$", opts.Tag), tag)

@@ -39,10 +39,11 @@ func testPipe(caseDir string, events ...string) (filesys.FileSystem, error) {
 }
 
 func Test_renderer_Render(t *testing.T) {
+	t.Parallel()
 	type wantFieldValue struct {
-		// rnodeIndex is the index of the yaml document in the given file
+		// RnodeIndex is the index of the yaml document in the given file
 		// since a file can contain multiple yaml documents separated by ---.
-		// the index starts at 0
+		// The index starts at 0.
 		rnodeIndex int
 		field      string
 		value      string
@@ -156,7 +157,7 @@ func Test_renderer_Render(t *testing.T) {
 		// 			},
 		// 		},
 		// 	},
-		// },
+		// },.
 		{
 			name:    "cr",
 			giveDir: "custom-resource",

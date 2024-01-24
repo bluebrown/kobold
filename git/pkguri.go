@@ -8,22 +8,22 @@ import (
 )
 
 // the package uri is a special uri format to specify a git repo, ref, and
-// package path within the repo under the ref. the uri is of the form:
+// package path within the repo under the ref. The uri is of the form:
 //
 //	<repo>@<ref>[<pkg>]
 //
 // where <repo> is the git repo uri, <ref> is the git ref (branch, tag, commit),
-// and <pkg> is the package path within the repo. if <pkg> is not specified, the
+// and <pkg> is the package path within the repo. If <pkg> is not specified, the
 // root of the repo is assumed.
 type PackageURI struct {
 	Repo string `json:"repo,omitempty" toml:"repo"`
-	Ref  string `json:"ref,omitempty" toml:"ref"`
-	Pkg  string `json:"pkg,omitempty" toml:"pkg"`
+	Ref  string `json:"ref,omitempty"  toml:"ref"`
+	Pkg  string `json:"pkg,omitempty"  toml:"pkg"`
 }
 
 // FIXME: appending .git can lead to confusion or invalid URIs.
-func (r *PackageURI) String() string {
-	return fmt.Sprintf("%s.git@%s%s", r.Repo, r.Ref, r.Pkg)
+func (uri *PackageURI) String() string {
+	return fmt.Sprintf("%s.git@%s%s", uri.Repo, uri.Ref, uri.Pkg)
 }
 
 var pattern = regexp.MustCompile(`^(?P<repo>.*)@(?P<ref>\w+)(?P<pkg>\/.+)?$`)

@@ -44,7 +44,6 @@ func MakeConfig(v1 *old.NormalizedConfig) (*config.Config, error) {
 			Name:    ep.Name,
 			Decoder: d,
 		})
-
 	}
 
 	for _, sub := range v1.Subscriptions {
@@ -132,7 +131,6 @@ func MakeGitCredentials(v1 *old.NormalizedConfig) (string, error) {
 			seen[key] = struct{}{}
 			fmt.Fprintf(&buf, "%s\n", key)
 		}
-
 	}
 
 	return buf.String(), nil

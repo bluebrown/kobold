@@ -10,15 +10,15 @@ import (
 
 // initialite the git repo at dir and set the remote origin to uri.
 func Init(ctx context.Context, dir, uri string) error {
-	if err := os.MkdirAll(dir, 0755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return fmt.Errorf("mkdir %q: %w", dir, err)
 	}
 
-	if _, err := run(ctx, dir, "init"); err != nil {
+	if err := run(ctx, dir, "init"); err != nil {
 		return fmt.Errorf("git init: %w", err)
 	}
 
-	if _, err := run(ctx, dir, "remote", "add", "origin", uri); err != nil {
+	if err := run(ctx, dir, "remote", "add", "origin", uri); err != nil {
 		return fmt.Errorf("git remote add origin %q: %w", uri, err)
 	}
 
@@ -34,12 +34,12 @@ func FetchShallow(ctx context.Context, dir string, refs ...string) error {
 		clean = append(clean, fmt.Sprintf("+refs/heads/%s:refs/remotes/origin/%s", ref, ref))
 	}
 	args = append(args, clean...)
-	_, err := run(ctx, dir, args...)
+	err := run(ctx, dir, args...)
 	return err
 }
 
 // perform init and fetch in one step but only init if the repo doesn't exist.
-// otherwise, update its fetch refs and re-fetch with depth 1.
+// Otherwise, update its fetch refs and re-fetch with depth 1.
 func Ensure(ctx context.Context, dir, uri string, refs ...string) error {
 	if _, err := os.Stat(dir); err != nil {
 		if os.IsNotExist(err) {
@@ -61,25 +61,25 @@ func Ensure(ctx context.Context, dir, uri string, refs ...string) error {
 // switch to ref. This should be called after Ensure
 // to get a writeable branch.
 func Switch(ctx context.Context, dir, ref string) error {
-	_, err := run(ctx, dir, "checkout", ref)
+	err := run(ctx, dir, "checkout", ref)
 	return err
 }
 
 // create a new branch and check it out.
 func CheckoutB(ctx context.Context, dir, ref string) error {
-	_, err := run(ctx, dir, "checkout", "-b", ref)
+	err := run(ctx, dir, "checkout", "-b", ref)
 	return err
 }
 
 // add all files in given dir to the index.
 func AddRoot(ctx context.Context, dir string) error {
-	_, err := run(ctx, dir, "add", ".")
+	err := run(ctx, dir, "add", ".")
 	return err
 }
 
 // commit the index with the given message.
 func Commit(ctx context.Context, dir, msg string) error {
-	_, err := run(ctx, dir, "commit", "-m", msg)
+	err := run(ctx, dir, "commit", "-m", msg)
 	return err
 }
 
@@ -87,7 +87,7 @@ func Commit(ctx context.Context, dir, msg string) error {
 func Push(ctx context.Context, dir string, refs ...string) error {
 	args := []string{"push", "origin"}
 	args = append(args, refs...)
-	_, err := run(ctx, dir, args...)
+	err := run(ctx, dir, args...)
 	return err
 }
 
@@ -108,12 +108,11 @@ func Publish(ctx context.Context, dir, ref, msg string) error {
 	return nil
 }
 
-func run(ctx context.Context, dir string, args ...string) ([]byte, error) {
+func run(ctx context.Context, dir string, args ...string) error {
 	cmd := exec.CommandContext(ctx, "git", args...)
 	cmd.Dir = dir
-	b, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s: %s", err, string(b), strings.Join(args, " "))
+	if b, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("%w: %s: %s", err, string(b), strings.Join(args, " "))
 	}
-	return b, nil
+	return nil
 }

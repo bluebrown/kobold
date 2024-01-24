@@ -30,7 +30,7 @@ func run() error {
 	flag.Parse()
 
 	if out != "" {
-		if err := os.MkdirAll(out, 0755); err != nil {
+		if err := os.MkdirAll(out, 0o755); err != nil {
 			return fmt.Errorf("mkdir: %w", err)
 		}
 	}
@@ -57,7 +57,7 @@ func run() error {
 		return fmt.Errorf("git-credentials: %w", err)
 	}
 
-	if err := os.WriteFile(filepath.Join(out, "kobold.toml"), buf.Bytes(), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(out, "kobold.toml"), buf.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
 
@@ -65,11 +65,11 @@ func run() error {
 		return nil
 	}
 
-	if err := os.WriteFile(filepath.Join(out, ".git-credentials"), []byte(gc), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(out, ".git-credentials"), []byte(gc), 0o600); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
 
-	if err := os.WriteFile(filepath.Join(out, ".gitconfig"), confix.MakeGitConfig(), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(out, ".gitconfig"), confix.MakeGitConfig(), 0o600); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
 

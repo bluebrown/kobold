@@ -2,25 +2,25 @@ package old
 
 // in memory representation of the config used to setup kobold
 // this is used so that the user facing config can have different
-// formats. I.e. v1 and v2 or a flat kubernetes configmap.
+// formats. I.e. V1 and v2 or a flat kubernetes configmap.
 type NormalizedConfig struct {
-	// List of endpoints to listen on
+	// List of endpoints to listen on.
 	Endpoints []EndpointSpec `json:"endpoints,omitempty"`
-	// list of repositories to use
+	// List of repositories to use.
 	Repositories []RepositorySpec `json:"repositories,omitempty"`
-	// subscriptions link repositories to one or more endpoints
+	// Subscriptions link repositories to one or more endpoints.
 	Subscriptions []SubscriptionSpec `json:"subscriptions,omitempty"`
-	// the registry auth is only used when using the k8s chain
+	// The registry auth is only used when using the k8s chain
 	// it allows to configure where/how imagePullSecrets are obtained
 	// this is only needed for registries that require an extra api call
-	// such as dockerhub, which does not send the digest
+	// such as dockerhub, which does not send the digest.
 	RegistryAuth RegistryAuthSpec `json:"registryAuth,omitempty"`
-	// the commit message is used when kobold makes commits
+	// The commit message is used when kobold makes commits
 	// both title and description are parsed as template string and executed
-	// with an array of changes as context
+	// with an array of changes as context.
 	CommitMessage CommitMessageSpec `json:"commitMessage,omitempty"`
-	// list of custom path resolvers to find image refs
-	// this allows the user to lookup images in arbitrary paths
+	// List of custom path resolvers to find image refs
+	// this allows the user to lookup images in arbitrary paths.
 	Resolvers []ResolverSpec `json:"resolvers,omitempty"`
 }
 

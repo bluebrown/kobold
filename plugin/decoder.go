@@ -6,14 +6,13 @@ import (
 	"go.starlark.net/starlark"
 )
 
-type decoder struct {
+type Decoder struct{}
+
+func NewDecoderRunner() *Decoder {
+	return &Decoder{}
 }
 
-func NewDecoderRunner() *decoder {
-	return &decoder{}
-}
-
-func (d *decoder) Decode(name string, script []byte, data []byte) ([]string, error) {
+func (d *Decoder) Decode(name string, script []byte, data []byte) ([]string, error) {
 	res, err := runMain(defaultThread(name), name, script, d.args(data), nil)
 	if err != nil {
 		return nil, fmt.Errorf("run main: %w", err)
@@ -21,6 +20,6 @@ func (d *decoder) Decode(name string, script []byte, data []byte) ([]string, err
 	return asStringSlice(res)
 }
 
-func (d *decoder) args(data []byte) starlark.Tuple {
+func (d *Decoder) args(data []byte) starlark.Tuple {
 	return starlark.Tuple{starlark.String(data)}
 }

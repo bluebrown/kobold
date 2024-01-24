@@ -8,6 +8,7 @@ import (
 )
 
 func TestRunMain(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		thread  *starlark.Thread
 		name    string
@@ -60,7 +61,9 @@ func TestRunMain(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := runMain(tt.args.thread, tt.args.name, tt.args.script, tt.args.args, tt.args.hostEnv)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("RunMain() error = %v, wantErr %v", err, tt.wantErr)
@@ -74,6 +77,7 @@ func TestRunMain(t *testing.T) {
 }
 
 func TestEnvToStarlarkDict(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name     string
 		giveEnv  []string
@@ -103,6 +107,7 @@ func TestEnvToStarlarkDict(t *testing.T) {
 }
 
 func TestAsStringSlice(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		v starlark.Value
 	}
@@ -112,7 +117,6 @@ func TestAsStringSlice(t *testing.T) {
 		want    []string
 		wantErr bool
 	}{
-
 		{
 			name: "simple",
 			args: args{v: starlark.NewList([]starlark.Value{starlark.String("foo"), starlark.String("bar")})},
@@ -120,7 +124,9 @@ func TestAsStringSlice(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got, err := asStringSlice(tt.args.v)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("AsStringSlice() error = %v, wantErr %v", err, tt.wantErr)
