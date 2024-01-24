@@ -154,8 +154,6 @@ func VisitMapLeafs(nodes []*yaml.RNode, fn func(*yaml.MapNode) error) error {
 					}
 				}
 			}
-		case yaml.DocumentNode, yaml.AliasNode, yaml.ScalarNode:
-			continue
 		}
 	}
 	return nil

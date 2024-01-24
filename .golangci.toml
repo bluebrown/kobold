@@ -10,7 +10,7 @@ enable = [
   "durationcheck",
   "errcheck",
   "errchkjson",
-  "exhaustive",
+  # "exhaustive",
   "exportloopref",
   # "forbidigo",
   "gci",

@@ -14,7 +14,8 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger/v2"
 )
 
-// @license.name	BSD-3-Clause.
+// @license.name	BSD-3-Clause
+
 type WebAPI struct {
 	q      *model.Queries
 	router *mux.Router

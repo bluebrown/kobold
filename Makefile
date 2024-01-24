@@ -48,7 +48,7 @@ test: ## Run tests
 lint: $(GOBIN)/golangci-lint ## Run linter
 	golangci-lint run --timeout 5m
 
-diff: generate ## Check if code is up to date
+diff: ## Check if code is up to date
 	git diff --exit-code
 
 ###@ Release

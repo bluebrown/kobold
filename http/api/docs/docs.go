@@ -11,7 +11,7 @@ const docTemplate = `{
         "title": "{{.Title}}",
         "contact": {},
         "license": {
-            "name": "BSD-3-Clause."
+            "name": "BSD-3-Clause"
         },
         "version": "{{.Version}}"
     },
