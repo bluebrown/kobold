@@ -6,8 +6,6 @@ prefix := $(CURDIR)/.local
 export GOBIN := $(prefix)/bin
 export PATH := $(GOBIN):$(PATH)
 
-check: lint test
-
 test:
 	go test -cover ./...
 
@@ -19,6 +17,12 @@ generate: $(prefix)/bin/sqlc $(prefix)/bin/swag
 
 artifacts:
 	bash build/artifacts.sh
+
+diff: generate
+	git diff --exit-code
+
+check: diff
+	$(MAKE) lint test
 
 testinfra: $(prefix)/bin/skaffold
 	bash -x e2e/kind/up.sh
