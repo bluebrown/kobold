@@ -10,3 +10,4 @@ jobs:
     - run: make dockerlogin dockerimage dockerpush
       env:
         DOCKER_BUILDKIT: "1"
+        DOCKERHUB_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"
