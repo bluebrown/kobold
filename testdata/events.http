@@ -1,0 +1,11 @@
+POST /events?chan=dockerhub HTTP/1.1
+Host: localhost:8080
+
+{
+  "push_data": {
+    "tag": "v1.12.3"
+  },
+  "repository": {
+    "repo_name": "library/busybox"
+  }
+}

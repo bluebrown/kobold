@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ingress-nginx
-  annotations:
-    kubernetes.io/metadata.name: kobold
-spec:
-  finalizers:
-    - kubernetes

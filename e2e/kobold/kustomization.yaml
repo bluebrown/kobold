@@ -1,55 +1,40 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
-namespace: kobold
-
+sortOptions: {order: fifo}
 resources:
-  - ./namespace.yaml
-  - ../../manifests/base/
-  - ./ingress.yaml
-
+- ../../build/kube/
 images:
-  - name: index.docker.io/bluebrown/kobold
-    newTag: dev
-
-generatorOptions:
-  disableNameSuffixHash: true
-
+- name: docker.io/bluebrown/kobold
+  newTag: e2e
 configMapGenerator:
-  - name: kobold-config
-    behavior: replace
-    files:
-      - ./etc/config.yaml
-
+- name: kobold-confd
+  behavior: merge
+  files:
+  - ./kobold.d/channel.toml
+  - ./kobold.d/repo.toml
+- name: kobold-gitconfig
+  behavior: merge
+  files:
+  - ./.gitconfig
 secretGenerator:
-  - name: kobold-env
-    behavior: replace
-    envs:
-      - ./etc/.env
-#   - name: dockerhub
-#     type: kubernetes.io/dockerconfigjson
-#     files:
-#       - .dockerconfigjson=etc/dockerconfig.json
-
+- name: kobold-env
+  behavior: merge
+  literals:
+  - GITEA_HOST=http://gitea
+  - GITEA_AUTH_HEADER=Basic ZGV2OmRldjEyMw==
+  - KOBOLD_DEBOUNCE=15s
+  - KOBOLD_PREFIX=/kobold
+- name: kobold-gitcreds
+  behavior: merge
+  files:
+  - ./.git-credentials
 patches:
-  - target:
-      kind: Deployment
-      name: kobold
-    patch: |
-      - op: add
-        path: /spec/template/spec/containers/0/imagePullPolicy
-        value: Always
-      - op: add
-        path: /spec/template/spec/containers/0/args/-
-        value: -v=7
-      - op: add
-        path: /spec/template/spec/containers/0/args/-
-        value: --debounce=5s
-# - target:
-#     kind: ServiceAccount
-#     name: kobold
-#   patch: |
-#     - op: add
-#       path: /imagePullSecrets/-
-#       value:
-#         name: dockerhub
+- target:
+    group: apps
+    version: v1
+    kind: Deployment
+    name: kobold
+  patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/imagePullPolicy
+      value: IfNotPresent

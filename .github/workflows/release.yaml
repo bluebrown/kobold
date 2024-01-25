@@ -1,46 +1,31 @@
 name: release
-
 on:
-  workflow_dispatch:
-    inputs:
-      preRelease:
-        description: Create a pre release, if set
-        type: boolean
-        default: false
-
+  workflow_dispatch: {}
+  push:
+    branches:
+    - main
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set git config
-        run: |
-          git config --global user.email "noreply@bluebrown.github.io"
-          git config --global user.name "GitHub Actions"
-
-      - name: Login to the container registry
-        run: docker login --username bluebrown --password ${{secrets.DOCKERHUB_TOKEN}}
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with: {go-version: "1.21"}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Create a github release
-        run: make -j github-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PRE_RELEASE: ${{ github.event.inputs.preRelease == 'true' && '1' || '0' }}
-
-      - name: Publish docs
-        run: make -j github-pages
-        if: github.events.inputs.preRelease != 'true'
+    - id: release
+      uses: google-github-actions/release-please-action@v4
+      with:
+        config-file: .github/release-please-config.json
+        manifest-file: .github/release-please-manifest.json
+    - if: ${{ steps.release.outputs.release_created }}
+      uses: actions/checkout@v3
+    - if: ${{ steps.release.outputs.release_created }}
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.21.5'
+    - if: ${{ steps.release.outputs.release_created }}
+      env:
+        RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+        DOCKER_BUILDKIT: "1"
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: make -j release

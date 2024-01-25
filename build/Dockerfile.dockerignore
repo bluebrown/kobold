@@ -1,7 +1,9 @@
-*
-!/cmd/
-!/internal/
-!/kobold/
-!/go.mod
-!/go.sum
-!/build/config.yaml
+.*
+build/
+!build/.sqliterc
+e2e/
+vendor/
+*.md
+*.yaml
+*.toml
+Makefile*

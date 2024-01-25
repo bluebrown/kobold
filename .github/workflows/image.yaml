@@ -1,0 +1,12 @@
+name: image
+on:
+  workflow_dispatch: {}
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - run: make dockerlogin dockerimage dockerpush
+      env:
+        DOCKER_BUILDKIT: "1"
+        DOCKERHUB_TOKEN: "${{ secrets.DOCKERHUB_TOKEN }}"

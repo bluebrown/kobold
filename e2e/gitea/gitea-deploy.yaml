@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitea
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gitea
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gitea
+    spec:
+      containers:
+      - name: gitea
+        image: gitea/gitea:1.21.3-rootless
+        ports: [{containerPort: 3000}]
+        readinessProbe: {tcpSocket: {port: 3000}}
+        resources: {}
+        env:
+        - name: GITEA__security__INSTALL_LOCK
+          value: "true"
+        volumeMounts:
+        - name: repo
+          mountPath: /tmp/repo.tar.gz
+          subPath: repo.tar.gz
+        - name: scripts
+          mountPath: /tmp/init.sh
+          subPath: init.sh
+          readOnly: true
+      volumes:
+      - name: repo
+        configMap:
+          name: gitea-test-repo
+      - name: scripts
+        configMap:
+          name: gitea-init-scripts
+          defaultMode: 0755

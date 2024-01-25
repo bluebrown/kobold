@@ -1,0 +1,52 @@
+version: "2"
+sql:
+- engine: sqlite
+  queries:
+  - ../store/schema/task.query.sql
+  - ../store/schema/read.query.sql
+  - ../store/schema/config.query.sql
+  schema:
+  - ../store/schema/task.schema.sql
+  - ../store/schema/read.schema.sql
+  gen:
+    go:
+      package: model
+      out: ../store/model/
+      emit_json_tags: true
+      emit_empty_slices: true
+      emit_sql_as_comment: true
+      overrides:
+      - db_type: text
+        nullable: true
+        go_type:
+          import: github.com/volatiletech/null/v8
+          package: "null"
+          type: String
+      - column: "*.repo_uri"
+        go_type:
+          import: github.com/bluebrown/kobold/git
+          package: git
+          type: PackageURI
+      - column: "*.msgs"
+        go_type:
+          import: github.com/bluebrown/kobold/store
+          package: store
+          type: FlatList
+      - column: "*.warnings"
+        go_type:
+          import: github.com/bluebrown/kobold/store
+          package: store
+          type: FlatList
+      - column: "*.task_ids"
+        go_type:
+          import: github.com/bluebrown/kobold/store
+          package: store
+          type: FlatList
+      - column: "*.fingerprint"
+        go_type:
+          type: string
+      - column: "*.channels"
+        go_type:
+          import: github.com/bluebrown/kobold/store
+          package: store
+          type: FlatList

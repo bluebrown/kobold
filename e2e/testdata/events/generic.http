@@ -1,5 +1,0 @@
-POST /events/generic HTTP/1.1
-Host: localhost:8080
-Content-Type: text/plain
-
-index.docker.io/bluebrown/busybox:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3

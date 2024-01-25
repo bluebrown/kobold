@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: gitea-init
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 0
+  template:
+    spec:
+      serviceAccountName: gitea-init
+      restartPolicy: Never
+      containers:
+      - name: kubectl
+        image: docker.io/bitnami/kubectl
+        command: ["/bin/sh", "-xc"]
+        args:
+        - |
+          sleep 5
+          kubectl wait pod -l app.kubernetes.io/name=gitea --for=condition=Ready --timeout=300s
+          kubectl exec -i deploy/gitea -- bash /tmp/init.sh

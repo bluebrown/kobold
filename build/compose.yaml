@@ -1,0 +1,17 @@
+services:
+  server:
+    command: -config /etc/kobold/kobold.toml -debounce 5s
+    build:
+      context: ../
+      dockerfile: build/Dockerfile
+    ports:
+    - 127.0.0.1:8080:8080 # webhook events
+    - 127.0.0.1:9090:9090 # metrics/api
+    volumes:
+    - ../testdata/kobold.toml:/etc/kobold/kobold.toml:ro
+    - ../.local/.ssh:/etc/kobold/.ssh:rw
+    environment:
+      GITHUB_TOKEN: null
+      ADO_HOST: null
+      ADO_USR: null
+      ADO_PAT: null

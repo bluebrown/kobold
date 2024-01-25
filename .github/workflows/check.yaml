@@ -1,35 +1,20 @@
-name: check
-
+name: checks
 on:
   workflow_dispatch: {}
+  pull_request: {}
   push:
     branches:
-      - main
-  pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - ready_for_review
-
+    - main
+permissions:
+  contents: read
+  pull-requests: read
 jobs:
-  validation:
+  checks:
+    name: checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with: {go-version: "1.20"}
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Install dependencies
-        run: go mod download
-
-      - name: Run all checks
-        run: make -j check
-
-      - name: Build artifacts
-        run: make -j artifacts
+    - uses: actions/checkout@v3
+    - uses: actions/setup-go@v4
+      with:
+        go-version: '1.21.5'
+    - run: make -j checks

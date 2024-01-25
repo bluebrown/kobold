@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kobold-confd
+  labels:
+    app.kubernetes.io/name: kobold
+data: {}

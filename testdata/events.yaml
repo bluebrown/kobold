@@ -1,0 +1,8 @@
+apiVersion: notimportant/v1
+kind: List
+metadata:
+  name: my-fn-config
+items:
+- docker.io/bluebrown/busybox:v1.4@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248
+- docker.io/bluebrown/busybox:v1.5@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248
+- docker.io/library/busybox:v1.4@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248

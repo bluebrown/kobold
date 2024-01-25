@@ -1,0 +1,9 @@
+version = "2"
+
+[[channel]]
+name = "lines"
+decoder = "builtin.lines@v1"
+
+[[channel]]
+name = "distribution"
+decoder = "builtin.distribution@v1"

@@ -1,12 +1,3 @@
-/.dump/
-/.out/
-/.dist/
-
-/bin/*
-
-.env
-!/manifests/base/etc/.env
-!/manifests/example/etc/.env
-!/e2e/kobold/etc/.env
-
-dockerconfig.json
+.artifacts/
+.local/
+.tmp/

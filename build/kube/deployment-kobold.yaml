@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kobold
+  labels:
+    app.kubernetes.io/name: kobold
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kobold
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kobold
+    spec:
+      securityContext:
+        fsGroup: 65532
+        runAsNonRoot: true
+      containers:
+      - name: kobold
+        image: docker.io/bluebrown/kobold
+        args:
+        - -confd=/etc/kobold/conf.d
+        - -db=/tmp/kobold.db
+        envFrom:
+        - secretRef:
+            name: kobold-env
+            optional: true
+        ports:
+        - name: webhook
+          containerPort: 8080
+        - name: api
+          containerPort: 9090
+        resources:
+          limits:
+            cpu: 2000m
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+        volumeMounts:
+        - name: data
+          mountPath: /tmp
+        - name: confd
+          mountPath: /etc/kobold/conf.d
+          readOnly: true
+        - name: ssh
+          mountPath: /etc/kobold/.ssh
+          readOnly: true
+        - name: gitconfig
+          mountPath: /etc/kobold/.gitconfig
+          subPath: .gitconfig
+          readOnly: true
+        - name: gitcreds
+          mountPath: /etc/kobold/.git-credentials
+          subPath: .git-credentials
+          readOnly: true
+      volumes:
+      - name: data
+        emptyDir: {}
+      - name: confd
+        configMap:
+          name: kobold-confd
+      - name: ssh
+        secret:
+          secretName: kobold-ssh
+      - name: gitconfig
+        configMap:
+          name: kobold-gitconfig
+      - name: gitcreds
+        secret:
+          secretName: kobold-gitcreds
