@@ -406,26 +406,26 @@ Kobold exposes prometheus metrics on port 8080. The metrics are exposed in the
 `$KOBOLD_ADDR_API/metrics` endpoint. The metrics are prefixed with `kobold_`.
 
 ```python
-# HELP kobold_git_fetch number of git fetches
-# TYPE kobold_git_fetch counter
-kobold_git_fetch{repo="git@github.com:bluebrown/foobar"} 3
-kobold_git_fetch{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test"} 3
-# HELP kobold_git_push number of git pushes
-# TYPE kobold_git_push counter
-kobold_git_push{repo="git@github.com:bluebrown/foobar"} 4
-# HELP kobold_image_seen number of images seen
-# TYPE kobold_image_seen counter
-kobold_image_seen{ref="library/busybox"} 5
-# HELP kobold_msg_recv number of messages received
-# TYPE kobold_msg_recv counter
-kobold_msg_recv{channel="dockerhub",rejected="false"} 5
+# HELP kobold_git_fetch_total number of git fetches
+# TYPE kobold_git_fetch_total counter
+kobold_git_fetch_total{repo="git@github.com:bluebrown/foobar"} 3
+kobold_git_fetch_total{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test"} 3
+# HELP kobold_git_push_total number of git pushes
+# TYPE kobold_git_push_total counter
+kobold_git_push_total{repo="git@github.com:bluebrown/foobar"} 4
+# HELP kobold_image_seen_total number of images seen
+# TYPE kobold_image_seen_total counter
+kobold_image_seen_total{ref="library/busybox"} 5
+# HELP kobold_msg_recv_total number of messages received
+# TYPE kobold_msg_recv_total counter
+kobold_msg_recv_total{channel="dockerhub",rejected="false"} 5
 # HELP kobold_run_active number of active runs
 # TYPE kobold_run_active gauge
 kobold_run_active 0
-# HELP kobold_run_status run status (task groups)
-# TYPE kobold_run_status counter
-kobold_run_status{repo="git@github.com:bluebrown/foobar",status="success"} 6
-kobold_run_status{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test",status="success"} 3
+# HELP kobold_run_status_total run status (task groups)
+# TYPE kobold_run_status_total counter
+kobold_run_status_total{repo="git@github.com:bluebrown/foobar",status="success"} 6
+kobold_run_status_total{repo="git@ssh.dev.azure.com:v3/myorg/myproject/kobold-test",status="success"} 3
 ```
 
 ## Web API
