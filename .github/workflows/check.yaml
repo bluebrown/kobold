@@ -2,7 +2,9 @@ name: checks
 on:
   workflow_dispatch: {}
   pull_request: {}
-  push: {}
+  push:
+    branches:
+    - main
 permissions:
   contents: read
   pull-requests: read
