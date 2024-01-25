@@ -27,7 +27,7 @@ info: ## Show build info
 generate: $(GOBIN)/sqlc $(GOBIN)/swag ## Generate code
 	go generate ./...
 
-e2e: testinfra deploy ## Deploy the end-to-end setup
+e2e: testinfra ## Deploy the end-to-end setup
 	$(MAKE) deploy
 
 testinfra: $(GOBIN)/skaffold ## Create test infrastructure

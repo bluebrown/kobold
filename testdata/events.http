@@ -1,11 +1,4 @@
-POST /events?chan=dockerhub HTTP/1.1
+POST /kobold/events?chan=lines HTTP/1.1
 Host: localhost:8080
 
-{
-  "push_data": {
-    "tag": "v1.12.3"
-  },
-  "repository": {
-    "repo_name": "library/busybox"
-  }
-}
+localhost:8080/library/busybox:v1.4@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248

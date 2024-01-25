@@ -500,8 +500,6 @@ items:
 
 ### ConFix
 
-TODO: fix this program. It is currently broken.
-
 The `confix` command can be used to migrate from the v1 to the v2 config format.
 I tries to conver the config on a best effort basis, but careful review is
 required. Some features previously supported, are not supported anymore. For
@@ -524,8 +522,7 @@ You can start a local kind cluster for an end to end setp. The gitea page can be
 viewed at <http://localhost:8080> with the credentials `dev:dev123`.
 
 ```bash
-make testinfra
-make dev
-docker tag "$(docker pull busybox -q)" localhost:8080/library/busybox:v.1.2.3
+make e2e
+docker tag $(docker pull busybox -q) localhost:8080/library/busybox:v.1.2.3
 docker push localhost:8080/library/busybox:v.1.2.3
 ```
