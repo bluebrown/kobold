@@ -86,7 +86,18 @@ func run(ctx context.Context, args []string, env []string) error {
 
 	g.Go(func() error {
 		whmux := http.NewServeMux()
-		whmux.Handle(prefix+"/events", http.StripPrefix(prefix, webhook.New(sched)))
+
+		eventHandler := http.StripPrefix(prefix, webhook.New(sched))
+
+		// CASE: When the event is being received at '/events/<channel-name>' and the channel name
+		// gets extracted from the path parameter.
+		whmux.Handle(prefix+"/events/{chan}", eventHandler)
+
+		// DEPRECATED.
+		// CASE: When the event is being received at '/events' and the channel name gets extracted
+		// from the 'chan' query parameter.
+		whmux.Handle(prefix+"/events", eventHandler)
+
 		return listenAndServeContext(ctx, "webhook", webhookAddr, whmux)
 	})
 
