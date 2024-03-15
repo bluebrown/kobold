@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"bytes"
+	"log/slog"
 	"net/http"
 
 	"github.com/bluebrown/kobold/task"
@@ -25,19 +26,24 @@ func (api *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var channelName string
-
-	// Try to get the channel name from the path parameter. If not found in the path parameter, then
-	// get it from the query parameter.
 	muxVars := mux.Vars(r)
-	channelName = muxVars["chan"]
-	if len(channelName) == 0 {
-		channelName = r.URL.Query().Get("chan")
-	}
+	channelName := muxVars["chan"]
 
 	if err := api.s.Schedule(r.Context(), channelName, buf.Bytes()); err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+
+	// Log and send back deprecation notice in response, if channel name is being sent using query
+	// parameter.
+	if r.URL.Query().Has("chan") {
+		slog.Warn("Sending channel name using query parameters is deprecated")
+
+		_, err := w.Write([]byte("Deprecated API: Send channel name using path parameter instead of query parameter"))
+		if err != nil {
+			slog.Error("write response body", "error", err)
+		}
+	}
+
 	w.WriteHeader(http.StatusAccepted)
 }

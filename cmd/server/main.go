@@ -17,6 +17,7 @@ import (
 	"github.com/bluebrown/kobold/store"
 	"github.com/bluebrown/kobold/store/schema"
 	"github.com/bluebrown/kobold/task"
+	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/sync/errgroup"
 	_ "modernc.org/sqlite"
@@ -85,7 +86,7 @@ func run(ctx context.Context, args []string, env []string) error {
 	})
 
 	g.Go(func() error {
-		whmux := http.NewServeMux()
+		whmux := mux.NewRouter()
 
 		eventHandler := http.StripPrefix(prefix, webhook.New(sched))
 
@@ -96,7 +97,7 @@ func run(ctx context.Context, args []string, env []string) error {
 		// DEPRECATED.
 		// CASE: When the event is being received at '/events' and the channel name gets extracted
 		// from the 'chan' query parameter.
-		whmux.Handle(prefix+"/events", eventHandler)
+		whmux.Handle(prefix+"/events", eventHandler).Queries("chan", "{chan}")
 
 		return listenAndServeContext(ctx, "webhook", webhookAddr, whmux)
 	})
