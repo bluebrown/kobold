@@ -2,48 +2,59 @@ package webhook
 
 import (
 	"bytes"
+	"context"
 	"log/slog"
 	"net/http"
 
-	"github.com/bluebrown/kobold/task"
 	"github.com/gorilla/mux"
 )
 
-type Webhook struct {
-	s *task.Scheduler
+const warnQueryDeprecated = `sending channel name using query parameters is deprecated and will be removed in future releases. Please use path parameters instead.`
+
+type scheduler interface {
+	Schedule(ctx context.Context, chn string, data []byte) error
 }
 
-func New(s *task.Scheduler) *Webhook {
-	return &Webhook{
-		s: s,
-	}
+type Webhook struct {
+	s scheduler
+	r *mux.Router
+}
+
+func New(s scheduler) *Webhook {
+	wh := &Webhook{s: s, r: mux.NewRouter()}
+	wh.r.HandleFunc("/events/{chan}", wh.handleEvent)
+	wh.r.HandleFunc("/events", wh.handleEvent).Queries("chan", "{chan}")
+	return wh
 }
 
 func (api *Webhook) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	api.r.ServeHTTP(w, r)
+}
+
+func (api *Webhook) handleEvent(w http.ResponseWriter, r *http.Request) {
 	var buf bytes.Buffer
 	if _, err := buf.ReadFrom(r.Body); err != nil {
 		http.Error(w, "unable to read body", http.StatusBadRequest)
 		return
 	}
 
-	muxVars := mux.Vars(r)
-	channelName := muxVars["chan"]
+	chn := mux.Vars(r)["chan"]
+	logger := slog.With("chan", chn)
 
-	if err := api.s.Schedule(r.Context(), channelName, buf.Bytes()); err != nil {
+	if err := api.s.Schedule(r.Context(), chn, buf.Bytes()); err != nil {
 		http.Error(w, "internal error", http.StatusInternalServerError)
+		logger.Error("schedule task", "error", err)
 		return
 	}
 
-	// Log and send back deprecation notice in response, if channel name is being sent using query
-	// parameter.
-	if r.URL.Query().Has("chan") {
-		slog.Warn("Sending channel name using query parameters is deprecated")
-
-		_, err := w.Write([]byte("Deprecated API: Send channel name using path parameter instead of query parameter"))
-		if err != nil {
-			slog.Error("write response body", "error", err)
-		}
+	if !r.URL.Query().Has("chan") {
+		w.WriteHeader(http.StatusAccepted)
+		return
 	}
 
-	w.WriteHeader(http.StatusAccepted)
+	logger.Warn("webhook event", "msg", warnQueryDeprecated)
+
+	if _, err := w.Write([]byte(warnQueryDeprecated)); err != nil {
+		logger.Error("write response body", "error", err)
+	}
 }

@@ -16,7 +16,7 @@ webhook endpoint, whenever a new image is pushed.
 ## Webhook
 
 In servermode Kobold exposes a webhook endpoint at
-`$KOBOLD_ADDR_WEBHOOK/events?chan=<channel>`. The channel is used to identify
+`$KOBOLD_ADDR_WEBHOOK/events/<channel>`. The channel is used to identify
 the pipelines to run. It accepts any content in the body since it is the
 [channels decoder's](#decoders) responsibility to parse the body.
 
