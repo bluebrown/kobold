@@ -86,7 +86,7 @@ func run(ctx context.Context, args []string, env []string) error {
 
 	g.Go(func() error {
 		whmux := http.NewServeMux()
-		whmux.Handle(prefix+"/events", http.StripPrefix(prefix, webhook.New(sched)))
+		whmux.Handle(prefix+"/", http.StripPrefix(prefix, webhook.New(sched)))
 		return listenAndServeContext(ctx, "webhook", webhookAddr, whmux)
 	})
 
