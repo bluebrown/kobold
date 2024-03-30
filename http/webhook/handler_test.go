@@ -12,7 +12,7 @@ func TestWebhook_ServeHTTP(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name        string
-		giveUrl     string
+		giveURL     string
 		giveBody    string
 		wantStatus  int
 		wantResBody string
@@ -20,7 +20,7 @@ func TestWebhook_ServeHTTP(t *testing.T) {
 	}{
 		{
 			name:        "query parameter",
-			giveUrl:     "/events?chan=query",
+			giveURL:     "/events?chan=query",
 			giveBody:    "hello",
 			wantStatus:  200,
 			wantResBody: warnQueryDeprecated,
@@ -28,7 +28,7 @@ func TestWebhook_ServeHTTP(t *testing.T) {
 		},
 		{
 			name:       "path parameter",
-			giveUrl:    "/events/path",
+			giveURL:    "/events/path",
 			giveBody:   "hello",
 			wantStatus: 202,
 			wantChan:   "path",
@@ -42,10 +42,11 @@ func TestWebhook_ServeHTTP(t *testing.T) {
 				ms  = mockScheduler{}
 				api = New(&ms)
 				rec = httptest.NewRecorder()
-				req = httptest.NewRequest("POST", tt.giveUrl, strings.NewReader(tt.giveBody))
+				req = httptest.NewRequest("POST", tt.giveURL, strings.NewReader(tt.giveBody))
 			)
 			api.ServeHTTP(rec, req)
 			res := rec.Result()
+			defer res.Body.Close()
 			assertEq(t, res.StatusCode, tt.wantStatus)
 			assertEq(t, rec.Body.String(), tt.wantResBody)
 			assertEq(t, ms.ch, tt.wantChan)
@@ -59,7 +60,7 @@ type mockScheduler struct {
 	buf []byte
 }
 
-func (m *mockScheduler) Schedule(ctx context.Context, chn string, data []byte) error {
+func (m *mockScheduler) Schedule(_ context.Context, chn string, data []byte) error {
 	m.ch = chn
 	m.buf = data
 	return nil
