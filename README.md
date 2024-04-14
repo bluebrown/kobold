@@ -163,7 +163,7 @@ There are a few builtin decoders and post hooks, to support some common use
 cases. For example decoding events from a oci distribution registry, or opening
 a pull request on github.
 
-The starlark code for the builtins can be reviewed in the [builtin](./builtin)
+The starlark code for the builtins can be reviewed in the [builtin](./plugin/builtin)
 directory.
 
 #### Decoder
