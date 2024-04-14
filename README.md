@@ -23,7 +23,7 @@ the pipelines to run. It accepts any content in the body since it is the
 For example below is a request to a channel using the plain lines decoder.
 
 ```text
-POST /events?chan=plain HTTP/1.1
+POST /events/plain HTTP/1.1
 Host: kobold.myorg.io:8080
 
 docker.io/library/busybox:v1.4@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248
@@ -42,8 +42,8 @@ metadata:
   name: my-pod
 spec:
   containers:
-  - name: my-app
-    image: my.org/amazing/app # kobold: tag: ^1; type: semver
+    - name: my-app
+      image: my.org/amazing/app # kobold: tag: ^1; type: semver
 ```
 
 The comments parsed by kobold have the following format:
@@ -132,7 +132,7 @@ If you want to scope a pipline beyond a sub directory (package), you can place a
 
 > ignoreFilesMatcher handles `.krmignore` files, which allows for ignoring files
 > or folders in a package. The format of this file is a subset of the gitignore
-> format, with recursive patterns (like a/**/c) not supported. If a file or
+> format, with recursive patterns (like a/\*\*/c) not supported. If a file or
 > folder matches any of the patterns in the .krmignore file for the package, it
 > will be excluded.
 
@@ -186,7 +186,7 @@ It understands single events:
 
 ```json
 {
-  "request": {"host": "example.azurecr.io"},
+  "request": { "host": "example.azurecr.io" },
   "target": {
     "digest": "sha256:xxxxd5c8786bb9e621a45ece0dbxxxx1cdc624ad20da9fe62e9d25490f33xxxx",
     "repository": "bluebrown/busybox",
@@ -371,13 +371,13 @@ The kobold manifests come with a few secrets and config maps intended to be
 overwritten by the user. They are mostly empty by default, but mounted to the
 right location, so any values provided will be picked up.
 
-| Resources                  | Description                                            | Mount Location                 |
-| -------------------------- | ------------------------------------------------------ | -------------------------------|
-| configmap/kobold-confd     | multiple .toml files containing kobold configs         | `/etc/kobold/conf.d`           |
-| configmap/kobold-gitconfig | `.gitconfig` key containing the git config             | `/etc/kobold/.gitconfig`       |
-| secret/kobold-gitcreds     | `.git-credentials` key containing the git credentials  | `/etc/kobold/.git-credentials` |
-| secret/kobold-ssh          | arbitrary keys representing the contents of `.ssh`     | `/etc/kobold/.ssh`             |
-| secret/kobold-env          | arbitrary environment variables                        | *used as env vars*             |
+| Resources                  | Description                                           | Mount Location                 |
+| -------------------------- | ----------------------------------------------------- | ------------------------------ |
+| configmap/kobold-confd     | multiple .toml files containing kobold configs        | `/etc/kobold/conf.d`           |
+| configmap/kobold-gitconfig | `.gitconfig` key containing the git config            | `/etc/kobold/.gitconfig`       |
+| secret/kobold-gitcreds     | `.git-credentials` key containing the git credentials | `/etc/kobold/.git-credentials` |
+| secret/kobold-ssh          | arbitrary keys representing the contents of `.ssh`    | `/etc/kobold/.ssh`             |
+| secret/kobold-env          | arbitrary environment variables                       | _used as env vars_             |
 
 You can use kustomize to merge your own configs into the kobold manifests. For
 example:
@@ -386,18 +386,18 @@ example:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- https://github.com/bluebrown/kobold/releases/latest/download/kobold-manifests.yaml
+  - https://github.com/bluebrown/kobold/releases/latest/download/kobold-manifests.yaml
 configMapGenerator:
-- name: kobold-confd
-  behavior: merge
-  files:
-  - team-a.toml
-  - team-b.toml
+  - name: kobold-confd
+    behavior: merge
+    files:
+      - team-a.toml
+      - team-b.toml
 secretGenerator:
-- name: kobold-env
-  behavior: merge
-  literals:
-  - GITHUB_TOKEN=xxx
+  - name: kobold-env
+    behavior: merge
+    literals:
+      - GITHUB_TOKEN=xxx
 ```
 
 ## Metrics
@@ -494,8 +494,8 @@ kind: List
 metadata:
   name: my-fn-config
 items:
-- docker.io/bluebrown/busybox:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248
-- test.azurecr.io/nginx:v1@sha256:993518ca49ede3c4e751fe799837ede16e60bc410452e3922602ebceda9b4c73
+  - docker.io/bluebrown/busybox:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248
+  - test.azurecr.io/nginx:v1@sha256:993518ca49ede3c4e751fe799837ede16e60bc410452e3922602ebceda9b4c73
 ```
 
 ### ConFix
