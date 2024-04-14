@@ -18,7 +18,7 @@ func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, er
 		return currentRef, err
 	}
 
-	newRef, _, err := parseImageRefWithDigest(nextRef)
+	newRef, _, err := ParseImageRefWithDigest(nextRef)
 	if err != nil {
 		return currentRef, err
 	}
@@ -104,7 +104,7 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 	return nodes, err
 }
 
-func parseImageRefWithDigest(s string) (name.Reference, string, error) {
+func ParseImageRefWithDigest(s string) (name.Reference, string, error) {
 	rawRef, digest, _ := strings.Cut(s, "@")
 	// NOTE: not checking ok here, to allow the user to use refs without digest
 	// it is up to them to decide if that is acceptable or not.
