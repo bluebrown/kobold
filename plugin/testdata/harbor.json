@@ -1,0 +1,21 @@
+{
+  "type": "PUSH_ARTIFACT",
+  "occur_at": 1680501893,
+  "operator": "harbor-jobservice",
+  "event_data": {
+    "resources": [
+      {
+        "digest": "sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4",
+        "tag": "sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4",
+        "resource_url": "localhost/harbor/alpine@sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4"
+      }
+    ],
+    "repository": {
+      "date_created": 1680501893,
+      "name": "alpine",
+      "namespace": "harbor",
+      "repo_full_name": "harbor/alpine",
+      "repo_type": "private"
+    }
+  }
+}

@@ -1,2 +1,3 @@
 def main(input):
-    return input.split("\n")
+    return [x for x in input.split("\n") if x != ""]
+

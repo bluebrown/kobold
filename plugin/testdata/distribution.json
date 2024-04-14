@@ -1,0 +1,19 @@
+{
+  "action": "push",
+  "id": "9a5f8995-dbab-4c2b-b06c-0c29c23e759e",
+  "request": {
+    "host": "test.azurecr.io",
+    "id": "ae93b7e8-7e96-4e21-8487-917d74224d92",
+    "method": "PUT",
+    "useragent": "docker/24.0.6 go/go1.20.7 git-commit/1a79695 kernel/5.10.0-25-amd64 os/linux arch/amd64 UpstreamClient(Docker-Client/24.0.6 \\(linux\\))"
+  },
+  "target": {
+    "digest": "sha256:xxxxd5c8786bb9e621a45ece0dbxxxx1cdc624ad20da9fe62e9d25490f33xxxx",
+    "length": 524,
+    "mediaType": "application/vnd.docker.distribution.manifest.v2+json",
+    "repository": "busybox",
+    "size": 524,
+    "tag": "v1"
+  },
+  "timestamp": "2023-10-11T14:45:59.730519823Z"
+}
