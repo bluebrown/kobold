@@ -7,6 +7,8 @@ def main(input):
 
     output = []
     for resource in event["resources"]:
-        output.append(resource["resource_url"])
+        parts = resource["resource_url"].split("@")
+        name = parts.split(":")[0]
+        output.append(name + ":" + resource["tag"] + "@" + resource["digest"])
 
     return output
