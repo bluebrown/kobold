@@ -1,21 +1,21 @@
 {
-  "type": "PUSH_ARTIFACT",
-  "occur_at": 1680501893,
-  "operator": "harbor-jobservice",
   "event_data": {
+    "repository": {
+      "date_created": 1707912357,
+      "name": "myapp",
+      "namespace": "mynamespace",
+      "repo_full_name": "mynamespace/myapp",
+      "repo_type": "private"
+    },
     "resources": [
       {
-        "digest": "sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4",
-        "tag": "sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4",
-        "resource_url": "localhost/harbor/alpine@sha256:954b378c375d852eb3c63ab88978f640b4348b01c1b3456a024a81536dafbbf4"
+        "digest": "sha256:fd49e9a1a36d28c54520d89bb23f07365802c5c75108c7eaca4400ed60bb19a5",
+        "resource_url": "harbor.mydomain.lan/mynamespace/myapp:master-491-6bac849",
+        "tag": "master-491-6bac849"
       }
-    ],
-    "repository": {
-      "date_created": 1680501893,
-      "name": "alpine",
-      "namespace": "harbor",
-      "repo_full_name": "harbor/alpine",
-      "repo_type": "private"
-    }
-  }
+    ]
+  },
+  "occur_at": 1713095086,
+  "operator": "build-myapp",
+  "type": "PUSH_ARTIFACT"
 }

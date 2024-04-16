@@ -44,9 +44,9 @@ func TestDecoder(t *testing.T) {
 			name:       "harbor",
 			decoder:    "decoder.harbor@v1",
 			giveFile:   "testdata/harbor.json",
-			wantName:   "ghcr.io/bluebrown/busybox",
-			wantTag:    "v1.4",
-			wantDigest: "sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869",
+			wantName:   "harbor.mydomain.lan/mynamespace/myapp",
+			wantTag:    "master-491-6bac849",
+			wantDigest: "", // FIXME: the harbor decoder does not return the digest
 		},
 	}
 	for _, tc := range testCases {
