@@ -4,16 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
-
 	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 	"github.com/prometheus/client_golang/prometheus"
+	"path/filepath"
+	"regexp"
 )
 
 // the task handler is the final point of execution. After decoding, debouncing
-// and aggregating the events, this handler is resonbible for the actual work.
+// and aggregating the events, this handler is responsible for the actual work.
 func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	var (
 		changes  []string
@@ -43,8 +43,10 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 		g.DestBranch.String = g.RepoUri.Ref
 		g.DestBranch.Valid = true
 	}
-
-	msg = "chore(kobold): update image refs"
+	msg, err = GetCommitMessage(changes)
+	if err != nil {
+		msg = "chore(kobold): Update image refs"
+	}
 
 	if err := git.Publish(ctx, cache, g.DestBranch.String, msg); err != nil {
 		return nil, fmt.Errorf("git publish: %w", err)
@@ -61,6 +63,21 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 	}
 
 	return warnings, nil
+}
+
+func GetCommitMessage(changes []string) (string, error) {
+	msg := "chore(kobold): Update"
+	for _, change := range changes {
+		regex, err := regexp.Compile("(?:.+/)?(?P<Image>[^:]+)(?::.+)?")
+		if err != nil {
+			return "", err
+		}
+		submatch := regex.FindStringSubmatch(change)
+		imageIndex := regex.SubexpIndex("Image")
+		image := submatch[imageIndex]
+		msg += " " + image
+	}
+	return msg, nil
 }
 
 var _ Handler = KoboldHandler
