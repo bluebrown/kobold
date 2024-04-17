@@ -114,13 +114,10 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 func GetRepoName(image string) (result string) {
 	result = ""
 	s := strings.LastIndex(image, "/")
-	if s == -1 {
-		return result
-	}
-	newS := image[s+len("/"):]
+	newS := image[s+1:]
 	e := strings.Index(newS, ":")
 	if e == -1 {
-		return result
+		return newS
 	}
 	result = newS[:e]
 	return result
