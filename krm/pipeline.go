@@ -7,7 +7,7 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-func Pipeline(ctx context.Context, pkg string, refs ...string) ([]string, []string, error) {
+func Pipeline(ctx context.Context, pkg string, refs ...string) ([]Change, []string, error) {
 	rw := &kio.LocalPackageReadWriter{
 		PackageFileName:     ".krmignore",
 		PackagePath:         pkg,

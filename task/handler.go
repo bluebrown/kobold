@@ -9,14 +9,13 @@ import (
 	"github.com/bluebrown/kobold/store/model"
 	"github.com/prometheus/client_golang/prometheus"
 	"path/filepath"
-	"regexp"
 )
 
 // the task handler is the final point of execution. After decoding, debouncing
 // and aggregating the events, this handler is responsible for the actual work.
 func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner HookRunner) ([]string, error) {
 	var (
-		changes  []string
+		changes  []krm.Change
 		warnings []string
 		msg      string
 	)
@@ -65,17 +64,10 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 	return warnings, nil
 }
 
-func GetCommitMessage(changes []string) (string, error) {
+func GetCommitMessage(changes []krm.Change) (string, error) {
 	msg := "chore(kobold): Update"
 	for _, change := range changes {
-		regex, err := regexp.Compile("(?:.+/)?(?P<Image>[^:]+)(?::.+)?")
-		if err != nil {
-			return "", err
-		}
-		submatch := regex.FindStringSubmatch(change)
-		imageIndex := regex.SubexpIndex("Image")
-		image := submatch[imageIndex]
-		msg += " " + image
+		msg += " " + change.Repo
 	}
 	return msg, nil
 }
