@@ -88,11 +88,10 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 			return nil
 		}
 
-		key := mn.Key.YNode().Value
 		originalValue := mn.Value.YNode().Value
 
 		for _, imageRef := range i.imageRefs {
-			v, err := i.handler(key, originalValue, imageRef, opts)
+			v, err := i.handler(mn.Key.YNode().Value, mn.Value.YNode().Value, imageRef, opts)
 			if err != nil {
 				i.Warnings = append(i.Warnings, fmt.Sprintf("failed to update image ref %q: %v", imageRef, err))
 				continue
@@ -101,7 +100,7 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 		}
 		newValue := mn.Value.YNode().Value
 		if originalValue != newValue {
-			description := fmt.Sprintf("%s: %q -> %q", key, originalValue, newValue)
+			description := fmt.Sprintf("%s: %q -> %q", mn.Key.YNode().Value, originalValue, newValue)
 			repo := GetRepoName(newValue)
 			change := Change{description, repo}
 			i.Changes = append(i.Changes, change)
