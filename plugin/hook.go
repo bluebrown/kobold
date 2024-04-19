@@ -2,10 +2,10 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/bluebrown/kobold/krm"
 	"os"
 	"strings"
 
+	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 	"go.starlark.net/starlark"
 )
