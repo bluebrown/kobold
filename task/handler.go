@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"path/filepath"
+	
 	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 	"github.com/prometheus/client_golang/prometheus"
-	"path/filepath"
 )
 
 // the task handler is the final point of execution. After decoding, debouncing
