@@ -2,10 +2,10 @@ package krm
 
 import (
 	"fmt"
-	"sigs.k8s.io/kustomize/kyaml/yaml"
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/name"
+	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
 func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, error) {
