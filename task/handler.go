@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
-	
+
 	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
