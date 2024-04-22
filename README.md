@@ -4,7 +4,8 @@
 > If you are migrating from v.0.2 to v.0.3, you can use the `confix` command to
 > migrate your config. See the [ConFix](#confix) section for more details.
 
-Update container image references in git repositories, based on recieved events.
+Update container image references in git repositories, based on recieved
+events.
 
 Kobold is meant to be used as a companion to other gitops tools, like ArgoCD or
 Flux. It keeps image references in your gitops repos up to date, while
@@ -16,9 +17,9 @@ webhook endpoint, whenever a new image is pushed.
 ## Webhook
 
 In servermode Kobold exposes a webhook endpoint at
-`$KOBOLD_ADDR_WEBHOOK/events/<channel>`. The channel is used to identify
-the pipelines to run. It accepts any content in the body since it is the
-[channels decoder's](#decoders) responsibility to parse the body.
+`$KOBOLD_ADDR_WEBHOOK/events/<channel>`. The channel is used to identify the
+pipelines to run. It accepts any content in the body since it is the [channels
+decoder's](#decoders) responsibility to parse the body.
 
 For example below is a request to a channel using the plain lines decoder.
 
@@ -56,17 +57,17 @@ The tag-type can be either `exact`, `semver`, or `regex`, and specifies how
 kobold should interpret the tag-name.
 
 For example, if tag-type is semver, the tag-name can include common semantic
-versioning semantics, such as ^1 to denote that any tag between v1 and v2 should
-be matched (not including v2).
+versioning semantics, such as ^1 to denote that any tag between v1 and v2
+should be matched (not including v2).
 
 Note that the regex type will add `^` and `$` to the tag-name, to ensure the
 regex matches the entire tag, so dont include them in the tag-name.
 
 ## Configuration
 
-Kobold is configured by setting up named channels, and pipelines to run whenever
-a message is recieved on a channel. The pipeline will clone the repo, and run a
-krm filter, before potentially pushing the changes back to the repo.
+Kobold is configured by setting up named channels, and pipelines to run
+whenever a message is recieved on a channel. The pipeline will clone the repo,
+and run a krm filter, before potentially pushing the changes back to the repo.
 
 In the below example, the `example` pipeline is run, whenever a message is
 recieved on the `a` or `b` channel.
@@ -109,8 +110,8 @@ dest_branch = "release"
 ```
 
 If you want to perform an action after the changes have been pushed to git, you
-can attach a post hook to the pipeline. See the [builtin](#builtins) section for
-more details.
+can attach a post hook to the pipeline. See the [builtin](#builtins) section
+for more details.
 
 ```toml
 [[pipeline]]
@@ -127,8 +128,8 @@ optional.
 <repo>[.git]@<ref>[/<pkg>]
 ```
 
-If you want to scope a pipline beyond a sub directory (package), you can place a
-.krmignore file at the package root, ignoring parts of the package.
+If you want to scope a pipline beyond a sub directory (package), you can place
+a .krmignore file at the package root, ignoring parts of the package.
 
 > ignoreFilesMatcher handles `.krmignore` files, which allows for ignoring files
 > or folders in a package. The format of this file is a subset of the gitignore
@@ -163,8 +164,8 @@ There are a few builtin decoders and post hooks, to support some common use
 cases. For example decoding events from a oci distribution registry, or opening
 a pull request on github.
 
-The starlark code for the builtins can be reviewed in the [builtin](./plugin/builtin)
-directory.
+The starlark code for the builtins can be reviewed in the
+[builtin](./plugin/builtin) directory.
 
 #### Decoder
 
@@ -284,7 +285,7 @@ This section showcases some common use cases.
 
 ### SSH
 
-To use ssh, you can mount a directory to `/.ssh` in the kobold container.
+To use ssh, you can mount a directory to `/etc/kobold/.ssh` in the kobold container.
 
 The directory should, at least contain, a known_hosts file and a default
 identity file. The default identity file is usually named id_rsa. If more than
@@ -301,7 +302,7 @@ ssh-keygen -t ed25519 -f .ssh/id_ed25519 -N ''
 # set the permission to the kobold user
 chown -R 65532:65532 .ssh
 # run kobold
-docker run -v "$(pwd)/.ssh:/.ssh" ...
+docker run -v "$(pwd)/.ssh:/etc/kobold/.ssh" ...
 ```
 
 ### Basic Auth
@@ -310,15 +311,15 @@ You can provide the credentials in the git uri, but this is not recommended,
 since it will be stored in the kobold database.
 
 Alternatively, you can configure gits credentails helper, to use a file as
-backend. For example via `/.gitconfig`:
+backend. For example via `/etc/kobold/.gitconfig`:
 
 ```conf
 [credential]
-    helper = store --file /.git-credentials
+    helper = store --file ~/.git-credentials
 ```
 
-When doing this, you can mount a credentials file to `/.git-credentials` in the
-kobold container.
+When doing this, you can mount a credentials file to
+`/etc/kobold/.git-credentials` in the kobold container.
 
 Below is an example entry in the credentials file:
 
@@ -328,7 +329,7 @@ https://bob:s3cre7@mygithost
 
 ### Pull Requests
 
-For a pull request setup, you want to set the destionation branch to something
+For a pull request setup, you want to set the destination branch to something
 other than the source branch. Then you can run a post hook, opening the pull
 request. There is already, amongst others, a [builtin](#post-hooks) post hook
 for github, using the `GITHUB_TOKEN` environment variable, to authenticate.
@@ -367,6 +368,10 @@ post_hook = "builtin.gitea-pr@v1"
 
 ### Kubernetes
 
+> [!NOTE]
+> You can use flags or environment variables to customize the kobold
+> deployment. See the [server synopsis](#synopsis) for more info.
+
 The kobold manifests come with a few secrets and config maps intended to be
 overwritten by the user. They are mostly empty by default, but mounted to the
 right location, so any values provided will be picked up.
@@ -400,10 +405,52 @@ secretGenerator:
       - GITHUB_TOKEN=xxx
 ```
 
+#### Ingress
+
+> [!WARNING]
+> Kobold has not built in security mechanism. If you are planning to expose
+> kobold via ingress, you should secure these endpoints via ingress controller.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kobold-ingress
+  annotations:
+    # https://kubernetes.github.io/ingress-nginx/examples/auth/basic/
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: kobold-basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: Authentication Required
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: kobold.myorg.dev
+    http:
+      paths:
+      - path: /events/<mychannel>
+        pathType: Exact
+        backend:
+          service:
+            name: kobold-webhook
+            port:
+              number: 80
+
+      # Caution! Exposing this endpoint
+      # should not be required in most cases.
+      # Do it only for a good reason.
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kobold-api
+            port:
+              number: 80
+```
+
 ## Metrics
 
-Kobold exposes prometheus metrics on port 8080. The metrics are exposed in the
-`$KOBOLD_ADDR_API/metrics` endpoint. The metrics are prefixed with `kobold_`.
+Kobold exposes prometheus metrics on the `$KOBOLD_ADDR_API/metrics` endpoint.
+The metrics are prefixed with `kobold_`.
 
 ```python
 # HELP kobold_git_fetch_total number of git fetches
@@ -465,15 +512,43 @@ git operations are performed.
 bin/server
 ```
 
+#### Synopsis
+
+```bash
+Usage of server:
+  -addr-api string
+        api listen address (env: KOBOLD_ADDR_API) (default ":9090")
+  -addr-webhook string
+        webhook listen address (env: KOBOLD_ADDR_WEBHOOK) (default ":8080")
+  -confd string
+        path to config dir (env: KOBOLD_CONFD)
+  -config string
+        path to config file (env: KOBOLD_CONFIG)
+  -db string
+        path to sqlite db file (env: KOBOLD_DB) (default "/home/blue/.config/kobold/kobold.sqlite3")
+  -debounce duration
+        debounce interval for webhook events (env: KOBOLD_DEBOUNCE) (default 1m0s)
+  -handler value
+        task handler, one of: print, kobold, error (env: KOBOLD_HANDLER)
+  -logfmt string
+        log format, one of: json, text (env: KOBOLD_LOGFMT) (default "json")
+  -loglvl int
+        log level (env: KOBOLD_LOGLVL)
+  -maxprocs int
+        max number of concurrent runs (env: KOBOLD_MAXPROCS) (default 10)
+  -prefix string
+        prefix for all routes, must NOT contain trailing slash (env: KOBOLD_PREFIX)
+```
+
 ### Command Line Interface
 
 The CLI, reads messages from stdin. One message per line. The messages are
 treated according to the kobold.toml. The same way they would in the server
 binary.
 
-The difference is, that the cli will not wrap the pool in the scheduler, meaning
-the task will run immedaitly after grouping them. The cli will exit after all
-messages have been processed.
+The difference is, that the cli will not wrap the pool in the scheduler,
+meaning the task will run immedaitly after grouping them. The cli will exit
+after all messages have been processed.
 
 ```bash
 bin/cli -channel default -handler print < testdata/events.txt
@@ -484,9 +559,9 @@ bin/cli -channel default -handler print < testdata/events.txt
 The `image-ref-updater` command is kobolds business logic, as a standalone krm
 filter, that can be used by other tools like kpt or kustomize.
 
-It will update image references in the provided resources list. Image references
-to match against, are read from the `functionConfig`, which has the following
-format:
+It will update image references in the provided resources list. Image
+references to match against, are read from the `functionConfig`, which has the
+following format:
 
 ```yaml
 apiVersion: kobold/v1alpha3
@@ -500,26 +575,26 @@ items:
 
 ### ConFix
 
-The `confix` command can be used to migrate from the v1 to the v2 config format.
-I tries to conver the config on a best effort basis, but careful review is
-required. Some features previously supported, are not supported anymore. For
-example, the scoping sematics have changed such that only a subset of previously
-supported scopes can be converted in a meaningful way. Others require manual
-intervention.
+The `confix` command can be used to migrate from the v1 to the v2 config
+format. I tries to conver the config on a best effort basis, but careful review
+is required. Some features previously supported, are not supported anymore. For
+example, the scoping sematics have changed such that only a subset of
+previously supported scopes can be converted in a meaningful way. Others
+require manual intervention.
 
 ```bash
 bin/confix -f v1.yaml -o path/to/dir/
 ```
 
-The command takes an output directory, because it potentially prodcued more than
-one file. For example, if there are repos with username and password in the
-previous config, the command will emit an extra `.git-credentials` file, which
-can be mounted to the kobold container.
+The command takes an output directory, because it potentially prodcued more
+than one file. For example, if there are repos with username and password in
+the previous config, the command will emit an extra `.git-credentials` file,
+which can be mounted to the kobold container.
 
 ## Development
 
-You can start a local kind cluster for an end to end setp. The gitea page can be
-viewed at <http://localhost:8080> with the credentials `dev:dev123`.
+You can start a local kind cluster for an end to end setp. The gitea page can
+be viewed at <http://localhost:8080> with the credentials `dev:dev123`.
 
 ```bash
 make e2e
