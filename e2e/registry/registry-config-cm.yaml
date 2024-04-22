@@ -16,7 +16,7 @@ data:
         includereferences: true
       endpoints:
       - name: kobold
-        url: http://kobold-webhook:80/kobold/events?chan=distribution
+        url: http://kobold-webhook:80/kobold/events/distribution
         ignore:
           mediatypes:
           - application/octet-stream
