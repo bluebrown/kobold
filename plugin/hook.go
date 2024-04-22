@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 	"go.starlark.net/starlark"
 )
@@ -19,7 +20,7 @@ func NewPostHookRunner() *PostHookRunner {
 	}
 }
 
-func (runner *PostHookRunner) Run(group model.TaskGroup, msg string, changes []string, warnings []string) error {
+func (runner *PostHookRunner) Run(group model.TaskGroup, msg string, changes []krm.Change, warnings []string) error {
 	if group.PostHook == nil {
 		return nil
 	}
@@ -36,7 +37,7 @@ func (runner *PostHookRunner) Run(group model.TaskGroup, msg string, changes []s
 	return nil
 }
 
-func (runner *PostHookRunner) args(group model.TaskGroup, msg string, changes []string, warnings []string) starlark.Tuple {
+func (runner *PostHookRunner) args(group model.TaskGroup, msg string, changes []krm.Change, warnings []string) starlark.Tuple {
 	title, body, ok := strings.Cut(msg, "\n")
 	if !ok {
 		title = msg
@@ -60,7 +61,7 @@ func (runner *PostHookRunner) args(group model.TaskGroup, msg string, changes []
 
 	ch := starlark.NewList([]starlark.Value{})
 	for _, c := range changes {
-		if err := ch.Append(starlark.String(c)); err != nil {
+		if err := ch.Append(starlark.String(c.Description)); err != nil {
 			panic(err)
 		}
 	}

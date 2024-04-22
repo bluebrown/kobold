@@ -50,8 +50,13 @@ type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, er
 type ImageRefUpdateFilter struct {
 	handler   NodeHandler
 	imageRefs []string
-	Changes   []string
+	Changes   []Change
 	Warnings  []string
+}
+
+type Change struct {
+	Description string
+	Repo        string
 }
 
 // create a new krm filter. The filter will traverse all nodes and invoke the
@@ -93,15 +98,28 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 			}
 			mn.Value.YNode().Value = v
 		}
-
-		if originalValue != mn.Value.YNode().Value {
-			i.Changes = append(i.Changes, fmt.Sprintf("%s: %q -> %q", mn.Key.YNode().Value, originalValue, mn.Value.YNode().Value))
+		newValue := mn.Value.YNode().Value
+		if originalValue != newValue {
+			description := fmt.Sprintf("%s: %q -> %q", mn.Key.YNode().Value, originalValue, newValue)
+			repo := GetRepoName(newValue)
+			change := Change{description, repo}
+			i.Changes = append(i.Changes, change)
 		}
-
 		return nil
 	})
-
 	return nodes, err
+}
+
+func GetRepoName(image string) (result string) {
+	result = ""
+	s := strings.LastIndex(image, "/")
+	newS := image[s+1:]
+	e := strings.Index(newS, ":")
+	if e == -1 {
+		return newS
+	}
+	result = newS[:e]
+	return result
 }
 
 func ParseImageRefWithDigest(s string) (name.Reference, string, error) {

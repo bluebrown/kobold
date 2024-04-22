@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/bluebrown/kobold/krm"
 	"github.com/bluebrown/kobold/store/model"
 )
 
@@ -21,7 +22,7 @@ type DecoderRunner interface {
 }
 
 type HookRunner interface {
-	Run(group model.TaskGroup, msg string, changes []string, warnings []string) error
+	Run(group model.TaskGroup, msg string, changes []krm.Change, warnings []string) error
 }
 
 type Handler func(ctx context.Context, hostPath string, g model.TaskGroup, hook HookRunner) ([]string, error)
