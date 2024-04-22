@@ -12,6 +12,31 @@ RELEASE_TAG ?= $(shell bash build/gettag.sh)
 
 export GOBIN := $(INSTALL_PREFIX)/bin
 export PATH := $(GOBIN):$(PATH)
+export MAC_CPU_BRAND=$(sysctl -n machdep.cpu.brand_string)
+
+ifeq ($(findstring Apple,$(MAC_CPU_BRAND)),APPLE)
+	export IS_APPLE_SILICON=true
+else
+	export IS_APPLE_SILICON=false
+endif
+
+ifeq ($(IS_APPLE_SILICON),true)
+	export SKAFFOLD_URL=https://storage.googleapis.com/skaffold/releases/latest/skaffold-darwin-arm64
+else
+	export SKAFFOLD_URL=https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
+endif
+
+ifeq ($(IS_APPLE_SILICON),true)
+	export SQLC_URL=https://downloads.sqlc.dev/sqlc_1.25.0_darwin_arm64.tar.gz
+else
+	export SQLC_URL=https://downloads.sqlc.dev/sqlc_1.25.0_linux_amd64.tar.gz
+endif
+
+ifeq ($(IS_APPLE_SILICON),true)
+	export SWAG_URL=https://github.com/swaggo/swag/releases/download/v1.16.2/swag_1.16.2_Darwin_arm64.tar.gz
+else
+	export SWAG_URL=https://github.com/swaggo/swag/releases/download/v1.16.2/swag_1.16.2_Linux_x86_64.tar.gz
+endif
 
 ##@ Commands
 
@@ -27,8 +52,7 @@ info: ## Show build info
 generate: $(GOBIN)/sqlc $(GOBIN)/swag ## Generate code
 	go generate ./...
 
-e2e: testinfra ## Deploy the end-to-end setup
-	$(MAKE) deploy
+e2e: testinfra deploy ## Deploy the end-to-end setup
 
 testinfra: $(GOBIN)/skaffold ## Create test infrastructure
 	bash -x e2e/kind/up.sh
@@ -81,7 +105,7 @@ $(GOBIN)/makehelp: | $(GOBIN)
 	| install /dev/stdin $(GOBIN)/makehelp
 
 $(GOBIN)/skaffold: | $(GOBIN)
-	curl -fsSL https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 \
+	curl -fsSL $(SKAFFOLD_URL) \
 	| install /dev/stdin $(GOBIN)/skaffold
 
 $(GOBIN)/golangci-lint: | $(GOBIN)
@@ -89,11 +113,11 @@ $(GOBIN)/golangci-lint: | $(GOBIN)
 	| sh -s -- -b $(GOBIN) v1.55.2
 
 $(GOBIN)/sqlc: | $(GOBIN)
-	curl -fsSL https://downloads.sqlc.dev/sqlc_1.25.0_linux_amd64.tar.gz \
+	curl -fsSL $(SQLC_URL) \
 	| tar -C $(GOBIN) -xzf - sqlc
 
 $(GOBIN)/swag: | $(GOBIN)
-	curl -fsSL https://github.com/swaggo/swag/releases/download/v1.16.2/swag_1.16.2_Linux_x86_64.tar.gz \
+	curl -fsSL $(SWAG_URL) \
 	| tar -C $(GOBIN) -xzf - swag
 
 $(GOBIN)/sqlite3: | $(GOBIN)
