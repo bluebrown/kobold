@@ -285,7 +285,7 @@ This section showcases some common use cases.
 
 ### SSH
 
-To use ssh, you can mount a directory to `/.ssh` in the kobold container.
+To use ssh, you can mount a directory to `/etc/kobold/.ssh` in the kobold container.
 
 The directory should, at least contain, a known_hosts file and a default
 identity file. The default identity file is usually named id_rsa. If more than
@@ -302,7 +302,7 @@ ssh-keygen -t ed25519 -f .ssh/id_ed25519 -N ''
 # set the permission to the kobold user
 chown -R 65532:65532 .ssh
 # run kobold
-docker run -v "$(pwd)/.ssh:/.ssh" ...
+docker run -v "$(pwd)/.ssh:/etc/kobold/.ssh" ...
 ```
 
 ### Basic Auth
@@ -311,15 +311,15 @@ You can provide the credentials in the git uri, but this is not recommended,
 since it will be stored in the kobold database.
 
 Alternatively, you can configure gits credentails helper, to use a file as
-backend. For example via `/.gitconfig`:
+backend. For example via `/etc/kobold/.gitconfig`:
 
 ```conf
 [credential]
-    helper = store --file /.git-credentials
+    helper = store --file ~/.git-credentials
 ```
 
-When doing this, you can mount a credentials file to `/.git-credentials` in the
-kobold container.
+When doing this, you can mount a credentials file to
+`/etc/kobold/.git-credentials` in the kobold container.
 
 Below is an example entry in the credentials file:
 
@@ -329,7 +329,7 @@ https://bob:s3cre7@mygithost
 
 ### Pull Requests
 
-For a pull request setup, you want to set the destionation branch to something
+For a pull request setup, you want to set the destination branch to something
 other than the source branch. Then you can run a post hook, opening the pull
 request. There is already, amongst others, a [builtin](#post-hooks) post hook
 for github, using the `GITHUB_TOKEN` environment variable, to authenticate.
