@@ -1,0 +1,19 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: testcase
+spec:
+  project: testcase
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: testcase
+  source:
+    chart: testcase
+    repoURL: https://example.com/testcase
+    targetRevision: 1.0.0
+    helm:
+      releaseName: testcase
+      valuesObject:
+        image:
+          tag: "1.0"  # kobold: tag: ^1; type: semver; part: tag; context: docker.io/foo/baz

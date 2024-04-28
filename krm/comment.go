@@ -15,13 +15,17 @@ const (
 )
 
 const (
-	KeyType = "type"
-	KeyTag  = "tag"
+	KeyType    = "type"
+	KeyTag     = "tag"
+	KeyPart    = "part"
+	KeyContext = "context"
 )
 
 type Options struct {
-	Type string
-	Tag  string
+	Type    string
+	Tag     string
+	Part    string
+	Context string
 }
 
 func ParseOpts(expr string) (Options, error) {
@@ -37,6 +41,10 @@ func ParseOpts(expr string) (Options, error) {
 			opts.Type = strings.TrimSpace(v)
 		case KeyTag:
 			opts.Tag = strings.TrimSpace(v)
+		case KeyPart:
+			opts.Part = strings.TrimSpace(v)
+		case KeyContext:
+			opts.Context = strings.TrimSpace(v)
 		default:
 			return opts, fmt.Errorf("unknown key: %s", v)
 		}

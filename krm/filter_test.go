@@ -215,6 +215,22 @@ func Test_renderer_Render(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:    "argocd",
+			giveDir: "argocd",
+			giveEvents: []string{
+				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			},
+			wantSourceFieldValue: map[string][]wantFieldValue{
+				"application.yaml": {
+					{
+						rnodeIndex: 0,
+						field:      "spec.source.helm.valuesObject.image.tag",
+						value:      "1.0.1",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
