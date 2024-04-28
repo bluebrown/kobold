@@ -220,6 +220,7 @@ func Test_renderer_Render(t *testing.T) {
 			giveDir: "argocd",
 			giveEvents: []string{
 				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+				"docker.io/foo/bar:master-124-012345@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 			},
 			wantSourceFieldValue: map[string][]wantFieldValue{
 				"application.yaml": {
@@ -227,6 +228,11 @@ func Test_renderer_Render(t *testing.T) {
 						rnodeIndex: 0,
 						field:      "spec.source.helm.valuesObject.image.tag",
 						value:      "1.0.1",
+					},
+					{
+						rnodeIndex: 1,
+						field:      "spec.source.helm.valuesObject.image.tag",
+						value:      "master-124-012345",
 					},
 				},
 			},
