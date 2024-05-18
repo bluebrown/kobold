@@ -598,6 +598,6 @@ be viewed at <http://localhost:8080> with the credentials `dev:dev123`.
 
 ```bash
 make e2e
-docker tag $(docker pull busybox -q) localhost:8080/library/busybox:v.1.2.3
-docker push localhost:8080/library/busybox:v.1.2.3
+docker tag $(docker pull busybox -q) localhost:8080/library/busybox:v1.2.3
+docker push localhost:8080/library/busybox:v1.2.3
 ```
