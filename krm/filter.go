@@ -13,7 +13,11 @@ func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, er
 		return currentRef, nil
 	}
 
-	oldRef, err := name.ParseReference(currentRef)
+	fullRef := currentRef
+	if opts.Part == "tag" {
+		fullRef = fmt.Sprintf("%s:%s", opts.Context, currentRef)
+	}
+	oldRef, err := name.ParseReference(fullRef)
 	if err != nil {
 		return currentRef, err
 	}
@@ -40,6 +44,9 @@ func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, er
 		return currentRef, err
 	}
 
+	if opts.Part == "tag" {
+		return newRef.Identifier(), nil
+	}
 	return nextRef, nil
 }
 
