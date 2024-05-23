@@ -26,7 +26,7 @@ func TestGetCommitMessage(t *testing.T) {
 					},
 				},
 			},
-			want:    "chore(kobold): Update busybox",
+			want:    "chore(kobold): busybox",
 			wantErr: false,
 		},
 		{
@@ -43,7 +43,24 @@ func TestGetCommitMessage(t *testing.T) {
 					},
 				},
 			},
-			want:    "chore(kobold): Update busybox somerepo",
+			want:    "chore(kobold): busybox, somerepo",
+			wantErr: false,
+		},
+		{
+			name: "duplicate image will be unique in commit message",
+			args: args{
+				changes: []krm.Change{
+					{
+						Description: "busybox:1.0.0 -> busybox:1.0.1",
+						Repo:        "busybox",
+					},
+					{
+						Description: "busybox:1.0.0 -> busybox:1.0.1",
+						Repo:        "busybox",
+					},
+				},
+			},
+			want:    "chore(kobold): busybox",
 			wantErr: false,
 		},
 	}
@@ -55,7 +72,7 @@ func TestGetCommitMessage(t *testing.T) {
 				return
 			}
 			if got != tt.want {
-				t.Errorf("GetCommitMessage() got = %v, want %v", got, tt.want)
+				t.Errorf("GetCommitMessage()\ngot:  %v\nwant: %v", got, tt.want)
 			}
 		})
 	}
