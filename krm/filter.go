@@ -105,13 +105,16 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 			}
 			mn.Value.YNode().Value = v
 		}
+
 		newValue := mn.Value.YNode().Value
+
 		if originalValue != newValue {
 			description := fmt.Sprintf("%s: %q -> %q", mn.Key.YNode().Value, originalValue, newValue)
 			repo := GetRepoName(newValue)
 			change := Change{description, repo}
 			i.Changes = append(i.Changes, change)
 		}
+
 		return nil
 	})
 	return nodes, err

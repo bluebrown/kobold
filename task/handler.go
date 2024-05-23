@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/bluebrown/kobold/git"
 	"github.com/bluebrown/kobold/krm"
@@ -66,11 +67,22 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 }
 
 func GetCommitMessage(changes []krm.Change) (string, error) {
-	msg := "chore(kobold): Update"
+	seen := make(map[string]struct{})
+
+	msg := strings.Builder{}
+	msg.WriteString("chore(kobold): ")
+
 	for _, change := range changes {
-		msg += " " + change.Repo
+		if _, ok := seen[change.Repo]; ok {
+			continue
+		}
+		msg.WriteString(change.Repo)
+		msg.WriteString(", ")
+
+		seen[change.Repo] = struct{}{}
 	}
-	return msg, nil
+
+	return msg.String()[:msg.Len()-2], nil
 }
 
 var _ Handler = KoboldHandler
