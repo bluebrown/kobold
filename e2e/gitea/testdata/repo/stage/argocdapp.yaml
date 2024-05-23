@@ -1,0 +1,11 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-helm-app
+spec:
+  source:
+    helm:
+      valuesObject:
+        image:
+          tag: "v1" # kobold: tag: ^1; type: semver; part: tag; context: localhost:8080/library/busybox
+
