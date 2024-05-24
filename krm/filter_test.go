@@ -139,9 +139,8 @@ func Test_renderer_Render(t *testing.T) {
 			},
 			wantSourceFieldValue: map[string][]wantFieldValue{},
 		},
-
 		// // FIXME: if there is a yaml parse error, the whole render process will fail
-		// // needs to use .krm ignore to ignore invalid yaml portions
+		// // needs to use .krmignore to ignore invalid yaml portions
 		// {
 		// 	name:    "helm skip errors",
 		// 	giveDir: "helm-skip-errors",
@@ -233,6 +232,37 @@ func Test_renderer_Render(t *testing.T) {
 						rnodeIndex: 1,
 						field:      "spec.source.helm.valuesObject.image.tag",
 						value:      "master-124-012345",
+					},
+				},
+			},
+		},
+		{
+			name:    "parts",
+			giveDir: "parts",
+			giveEvents: []string{
+				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			},
+			wantSourceFieldValue: map[string][]wantFieldValue{
+				"stuff.yaml": {
+					{
+						rnodeIndex: 0,
+						field:      "full",
+						value:      "docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+					},
+					{
+						rnodeIndex: 0,
+						field:      "tag",
+						value:      "1.0.1",
+					},
+					{
+						rnodeIndex: 0,
+						field:      "digest",
+						value:      "sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+					},
+					{
+						rnodeIndex: 0,
+						field:      "tag+digest",
+						value:      "1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 					},
 				},
 			},
