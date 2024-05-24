@@ -8,9 +8,9 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, error) {
+func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, Change, error) {
 	if currentRef == nextRef {
-		return currentRef, nil
+		return currentRef, Change{}, nil
 	}
 
 	fullRef := currentRef
@@ -19,40 +19,47 @@ func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, er
 	}
 	oldRef, err := name.ParseReference(fullRef)
 	if err != nil {
-		return currentRef, err
+		return currentRef, Change{}, err
 	}
 
 	newRef, _, err := ParseImageRefWithDigest(nextRef)
 	if err != nil {
-		return currentRef, err
+		return currentRef, Change{}, err
 	}
 
 	if oldRef.Context().Name() != newRef.Context().Name() {
-		return currentRef, nil
+		return currentRef, Change{}, nil
 	}
 
 	ok, err := MatchTag(newRef.Identifier(), opts)
 	if err != nil {
-		return currentRef, err
+		return currentRef, Change{}, err
 	}
 
 	if !ok {
-		return currentRef, nil
+		return currentRef, Change{}, nil
 	}
 
 	if _, err := name.ParseReference(nextRef); err != nil {
-		return currentRef, err
+		return currentRef, Change{}, err
+	}
+
+	c := Change{
+		Description: fmt.Sprintf("update image ref %q to %q", currentRef, nextRef),
+		Registry:    newRef.Context().RegistryStr(),
+		Repo:        newRef.Context().RepositoryStr(),
 	}
 
 	if opts.Part == "tag" {
-		return newRef.Identifier(), nil
+		return newRef.Identifier(), c, nil
 	}
-	return nextRef, nil
+
+	return nextRef, c, nil
 }
 
 var CommentPrefix = "# kobold:"
 
-type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, error)
+type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, Change, error)
 
 type ImageRefUpdateFilter struct {
 	handler   NodeHandler
@@ -63,6 +70,7 @@ type ImageRefUpdateFilter struct {
 
 type Change struct {
 	Description string
+	Registry    string
 	Repo        string
 }
 
@@ -96,23 +104,25 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 		}
 
 		originalValue := mn.Value.YNode().Value
+		lastChange := Change{}
 
 		for _, imageRef := range i.imageRefs {
-			v, err := i.handler(mn.Key.YNode().Value, mn.Value.YNode().Value, imageRef, opts)
+			v, change, err := i.handler(mn.Key.YNode().Value, mn.Value.YNode().Value, imageRef, opts)
 			if err != nil {
 				i.Warnings = append(i.Warnings, fmt.Sprintf("failed to update image ref %q: %v", imageRef, err))
 				continue
 			}
 			mn.Value.YNode().Value = v
+			lastChange = change
 		}
 
 		newValue := mn.Value.YNode().Value
+		if opts.Context != "" {
+			newValue = fmt.Sprintf("%s:%s", opts.Context, newValue)
+		}
 
 		if originalValue != newValue {
-			description := fmt.Sprintf("%s: %q -> %q", mn.Key.YNode().Value, originalValue, newValue)
-			repo := GetRepoName(newValue)
-			change := Change{description, repo}
-			i.Changes = append(i.Changes, change)
+			i.Changes = append(i.Changes, lastChange)
 		}
 
 		return nil
