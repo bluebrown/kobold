@@ -8,56 +8,72 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func DefaultNodeHandler(_, currentRef, nextRef string, opts Options) (string, Change, error) {
-	if currentRef == nextRef {
-		return currentRef, Change{}, nil
+func DefaultNodeHandler(_, curr, next string, opts Options) (string, Change, error) {
+	if curr == next {
+		return curr, Change{}, nil
 	}
 
-	fullRef := currentRef
-	if opts.Part == "tag" {
-		fullRef = fmt.Sprintf("%s:%s", opts.Context, currentRef)
-	}
-	oldRef, err := name.ParseReference(fullRef)
-	if err != nil {
-		return currentRef, Change{}, err
+	rawRef := curr
+	switch opts.Part {
+	case PartTag, PartTagDigest:
+		rawRef = strings.TrimSuffix(fmt.Sprintf("%s:%s", opts.Context, curr), ":")
+	case PartDigest:
+		rawRef = strings.TrimSuffix(fmt.Sprintf("%s@%s", opts.Context, curr), "@")
 	}
 
-	newRef, _, err := ParseImageRefWithDigest(nextRef)
+	oldRef, err := name.ParseReference(rawRef)
 	if err != nil {
-		return currentRef, Change{}, err
+		return curr, Change{}, err
+	}
+
+	newRef, digest, err := ParseImageRefWithDigest(next)
+	if err != nil {
+		return curr, Change{}, err
 	}
 
 	if oldRef.Context().Name() != newRef.Context().Name() {
-		return currentRef, Change{}, nil
+		return curr, Change{}, nil
 	}
 
 	ok, err := MatchTag(newRef.Identifier(), opts)
 	if err != nil {
-		return currentRef, Change{}, err
+		return curr, Change{}, err
 	}
 
 	if !ok {
-		return currentRef, Change{}, nil
+		return curr, Change{}, nil
 	}
 
-	if _, err := name.ParseReference(nextRef); err != nil {
-		return currentRef, Change{}, err
+	if _, err := name.ParseReference(next); err != nil {
+		return curr, Change{}, err
 	}
 
 	c := Change{
-		Description: fmt.Sprintf("update image ref %q to %q", currentRef, nextRef),
+		Description: fmt.Sprintf("update image ref %q to %q", curr, next),
 		Registry:    newRef.Context().RegistryStr(),
 		Repo:        newRef.Context().RepositoryStr(),
 	}
 
-	if opts.Part == "tag" {
+	switch opts.Part {
+	case "":
+		return next, c, nil
+
+	case PartTag:
 		return newRef.Identifier(), c, nil
+
+	case PartDigest:
+		return digest, c, nil
+
+	case PartTagDigest:
+		return strings.TrimSuffix(fmt.Sprintf("%s@%s", newRef.Identifier(), digest), "@"), c, nil
+
+	default:
+		return curr, Change{}, fmt.Errorf("unknown part: %s", opts.Part)
 	}
 
-	return nextRef, c, nil
 }
 
-var CommentPrefix = "# kobold:"
+const CommentPrefix = "# kobold:"
 
 type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, Change, error)
 

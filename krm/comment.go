@@ -21,6 +21,12 @@ const (
 	KeyContext = "context"
 )
 
+const (
+	PartTag       = "tag"
+	PartDigest    = "digest"
+	PartTagDigest = "tag+digest"
+)
+
 type Options struct {
 	Type    string
 	Tag     string
@@ -46,7 +52,7 @@ func ParseOpts(expr string) (Options, error) {
 		case KeyContext:
 			opts.Context = strings.TrimSpace(v)
 		default:
-			return opts, fmt.Errorf("unknown key: %s", v)
+			return opts, fmt.Errorf("unknown key: %s", k)
 		}
 	}
 	return opts, nil

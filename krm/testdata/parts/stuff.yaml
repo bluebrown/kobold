@@ -1,0 +1,4 @@
+full:  docker.io/foo/baz # kobold: tag: ^1; type: semver
+tag:  latest # kobold: tag: ^1; type: semver; part: tag; context: docker.io/foo/baz
+digest:  sha256:220611111e8c7bbe242e9dc1367c0fa8933f83f26203ee3f7c376a046e02b2ef # kobold: tag: ^1; type: semver; part: digest; context: docker.io/foo/baz
+tag+digest:  latest@sha256:220611111e8c7bbe242e9dc1367c0fa8933f83f26203ee3f7c376a046e02b2ef # kobold: tag: ^1; type: semver; part: tag+digest; context: docker.io/foo/baz
