@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.2](https://github.com/bluebrown/kobold/compare/v0.3.1...v0.3.2) (2024-05-28)
+
+
+### Features
+
+* Apple Silicon local development support ([#50](https://github.com/bluebrown/kobold/issues/50)) ([ab14a59](https://github.com/bluebrown/kobold/commit/ab14a59f9d194cbe310453bec076ae89d9004079))
+* **filter:** handle 'tag only' fields ([#53](https://github.com/bluebrown/kobold/issues/53)) ([7ae586e](https://github.com/bluebrown/kobold/commit/7ae586e00bf45a72d3cf28fb2fe23690ff7b0143))
+* **filter:** handle digest based parts ([#57](https://github.com/bluebrown/kobold/issues/57)) ([066dcfe](https://github.com/bluebrown/kobold/commit/066dcfeea3635e41472b780200d6b7d6c294e514))
+* Include updated images in commit message ([#49](https://github.com/bluebrown/kobold/issues/49)) ([aab019c](https://github.com/bluebrown/kobold/commit/aab019c3f861e285e3c6f9465bab8ac240eb6f78))
+
 ## [0.3.1](https://github.com/bluebrown/kobold/compare/v0.3.0...v0.3.1) (2024-04-14)
 
 
