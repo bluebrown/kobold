@@ -63,6 +63,20 @@ should be matched (not including v2).
 Note that the regex type will add `^` and `$` to the tag-name, to ensure the
 regex matches the entire tag, so dont include them in the tag-name.
 
+It is also possible to update only a part of a given image reference. For
+example it is common for helm charts to split the reference across field, like
+`repo` and `tag`.
+
+```yaml
+image:
+  tag: "1.0"  # kobold: tag: ^1; type: semver; part: tag; context: docker.io/library/busybox
+---
+```
+
+In this case, the `part` field specifies the part of the image reference to be
+updated, and the `context` field specifies the image reference to be updated.
+Next to `tag`, `digest` and `tag+digest`, are also supported.
+
 ## Configuration
 
 Kobold is configured by setting up named channels, and pipelines to run
