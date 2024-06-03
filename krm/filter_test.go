@@ -9,7 +9,7 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/kio"
 )
 
-func testPipe(caseDir string, events ...string) (filesys.FileSystem, error) {
+func testPipe(caseDir string, events ...string) (filesys.FileSystem, []Change, []string, error) {
 	outFs := filesys.MakeFsInMemory()
 
 	r := &kio.LocalPackageReader{
@@ -32,10 +32,10 @@ func testPipe(caseDir string, events ...string) (filesys.FileSystem, error) {
 	}
 
 	if err := pipe.Execute(); err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 
-	return outFs, nil
+	return outFs, f.Changes, f.Warnings, nil
 }
 
 func Test_renderer_Render(t *testing.T) {
@@ -53,10 +53,12 @@ func Test_renderer_Render(t *testing.T) {
 		giveDir              string
 		giveEvents           []string
 		wantSourceFieldValue map[string][]wantFieldValue
+		wantNChanges         int
 	}{
 		{
-			name:    "kube simple",
-			giveDir: "kube",
+			name:         "kube simple",
+			giveDir:      "kube",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"test.azurecr.io/nginx:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
@@ -78,8 +80,9 @@ func Test_renderer_Render(t *testing.T) {
 			},
 		},
 		{
-			name:    "kube nested",
-			giveDir: "nested",
+			name:         "kube nested",
+			giveDir:      "nested",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"test.azurecr.io/nginx:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
@@ -101,8 +104,9 @@ func Test_renderer_Render(t *testing.T) {
 			},
 		},
 		{
-			name:    "kube kpt",
-			giveDir: "kpt",
+			name:         "kube kpt",
+			giveDir:      "kpt",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"test.azurecr.io/nginx:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
@@ -166,8 +170,9 @@ func Test_renderer_Render(t *testing.T) {
 			wantSourceFieldValue: map[string][]wantFieldValue{},
 		},
 		{
-			name:    "compose",
-			giveDir: "compose",
+			name:         "compose",
+			giveDir:      "compose",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"index.docker.io/bluebrown/busybox:latest@sha256:3b3128d9df6bbbcc92e2358e596c9fbd722a437a62bafbc51607970e9e3b8869",
@@ -188,8 +193,9 @@ func Test_renderer_Render(t *testing.T) {
 			},
 		},
 		{
-			name:    "ko",
-			giveDir: "ko",
+			name:         "ko",
+			giveDir:      "ko",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"test.azurecr.io/nginx:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"test.azurecr.io/stuff:v1@sha256:993518ca49ede3c4e751fe799837ede16e60bc410452e3922602ebceda9b4c73",
@@ -215,8 +221,9 @@ func Test_renderer_Render(t *testing.T) {
 			},
 		},
 		{
-			name:    "argocd",
-			giveDir: "argocd",
+			name:         "argocd",
+			giveDir:      "argocd",
+			wantNChanges: 2,
 			giveEvents: []string{
 				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 				"docker.io/foo/bar:master-124-012345@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
@@ -237,8 +244,9 @@ func Test_renderer_Render(t *testing.T) {
 			},
 		},
 		{
-			name:    "parts",
-			giveDir: "parts",
+			name:         "parts",
+			giveDir:      "parts",
+			wantNChanges: 4,
 			giveEvents: []string{
 				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
 			},
@@ -267,16 +275,40 @@ func Test_renderer_Render(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:         "parts-no-change",
+			giveDir:      "parts-no-change",
+			wantNChanges: 0,
+			giveEvents: []string{
+				"docker.io/foo/baz:1.0.1@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+			},
+			wantSourceFieldValue: map[string][]wantFieldValue{
+				"stuff.yaml": {
+					{
+						rnodeIndex: 0,
+						field:      "none",
+						value:      "no",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			fs, err := testPipe(tt.giveDir, tt.giveEvents...)
+			fs, changes, _, err := testPipe(tt.giveDir, tt.giveEvents...)
 			if err != nil {
 				t.Fatal(err)
 			}
+
+			if len(changes) != tt.wantNChanges {
+				t.Errorf("got %d changes, want %d", len(changes), tt.wantNChanges)
+				t.Logf("changes: %v", changes)
+
+			}
+
 			for source, fieldValues := range tt.wantSourceFieldValue {
 				if !fs.Exists(source) {
 					t.Errorf("%s: file does not exist in outFs", source)

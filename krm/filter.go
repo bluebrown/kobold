@@ -132,12 +132,7 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 			lastChange = change
 		}
 
-		newValue := mn.Value.YNode().Value
-		if opts.Context != "" {
-			newValue = fmt.Sprintf("%s:%s", opts.Context, newValue)
-		}
-
-		if originalValue != newValue {
+		if originalValue != mn.Value.YNode().Value {
 			i.Changes = append(i.Changes, lastChange)
 		}
 
