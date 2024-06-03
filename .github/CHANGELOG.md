@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/bluebrown/kobold/compare/v0.3.2...v0.3.3) (2024-06-03)
+
+
+### Bug Fixes
+
+* **filter:** false positive change reports due to context ([#58](https://github.com/bluebrown/kobold/issues/58)) ([e787d10](https://github.com/bluebrown/kobold/commit/e787d104990cba75551390b683031bb3263c1d56))
+
 ## [0.3.2](https://github.com/bluebrown/kobold/compare/v0.3.1...v0.3.2) (2024-05-28)
 
 
