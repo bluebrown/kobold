@@ -539,7 +539,7 @@ Usage of server:
   -config string
         path to config file (env: KOBOLD_CONFIG)
   -db string
-        path to sqlite db file (env: KOBOLD_DB) (default "/home/blue/.config/kobold/kobold.sqlite3")
+        path to sqlite db file (env: KOBOLD_DB) (default "~/.config/kobold/kobold.sqlite3")
   -debounce duration
         debounce interval for webhook events (env: KOBOLD_DEBOUNCE) (default 1m0s)
   -handler value
