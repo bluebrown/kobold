@@ -3,11 +3,11 @@ version = "2"
 [[pipeline]]
 name = "stage"
 channels = ["lines", "distribution"]
-repo_uri = "http://gitea/dev/test.git@main/stage"
+repo_uri = "http://gitea/dev/test.git?ref=main&pkg=stage"
 
 [[pipeline]]
 name = "prod"
 channels = ["lines", "distribution"]
-repo_uri = "http://gitea/dev/test.git@main/prod"
+repo_uri = "http://gitea/dev/test.git?ref=main&pkg=prod"
 dest_branch = "release"
 post_hook = "builtin.gitea-pr@v1"
