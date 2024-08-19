@@ -23,7 +23,7 @@ type PackageURI struct {
 
 // FIXME: appending .git can lead to confusion or invalid URIs.
 func (uri *PackageURI) String() string {
-	return fmt.Sprintf("%s.git@%s%s", uri.Repo, uri.Ref, uri.Pkg)
+	return fmt.Sprintf("%s.git?ref=%s&pkg=%s", uri.Repo, uri.Ref, uri.Pkg)
 }
 
 func (uri *PackageURI) MustUnmarshalText(s string) {
