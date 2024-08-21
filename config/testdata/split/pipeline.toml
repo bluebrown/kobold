@@ -1,5 +1,5 @@
 version = "2"
 [[pipeline]]
 name = "bar"
-repo_uri = "git@github.com:bluebrown/testing.git@dev/resources"
+repo_uri = "git@github.com:bluebrown/testing.git?ref=dev&pkg=resources"
 channels = ["foo"]

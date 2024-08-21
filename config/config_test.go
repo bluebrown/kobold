@@ -28,7 +28,7 @@ func TestReadDir(t *testing.T) {
 					RepoURI: git.PackageURI{
 						Repo: "git@github.com:bluebrown/testing",
 						Ref:  "dev",
-						Pkg:  "/resources",
+						Pkg:  "resources",
 					},
 					Channels: []string{"foo"},
 				}},

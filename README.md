@@ -97,7 +97,7 @@ name = "b"
 
 [[pipeline]]
 name = "example"
-repo_uri = "git@github.com:bluebrown/example.git@main"
+repo_uri = "git@github.com:bluebrown/example.git?ref=main"
 channels = ["a", "b"]
 ```
 
@@ -352,7 +352,7 @@ for github, using the `GITHUB_TOKEN` environment variable, to authenticate.
 [[pipeline]]
 name = "my-github-pr"
 channels = ["example"]
-repo_uri = "git@github.com:bluebrown/foobar.git@main/manifests"
+repo_uri = "git@github.com:bluebrown/foobar.git?ref=main&pkg=manifests"
 dest_branch = "kobold"
 post_hook = "builtin.github-pr@v1"
 ```
@@ -368,12 +368,12 @@ the pull request is merged.
 [[pipeline]]
 name = "stage"
 channels = ["distribution"]
-repo_uri = "http://gitea/dev/test.git@main/stage"
+repo_uri = "http://gitea/dev/test.git?ref=main&pkg=stage"
 
 [[pipeline]]
 name = "prod"
 channels = ["distribution"]
-repo_uri = "http://gitea/dev/test.git@main/prod"
+repo_uri = "http://gitea/dev/test.git?ref=main&pkg=prod"
 dest_branch = "release"
 post_hook = "builtin.gitea-pr@v1"
 ```
