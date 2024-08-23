@@ -1,7 +1,7 @@
 # Kobold
 
 > [!NOTE]  
-> If you are migrating from v.0.2 to v.0.3, you can use the `confix` command to
+> If you are migrating from v.0.3 to v.0.4, you can use the `confix` command to
 > migrate your config. See the [ConFix](#confix) section for more details.
 
 Update container image references in git repositories, based on recieved
@@ -589,21 +589,16 @@ items:
 
 ### ConFix
 
-The `confix` command can be used to migrate from the v1 to the v2 config
-format. I tries to conver the config on a best effort basis, but careful review
-is required. Some features previously supported, are not supported anymore. For
-example, the scoping sematics have changed such that only a subset of
-previously supported scopes can be converted in a meaningful way. Others
-require manual intervention.
+The confix command can be used to help with migrating the configration to a
+newer version. Incremental updates be required as the binrary only knows the
+last versions config.
 
 ```bash
-bin/confix -f v1.yaml -o path/to/dir/
+bin/confix -w -f kobold.toml
 ```
 
-The command takes an output directory, because it potentially prodcued more
-than one file. For example, if there are repos with username and password in
-the previous config, the command will emit an extra `.git-credentials` file,
-which can be mounted to the kobold container.
+The above command reads a file and writes the converted format to back to the
+file, due to the `-w` flag. The `-f` flag is used to specify the file to read.
 
 ## Development
 

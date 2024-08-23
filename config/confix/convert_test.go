@@ -10,13 +10,13 @@ import (
 
 func TestMakeConfig(t *testing.T) {
 	t.Parallel()
-	v1, err := old.ReadPath("testdata/give.yaml")
-	if err != nil {
+
+	oc := new(old.Config)
+	if err := old.ReadFile("testdata/give.toml", oc); err != nil {
 		t.Fatal(err)
 	}
-	v1.Defaults()
 
-	give, err := MakeConfig(v1)
+	give, err := MakeConfig(oc)
 	if err != nil {
 		t.Fatal(err)
 	}
