@@ -26,7 +26,7 @@ func TestReadDir(t *testing.T) {
 				Pipelines: []Pipeline{{
 					Name: "bar",
 					RepoURI: git.PackageURI{
-						Repo: "git@github.com:bluebrown/testing",
+						Repo: "git@github.com:bluebrown/testing.git",
 						Ref:  "dev",
 						Pkg:  "resources",
 					},

@@ -44,6 +44,7 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 		g.DestBranch.String = g.RepoUri.Ref
 		g.DestBranch.Valid = true
 	}
+
 	msg, err = GetCommitMessage(changes)
 	if err != nil {
 		msg = "chore(kobold): Update image refs"

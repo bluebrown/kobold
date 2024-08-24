@@ -25,14 +25,14 @@ version = "2"
 
 [[pipeline]]
   name = "pr-test"
-  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=/test"
+  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=test"
   dest_branch = "kobold"
   channels = ["acr"]
   post_hook = ""
 
 [[pipeline]]
   name = "pr-prod"
-  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=/prod"
+  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=prod"
   dest_branch = "kobold"
   channels = ["acr"]
   post_hook = ""

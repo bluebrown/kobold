@@ -21,11 +21,10 @@ type PackageURI struct {
 	Pkg  string `json:"pkg,omitempty"  toml:"pkg"`
 }
 
-// FIXME: appending .git can lead to confusion or invalid URIs.
 func (uri *PackageURI) String() string {
 	b := strings.Builder{}
 	b.WriteString(uri.Repo)
-	b.WriteString(".git?ref=")
+	b.WriteString("?ref=")
 	b.WriteString(uri.Ref)
 	if uri.Pkg != "" {
 		b.WriteString("&pkg=")
@@ -56,7 +55,7 @@ func (uri *PackageURI) UnmarshalText(b []byte) error {
 		return fmt.Errorf("invalid git package uri: %q, missing ref query param", string(b))
 	}
 	var pkg = queryParams.Get("pkg")
-	uri.Repo = strings.TrimSuffix(repo, ".git")
+	uri.Repo = repo
 	uri.Ref = ref
 	uri.Pkg = pkg
 	return nil

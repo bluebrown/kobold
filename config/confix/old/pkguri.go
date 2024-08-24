@@ -45,11 +45,11 @@ func (uri *PackageURI) UnmarshalText(b []byte) error {
 		}
 		switch name {
 		case "repo":
-			uri.Repo = strings.TrimSuffix(matches[i], ".git")
+			uri.Repo = matches[i]
 		case "ref":
 			uri.Ref = matches[i]
 		case "pkg":
-			uri.Pkg = strings.TrimSuffix(matches[i], "/")
+			uri.Pkg = strings.TrimPrefix(strings.TrimSuffix(matches[i], "/"), "/")
 		}
 	}
 	return nil
