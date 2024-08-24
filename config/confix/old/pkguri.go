@@ -1,16 +1,16 @@
-package git
+package old
 
 import (
 	"database/sql/driver"
 	"fmt"
-	"net/url"
+	"regexp"
 	"strings"
 )
 
 // the package uri is a special uri format to specify a git repo, ref, and
 // package path within the repo under the ref. The uri is of the form:
 //
-//	<repo>?=ref=<ref>&pkg=<pkg>]
+//	<repo>@<ref>[<pkg>]
 //
 // where <repo> is the git repo uri, <ref> is the git ref (branch, tag, commit),
 // and <pkg> is the package path within the repo. If <pkg> is not specified, the
@@ -21,17 +21,12 @@ type PackageURI struct {
 	Pkg  string `json:"pkg,omitempty"  toml:"pkg"`
 }
 
+// FIXME: appending .git can lead to confusion or invalid URIs.
 func (uri *PackageURI) String() string {
-	b := strings.Builder{}
-	b.WriteString(uri.Repo)
-	b.WriteString("?ref=")
-	b.WriteString(uri.Ref)
-	if uri.Pkg != "" {
-		b.WriteString("&pkg=")
-		b.WriteString(uri.Pkg)
-	}
-	return b.String()
+	return fmt.Sprintf("%s.git@%s%s", uri.Repo, uri.Ref, uri.Pkg)
 }
+
+var pattern = regexp.MustCompile(`^(?P<repo>.*)@(?P<ref>\w+)(?P<pkg>\/.+)?$`)
 
 func (uri *PackageURI) MustUnmarshalText(s string) {
 	if err := uri.UnmarshalText([]byte(s)); err != nil {
@@ -40,24 +35,23 @@ func (uri *PackageURI) MustUnmarshalText(s string) {
 }
 
 func (uri *PackageURI) UnmarshalText(b []byte) error {
-	var packageURIString = string(b)
-	if !strings.Contains(packageURIString, "?") {
-		return fmt.Errorf("invalid git package uri: %q, query params are missing", string(b))
+	matches := pattern.FindStringSubmatch(string(b))
+	if len(matches) == 0 {
+		return fmt.Errorf("invalid git package uri: %q", string(b))
 	}
-	var repoParts = strings.Split(packageURIString, "?")
-	var repo = repoParts[0]
-	var queryParams, err = url.ParseQuery(repoParts[1])
-	if err != nil {
-		return fmt.Errorf("invalid git package uri: %q, could not parse query params", string(b))
+	for i, name := range pattern.SubexpNames() {
+		if i == 0 {
+			continue
+		}
+		switch name {
+		case "repo":
+			uri.Repo = matches[i]
+		case "ref":
+			uri.Ref = matches[i]
+		case "pkg":
+			uri.Pkg = strings.TrimPrefix(strings.TrimSuffix(matches[i], "/"), "/")
+		}
 	}
-	var ref = queryParams.Get("ref")
-	if ref == "" {
-		return fmt.Errorf("invalid git package uri: %q, missing ref query param", string(b))
-	}
-	var pkg = queryParams.Get("pkg")
-	uri.Repo = repo
-	uri.Ref = ref
-	uri.Pkg = pkg
 	return nil
 }
 

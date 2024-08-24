@@ -2,7 +2,7 @@ load("http.star", "http")
 
 def main(repo, src_branch, dest_branch, title, body, changes, warnings):
     parts = repo.split("/")
-    name = parts[-1]
+    name = parts[-1].removesuffix(".git")
     owner = parts[-2].split(":")[-1]
 
     url = "https://api.github.com/repos/" + owner + "/" + name + "/pulls"
@@ -17,7 +17,7 @@ def main(repo, src_branch, dest_branch, title, body, changes, warnings):
 
     res = http.post(url, headers = headers, json_body = data)
     if res.status_code != 201:
-        print("hook: pr failed: base=" + src_branch + " head=" + dest_branch + " repo=" + repo)
+        print("hook: pr failed: " + url)
         return res.body()
 
     print("github pr created: " + res.json()["url"])

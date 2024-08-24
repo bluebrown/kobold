@@ -3,54 +3,53 @@ package old
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"github.com/mitchellh/mapstructure"
-	"sigs.k8s.io/yaml"
+	"github.com/BurntSushi/toml"
+	"github.com/a8m/envsubst"
 )
 
-type normalizer interface {
-	Normalize() *NormalizedConfig
+func ReadFile(path string, cfg *Config) error {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return fmt.Errorf("get abs path for %q: %w", path, err)
+	}
+
+	path, err = filepath.EvalSymlinks(path)
+	if err != nil {
+		return fmt.Errorf("eval symlink %q: %w", path, err)
+	}
+
+	b, err := envsubst.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("envsubst read file %q: %w", path, err)
+	}
+
+	err = toml.Unmarshal(b, cfg)
+	if err != nil {
+		return fmt.Errorf("unmarshal toml: %w", err)
+	}
+
+	return nil
 }
 
-// read the config at the given path and expand its env var references the
-// config will be coded into an intermediate struct based on the version and
-// afterwards normalized.
-func ReadPath(path string) (*NormalizedConfig, error) {
-	b, err := readExpandFile(path)
+func ReadConfD(dir string, cfg *Config) error {
+	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("read dir %q: %w", dir, err)
 	}
 
-	m := map[string]any{}
-	if err := yaml.Unmarshal(b, &m); err != nil {
-		return nil, fmt.Errorf("unmarshal config: %w", err)
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".toml" {
+			continue
+		}
+
+		path := filepath.Join(dir, entry.Name())
+
+		if err := ReadFile(path, cfg); err != nil {
+			return fmt.Errorf("read file %q: %w", path, err)
+		}
 	}
 
-	var norm normalizer
-	switch v := m["version"]; {
-	case v == "v1":
-		norm = &UserConfigV1{}
-	case v == nil:
-		return nil, fmt.Errorf("config version is required")
-	default:
-		return nil, fmt.Errorf("unsupported config version %q", v)
-	}
-
-	err = mapstructure.Decode(m, norm)
-	if err != nil {
-		return nil, err
-	}
-
-	conf := norm.Normalize()
-	conf.Defaults()
-
-	return conf, nil
-}
-
-func readExpandFile(path string) ([]byte, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return b, err
-	}
-	return []byte(os.ExpandEnv(string(b))), nil
+	return err
 }

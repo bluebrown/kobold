@@ -5,6 +5,8 @@ def main(repo, src_branch, dest_branch, title, body, changes, warnings):
     if err != None:
         return err
 
+    repo = repo.removesuffix(".git")
+
     url = "https://dev.azure.com/" + org + "/" + proj + "/_apis/git/repositories/" + repo + "/pullrequests?api-version=7.0"
 
     headers = {"Content-Type": "application/json"}

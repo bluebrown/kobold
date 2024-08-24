@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 	"github.com/bluebrown/kobold/config/confix"
@@ -21,28 +20,20 @@ func main() {
 
 func run() error {
 	var (
-		target = "config.yaml"
-		out    = ""
+		target    = "config.yaml"
+		writeback = false
 	)
 
 	flag.StringVar(&target, "f", target, "target file")
-	flag.StringVar(&out, "o", out, "output directory")
+	flag.BoolVar(&writeback, "w", writeback, "write back to target file")
 	flag.Parse()
 
-	if out != "" {
-		if err := os.MkdirAll(out, 0o755); err != nil {
-			return fmt.Errorf("mkdir: %w", err)
-		}
-	}
-
-	v1, err := old.ReadPath(target)
-	if err != nil {
+	oc := old.Config{}
+	if err := old.ReadFile(target, &oc); err != nil {
 		return fmt.Errorf("read: %w", err)
 	}
 
-	v1.Defaults()
-
-	v2, err := confix.MakeConfig(v1)
+	v2, err := confix.MakeConfig(&oc)
 	if err != nil {
 		return fmt.Errorf("convert: %w", err)
 	}
@@ -52,24 +43,12 @@ func run() error {
 		return fmt.Errorf("encode: %w", err)
 	}
 
-	gc, err := confix.MakeGitCredentials(v1)
-	if err != nil {
-		return fmt.Errorf("git-credentials: %w", err)
-	}
-
-	if err := os.WriteFile(filepath.Join(out, "kobold.toml"), buf.Bytes(), 0o600); err != nil {
-		return fmt.Errorf("write: %w", err)
-	}
-
-	if len(gc) < 1 {
+	if !writeback {
+		fmt.Println(buf.String())
 		return nil
 	}
 
-	if err := os.WriteFile(filepath.Join(out, ".git-credentials"), []byte(gc), 0o600); err != nil {
-		return fmt.Errorf("write: %w", err)
-	}
-
-	if err := os.WriteFile(filepath.Join(out, ".gitconfig"), confix.MakeGitConfig(), 0o600); err != nil {
+	if err := os.WriteFile(target, buf.Bytes(), 0o600); err != nil {
 		return fmt.Errorf("write: %w", err)
 	}
 

@@ -1,52 +1,52 @@
 version = "2"
 
 [[channel]]
-name = "acr"
-decoder = "builtin.distribution@v1"
+  name = "acr"
+  decoder = "builtin.distribution@v1"
 
 [[channel]]
-name = "distribution"
-decoder = "builtin.distribution@v1"
+  name = "distribution"
+  decoder = "builtin.distribution@v1"
 
 [[channel]]
-name = "dockerhub"
-decoder = "builtin.dockerhub@v1"
+  name = "dockerhub"
+  decoder = "builtin.dockerhub@v1"
 
 [[channel]]
-name = "generic"
-decoder = "builtin.lines@v1"
+  name = "generic"
+  decoder = "builtin.lines@v1"
 
 [[pipeline]]
-name = "e2e"
-repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=main"
-dest_branch = ""
-channels = ["acr", "dockerhub", "distribution", "generic"]
-post_hook = ""
+  name = "e2e"
+  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=main"
+  dest_branch = ""
+  channels = ["acr", "dockerhub", "distribution", "generic"]
+  post_hook = ""
 
 [[pipeline]]
-name = "pr-test"
-repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=test"
-dest_branch = "kobold"
-channels = ["acr"]
-post_hook = ""
+  name = "pr-test"
+  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=test"
+  dest_branch = "kobold"
+  channels = ["acr"]
+  post_hook = ""
 
 [[pipeline]]
-name = "pr-prod"
-repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=prod"
-dest_branch = "kobold"
-channels = ["acr"]
-post_hook = ""
+  name = "pr-prod"
+  repo_uri = "http://gitea.local:3000/kobold/kobold-test.git?ref=master&pkg=prod"
+  dest_branch = "kobold"
+  channels = ["acr"]
+  post_hook = ""
 
 [[pipeline]]
-name = "azure"
-repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo.git?ref=main"
-dest_branch = ""
-channels = ["distribution"]
-post_hook = ""
+  name = "azure"
+  repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo.git?ref=main"
+  dest_branch = ""
+  channels = ["distribution"]
+  post_hook = ""
 
 [[pipeline]]
-name = "azure2"
-repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo2.git?ref=main"
-dest_branch = "kobold"
-channels = ["acr", "generic"]
-post_hook = "builtin.ado-pr@v1"
+  name = "azure2"
+  repo_uri = "https://myorg@dev.azure.com/myorg/myproject/_git/myrepo2.git?ref=main"
+  dest_branch = "kobold"
+  channels = ["acr", "generic"]
+  post_hook = "builtin.ado-pr@v1"
