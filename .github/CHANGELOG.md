@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.4.0](https://github.com/bluebrown/kobold/compare/v0.3.3...v0.4.0) (2024-08-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* dont strip .git suffix for interal repo string. may break custom posthooks
+* **pkguri:** Parse ref and pkg as query params ([#62](https://github.com/bluebrown/kobold/issues/62))
+
+### Features
+
+* confix for new pkg uri format ([f158a7e](https://github.com/bluebrown/kobold/commit/f158a7e22552f283bc0ead9a22c1251b02c18c99))
+
+
+### Bug Fixes
+
+* pullrequest posthook message ([#65](https://github.com/bluebrown/kobold/issues/65)) ([71283eb](https://github.com/bluebrown/kobold/commit/71283eb93fea29af08c5226e9f98574f6b3df8a7))
+
+
+### Code Refactoring
+
+* dont strip .git suffix for interal repo string. may break custom posthooks ([f158a7e](https://github.com/bluebrown/kobold/commit/f158a7e22552f283bc0ead9a22c1251b02c18c99))
+* **pkguri:** Parse ref and pkg as query params ([#62](https://github.com/bluebrown/kobold/issues/62)) ([e6ad83e](https://github.com/bluebrown/kobold/commit/e6ad83e4f35830844db979b989f23f23b1c8f89d))
+
 ## [0.3.3](https://github.com/bluebrown/kobold/compare/v0.3.2...v0.3.3) (2024-06-03)
 
 
