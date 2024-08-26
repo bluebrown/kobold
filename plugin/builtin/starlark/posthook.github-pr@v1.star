@@ -20,5 +20,5 @@ def main(repo, src_branch, dest_branch, title, body, changes, warnings):
         print("hook: pr failed: " + url)
         return res.body()
 
-    print("github pr created: " + res.json()["url"])
+    print("pull request created: " + res.json()["url"])
     return None
