@@ -30,11 +30,11 @@ decoder = "builtin.dstribution@v1"
 [[pipeline]]
 name = "azure-devops-stage"
 channels = ["ado"]
-repo_uri = "$ADO_HOST/kobold-test.git?ref=main&pkg=stage"
+repo_uri = "$ADO_HOST/kobold-test?ref=main&pkg=stage"
 
 [[pipeline]]
 name = "azure-devops-prod"
 channels = ["ado"]
-repo_uri = "$ADO_HOST/kobold-test.git?ref=main&pkg=prod"
+repo_uri = "$ADO_HOST/kobold-test?ref=main&pkg=prod"
 dest_branch = "kobold"
 post_hook = "builtin.ado-pr@v1"

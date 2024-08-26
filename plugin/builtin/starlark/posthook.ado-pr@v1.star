@@ -23,7 +23,7 @@ def main(repo, src_branch, dest_branch, title, body, changes, warnings):
         print("hook: pr failed: base=" + src_branch + " head=" + dest_branch + " repo=" + repo)
         return res.body()
 
-    print("github pr created: " + res.json()["url"])
+    print("pull request created: " + res.json()["url"])
     return None
 
 def get_org_proj_repo(url):
