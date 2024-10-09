@@ -47,7 +47,7 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 
 	msg, err = GetCommitMessage(changes)
 	if err != nil {
-		msg = "chore(kobold): Update image refs"
+		return nil, fmt.Errorf("unable to get commit message: %w", err)
 	}
 
 	if err := git.Publish(ctx, cache, g.DestBranch.String, msg); err != nil {
@@ -71,19 +71,18 @@ func GetCommitMessage(changes []krm.Change) (string, error) {
 	seen := make(map[string]struct{})
 
 	msg := strings.Builder{}
-	msg.WriteString("chore(kobold): ")
+	msg.WriteString("chore(kobold):\n")
 
 	for _, change := range changes {
 		if _, ok := seen[change.Repo]; ok {
 			continue
 		}
-		msg.WriteString(change.Repo)
-		msg.WriteString(", ")
+		msg.WriteString(fmt.Sprintf(" * %s: %s\n", change.Repo, change.Description))
 
 		seen[change.Repo] = struct{}{}
 	}
 
-	return msg.String()[:msg.Len()-2], nil
+	return msg.String()[:msg.Len()-1], nil
 }
 
 var _ Handler = KoboldHandler
