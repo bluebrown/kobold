@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.1](https://github.com/bluebrown/kobold/compare/v0.4.0...v0.4.1) (2024-10-09)
+
+
+### Features
+
+* Improve commit messages to include change detail ([2f43914](https://github.com/bluebrown/kobold/commit/2f43914344465fffcded4849aa0d212f91b68946))
+
+
+### Bug Fixes
+
+* handle commit message format errors ([#69](https://github.com/bluebrown/kobold/issues/69)) ([1971e78](https://github.com/bluebrown/kobold/commit/1971e784126c2d8e0fa1c42b184cecef559f2444))
+
 ## [0.4.0](https://github.com/bluebrown/kobold/compare/v0.3.3...v0.4.0) (2024-08-26)
 
 
