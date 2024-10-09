@@ -139,7 +139,7 @@ Pipelines are scoped through the following URI format. Note the package is
 optional.
 
 ```text
-<repo>[.git]@<ref>[/<pkg>]
+<repo>?ref=<ref>[&pkg=<pkg>]
 ```
 
 If you want to scope a pipline beyond a sub directory (package), you can place
