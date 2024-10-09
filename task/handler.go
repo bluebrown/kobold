@@ -45,9 +45,9 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 		g.DestBranch.Valid = true
 	}
 
-	msg, err = GetCommitMessage(changes)
+	msg, err = commitMessage(changes)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get commit message: %w", err)
+		return nil, fmt.Errorf("get commit message: %w", err)
 	}
 
 	if err := git.Publish(ctx, cache, g.DestBranch.String, msg); err != nil {
@@ -67,17 +67,22 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 	return warnings, nil
 }
 
-func GetCommitMessage(changes []krm.Change) (string, error) {
+func commitMessage(changes []krm.Change) (string, error) {
 	seen := make(map[string]struct{})
 
 	msg := strings.Builder{}
-	msg.WriteString("chore(kobold):\n")
+	if _, err := msg.WriteString("chore(kobold):\n"); err != nil {
+		return "", fmt.Errorf("write header: %w", err)
+	}
 
 	for _, change := range changes {
 		if _, ok := seen[change.Repo]; ok {
 			continue
 		}
-		msg.WriteString(fmt.Sprintf(" * %s: %s\n", change.Repo, change.Description))
+
+		if _, err := msg.WriteString(fmt.Sprintf(" * %s: %s\n", change.Repo, change.Description)); err != nil {
+			return "", fmt.Errorf("write change: %w", err)
+		}
 
 		seen[change.Repo] = struct{}{}
 	}
