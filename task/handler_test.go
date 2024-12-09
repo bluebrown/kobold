@@ -26,7 +26,7 @@ func TestGetCommitMessage(t *testing.T) {
 					},
 				},
 			},
-			want:    "chore(kobold):\n * busybox: busybox:1.0.0 -> busybox:1.0.1",
+			want:    "chore(kobold): Update image refs\n * busybox: busybox:1.0.0 -> busybox:1.0.1",
 			wantErr: false,
 		},
 		{
@@ -43,7 +43,7 @@ func TestGetCommitMessage(t *testing.T) {
 					},
 				},
 			},
-			want:    "chore(kobold):\n * busybox: busybox:1.0.0 -> busybox:1.0.1\n * somerepo: somerepo:2.0.0 -> somerepo:2.0.1",
+			want:    "chore(kobold): Update image refs\n * busybox: busybox:1.0.0 -> busybox:1.0.1\n * somerepo: somerepo:2.0.0 -> somerepo:2.0.1",
 			wantErr: false,
 		},
 		{
@@ -60,7 +60,7 @@ func TestGetCommitMessage(t *testing.T) {
 					},
 				},
 			},
-			want:    "chore(kobold):\n * busybox: busybox:1.0.0 -> busybox:1.0.1",
+			want:    "chore(kobold): Update image refs\n * busybox: busybox:1.0.0 -> busybox:1.0.1",
 			wantErr: false,
 		},
 	}
