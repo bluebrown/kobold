@@ -71,7 +71,7 @@ func commitMessage(changes []krm.Change) (string, error) {
 	seen := make(map[string]struct{})
 
 	msg := strings.Builder{}
-	if _, err := msg.WriteString("chore(kobold):\n"); err != nil {
+	if _, err := msg.WriteString("chore(kobold): Update image refs\n"); err != nil {
 		return "", fmt.Errorf("write header: %w", err)
 	}
 
