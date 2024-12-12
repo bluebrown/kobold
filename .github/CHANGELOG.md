@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.2](https://github.com/bluebrown/kobold/compare/v0.4.1...v0.4.2) (2024-12-12)
+
+
+### Bug Fixes
+
+* Main commit message ([#72](https://github.com/bluebrown/kobold/issues/72)) ([eb1cfc6](https://github.com/bluebrown/kobold/commit/eb1cfc6b1f4c42ae81429b84830ceeaf0c52fe0d))
+
 ## [0.4.1](https://github.com/bluebrown/kobold/compare/v0.4.0...v0.4.1) (2024-10-09)
 
 
