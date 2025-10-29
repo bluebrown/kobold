@@ -21,6 +21,8 @@ func Configure(ctx context.Context, opts Options, schemas ...[]byte) (*model.Que
 		return nil, fmt.Errorf("open sqlite db %q: %w", sqliteDSN, err)
 	}
 
+	db.SetMaxOpenConns(1)
+
 	if opts.Config != "" || opts.Confd != "" {
 		slog.InfoContext(ctx, "db config purge", "reason", "config file(s) provided")
 		schemas = append(schemas, ksql.CleanConfig)
