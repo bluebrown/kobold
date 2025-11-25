@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.3](https://github.com/bluebrown/kobold/compare/v0.4.2...v0.4.3) (2025-11-25)
+
+
+### Bug Fixes
+
+* **sql:** set max conn to 1 ([#74](https://github.com/bluebrown/kobold/issues/74)) ([48aa0e7](https://github.com/bluebrown/kobold/commit/48aa0e76eb8c862dd20d2e344877f75f5a3bc182))
+
 ## [0.4.2](https://github.com/bluebrown/kobold/compare/v0.4.1...v0.4.2) (2024-12-12)
 
 
