@@ -10,7 +10,6 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/schema v1.2.1
-	github.com/mitchellh/mapstructure v1.5.0
 	github.com/prometheus/client_golang v1.18.0
 	github.com/qri-io/starlib v0.5.0
 	github.com/swaggo/http-swagger/v2 v2.0.2
@@ -20,7 +19,6 @@ require (
 	golang.org/x/sync v0.5.0
 	modernc.org/sqlite v1.28.0
 	sigs.k8s.io/kustomize/kyaml v0.16.0
-	sigs.k8s.io/yaml v1.4.0
 )
 
 require (
@@ -31,7 +29,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
-	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/dustmop/soup v1.1.2-0.20190516214245-38228baa104e // indirect
@@ -73,7 +70,6 @@ require (
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
@@ -90,4 +86,5 @@ require (
 	modernc.org/opt v0.1.3 // indirect
 	modernc.org/strutil v1.2.0 // indirect
 	modernc.org/token v1.0.1 // indirect
+	sigs.k8s.io/yaml v1.4.0 // indirect
 )
