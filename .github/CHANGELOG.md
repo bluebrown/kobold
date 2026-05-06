@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.4](https://github.com/bluebrown/kobold/compare/v0.4.3...v0.4.4) (2026-05-06)
+
+
+### Bug Fixes
+
+* **handler:** ensure lastChange is preserved and improve commit message handling ([#77](https://github.com/bluebrown/kobold/issues/77)) ([3ab9ed9](https://github.com/bluebrown/kobold/commit/3ab9ed9d75622dd3d7742cd5b3b2bbc0d1f25dfe))
+
 ## [0.4.3](https://github.com/bluebrown/kobold/compare/v0.4.2...v0.4.3) (2025-11-25)
 
 
