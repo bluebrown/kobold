@@ -8,9 +8,9 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 )
 
-func DefaultNodeHandler(_, curr, next string, opts Options) (string, Change, error) {
+func DefaultNodeHandler(_, curr, next string, opts Options) (string, Change, bool, error) {
 	if curr == next {
-		return curr, Change{}, nil
+		return curr, Change{}, false, nil
 	}
 
 	rawRef := curr
@@ -23,29 +23,29 @@ func DefaultNodeHandler(_, curr, next string, opts Options) (string, Change, err
 
 	oldRef, err := name.ParseReference(rawRef)
 	if err != nil {
-		return curr, Change{}, err
+		return curr, Change{}, false, err
 	}
 
 	newRef, digest, err := ParseImageRefWithDigest(next)
 	if err != nil {
-		return curr, Change{}, err
+		return curr, Change{}, false, err
 	}
 
 	if oldRef.Context().Name() != newRef.Context().Name() {
-		return curr, Change{}, nil
+		return curr, Change{}, false, nil
 	}
 
 	ok, err := MatchTag(newRef.Identifier(), opts)
 	if err != nil {
-		return curr, Change{}, err
+		return curr, Change{}, false, err
 	}
 
 	if !ok {
-		return curr, Change{}, nil
+		return curr, Change{}, false, nil
 	}
 
 	if _, err := name.ParseReference(next); err != nil {
-		return curr, Change{}, err
+		return curr, Change{}, false, err
 	}
 
 	c := Change{
@@ -56,26 +56,26 @@ func DefaultNodeHandler(_, curr, next string, opts Options) (string, Change, err
 
 	switch opts.Part {
 	case "":
-		return next, c, nil
+		return next, c, true, nil
 
 	case PartTag:
-		return newRef.Identifier(), c, nil
+		return newRef.Identifier(), c, true, nil
 
 	case PartDigest:
-		return digest, c, nil
+		return digest, c, true, nil
 
 	case PartTagDigest:
-		return strings.TrimSuffix(fmt.Sprintf("%s@%s", newRef.Identifier(), digest), "@"), c, nil
+		return strings.TrimSuffix(fmt.Sprintf("%s@%s", newRef.Identifier(), digest), "@"), c, true, nil
 
 	default:
-		return curr, Change{}, fmt.Errorf("unknown part: %s", opts.Part)
+		return curr, Change{}, false, fmt.Errorf("unknown part: %s", opts.Part)
 	}
 
 }
 
 const CommentPrefix = "# kobold:"
 
-type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, Change, error)
+type NodeHandler func(key, currentRef, nextRef string, opts Options) (string, Change, bool, error)
 
 type ImageRefUpdateFilter struct {
 	handler   NodeHandler
@@ -123,13 +123,16 @@ func (i *ImageRefUpdateFilter) Filter(nodes []*yaml.RNode) ([]*yaml.RNode, error
 		lastChange := Change{}
 
 		for _, imageRef := range i.imageRefs {
-			v, change, err := i.handler(mn.Key.YNode().Value, mn.Value.YNode().Value, imageRef, opts)
+			v, change, changed, err := i.handler(mn.Key.YNode().Value, mn.Value.YNode().Value, imageRef, opts)
 			if err != nil {
 				i.Warnings = append(i.Warnings, fmt.Sprintf("failed to update image ref %q: %v", imageRef, err))
 				continue
 			}
-			mn.Value.YNode().Value = v
-			lastChange = change
+
+			if changed {
+				mn.Value.YNode().Value = v
+				lastChange = change
+			}
 		}
 
 		if originalValue != mn.Value.YNode().Value {

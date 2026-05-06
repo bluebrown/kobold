@@ -354,3 +354,35 @@ func Test_renderer_Render(t *testing.T) {
 		})
 	}
 }
+
+// Test_lastChange_preserved verifies that when a YAML node is evaluated against
+// multiple image refs and only one matches, the resulting Change is not
+// overwritten by the empty Change from the non-matching refs.
+func Test_lastChange_preserved(t *testing.T) {
+	t.Parallel()
+
+	// The "kube" testdata has a node pinned to "latest". We pass two refs:
+	// one that matches (nginx:latest) and one that does not (busybox:latest).
+	// The bug caused the Change from the matching ref to be overwritten by
+	// the empty Change from the non-matching ref.
+	_, changes, _, err := testPipe("kube",
+		"test.azurecr.io/nginx:latest@sha256:82becede498899ec668628e7cb0ad87b6e1c371cb8a1e597d83a47fac21d6af3",
+		"test.azurecr.io/busybox:latest@sha256:220611111e8c9bbe242e9dc1367c0fa89eef83f26203ee3f7c3764046e02b248",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(changes) == 0 {
+		t.Fatal("expected at least one change, got none")
+	}
+
+	for i, c := range changes {
+		if c.Description == "" {
+			t.Errorf("change[%d]: Description is empty (lastChange was overwritten by a non-matching ref)", i)
+		}
+		if c.Repo == "" {
+			t.Errorf("change[%d]: Repo is empty", i)
+		}
+	}
+}
