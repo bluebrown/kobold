@@ -42,6 +42,10 @@ type Pool struct {
 	cancel     context.CancelFunc
 	size       int
 	cache      *git.RepoCache
+	// pushLocks serializes the handler (fetch→commit→push) per repo:ref pair,
+	// preventing concurrent goroutines from racing on the same remote branch.
+	pushLocks sync.Map
+
 }
 
 func NewPool(ctx context.Context, size int, queries *model.Queries) *Pool {
@@ -146,6 +150,13 @@ func (p *Pool) Dispatch() error {
 				reason string
 				warns  []string
 			)
+
+			// Serialize the full handler execution per repo:ref to prevent
+			// concurrent goroutines from racing on git push to the same branch.
+			lockKey := g.RepoUri.Repo + ":" + g.RepoUri.Ref
+			mu, _ := p.pushLocks.LoadOrStore(lockKey, &sync.Mutex{})
+			mu.(*sync.Mutex).Lock()
+			defer mu.(*sync.Mutex).Unlock()
 
 			if path, err := p.cache.Get(p.ctx, ns, g.RepoUri.Repo); err == nil && p.handler != nil {
 				warns, err = p.handler(p.ctx, path, g, p.hookRunner)

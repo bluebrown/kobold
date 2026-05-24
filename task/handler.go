@@ -22,6 +22,13 @@ func KoboldHandler(ctx context.Context, cache string, g model.TaskGroup, runner 
 		msg      string
 	)
 
+	// Refresh the source ref to ensure we have the latest remote state.
+	// This is critical when multiple tasks target the same repo+ref,
+	// to avoid stale local state that causes push rejections.
+	if err := git.Refresh(ctx, cache, g.RepoUri.Ref); err != nil {
+		return nil, fmt.Errorf("git refresh: %#q => %#q: %w", g.RepoUri.Repo, g.RepoUri.Ref, err)
+	}
+
 	if err := git.Switch(ctx, cache, g.RepoUri.Ref); err != nil {
 		return nil, fmt.Errorf("git switch: %#q => %#q: %w", g.RepoUri.Repo, g.RepoUri.Ref, err)
 	}

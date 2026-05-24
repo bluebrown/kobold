@@ -58,6 +58,16 @@ func Ensure(ctx context.Context, dir, uri string, refs ...string) error {
 	return nil
 }
 
+// refresh fetches the latest state of a ref from origin (shallow, depth 1).
+// This should be called before updating a ref that may have been modified
+// by other concurrent tasks, to avoid stale local state.
+func Refresh(ctx context.Context, dir, ref string) error {
+	if err := FetchShallow(ctx, dir, ref); err != nil {
+		return fmt.Errorf("git fetch refresh: %w", err)
+	}
+	return nil
+}
+
 // switch to ref. This should be called after Ensure
 // to get a writeable branch.
 func Switch(ctx context.Context, dir, ref string) error {
